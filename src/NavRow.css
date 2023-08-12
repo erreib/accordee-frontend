@@ -6,6 +6,7 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.5s ease-in-out;
+    font-size: 24px; /* Default font size */
   }
   
   .navRow:hover {
@@ -14,9 +15,11 @@
   
   .navRow.shrink {
     flex: 0.2;  /* Adjusting the flex value to make the row shorter when shrunk */
+    font-size: 14px; /* Smaller font size when shrunk */
   }
   
   .navRow.selected {
     flex: .6; /* This makes the selected row take more space than the default state */
+    font-size: 24px; /* Default font size when selected */
   }
   
