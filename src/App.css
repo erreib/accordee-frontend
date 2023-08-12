@@ -4,3 +4,25 @@
   flex-direction: column;
   height: 100vh;
 }
+
+.customization-container {
+  margin-top: 50px; /* Adjust this value to move the field down as much as you like */
+}
+
+.customize-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none; /* Removes underline */
+  font-weight: bold;
+}
+
+.customize-button:hover {
+  background-color: #0056b3;
+}
