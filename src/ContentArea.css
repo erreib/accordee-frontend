@@ -1,0 +1,17 @@
+/* src/ContentArea.css */
+.contentArea {
+    flex: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  }
+  
+  .contentArea.active {
+    max-height: 80vh; /* Adjust this value as needed based on your content */
+    opacity: 1;
+  }
+  
