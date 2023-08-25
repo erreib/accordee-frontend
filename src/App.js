@@ -1,28 +1,37 @@
 // src/App.js
-import React, { useState, useEffect } from 'react'; // Add useEffect here if you intend to use it
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom'; // Add useLocation
+import axios from 'axios'; // Import axios
 import NavRow from './NavRow';
 import ContentArea from './ContentArea';
 import Customization from './Customization';
 import './App.css';
 
 function App() {
-  const sections = [
-    { title: 'Section 1', color: '#FFCDD2' },
-    { title: 'Section 2', color: '#C8E6C9' },
-    { title: 'Section 3', color: '#BBDEFB' },
-    { title: 'Section 4', color: '#D1C4E9' },
-  ];
 
   const [selectedSection, setSelectedSection] = useState(null);
   const [title, setTitle] = useState('Loading...'); // Initial loading state
+  const [sections, setSections] = useState([]); // Initialize as empty array
+  const [refreshKey, setRefreshKey] = useState(0); // Initialize to 0
 
   useEffect(() => {
-    fetch('http://localhost:5000/title')
+    axios.get('http://localhost:5000/title').then((response) => {
+      if (response.data && response.data.title) {
+        setTitle(response.data.title);
+      }
+    });
+
+    // Fetch data from your server when the component mounts
+    fetch("http://localhost:5000/sections")
       .then((response) => response.json())
-      .then((data) => setTitle(data.title || 'Default Title')) // Directly access the title property
-      .catch((error) => console.error('Error:', error));
-  }, []);
+      .then((data) => {
+        const fetchedSections = data.sections; // Here, we extract the 'sections' array from the fetched data
+        if (Array.isArray(fetchedSections)) {
+          setSections(fetchedSections);
+        }
+      })
+      .catch((error) => console.error("Error fetching data: ", error));
+    }, [refreshKey]); // Now useEffect runs whenever refreshKey changes
 
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -53,10 +62,15 @@ function App() {
   function CustomizeButton() {
     const location = useLocation();
     const isCustomizePage = location.pathname === '/customize';
+    const handleClick = () => {
+      setRefreshKey((prevKey) => prevKey + 1); // Increment refreshKey to trigger data fetching
+    };
+  
     return (
       <Link
         to={isCustomizePage ? '/' : '/customize'}
         className="customize-button"
+        onClick={handleClick}
       >
         {isCustomizePage ? 'View Page' : 'Customize'}
       </Link>
@@ -71,7 +85,12 @@ function App() {
           <Route path="/customize" element={<Customization title={title} setTitle={setTitle} />} />
           <Route path="/" element={
             <div className="app">
-            <NavRow title={title} color="#B0BEC5" onSelect={() => setSelectedSection(null)} isShrinked={selectedSection !== null} />
+              <NavRow 
+                title={title} 
+                color="#B0BEC5" 
+                onSelect={() => setSelectedSection(null)} 
+                isShrinked={selectedSection !== null} 
+              />
               {sections.map((section, index) => (
                 <React.Fragment key={index}>
                   <NavRow
@@ -81,17 +100,20 @@ function App() {
                     isShrinked={selectedSection !== null && selectedSection !== index}
                     isSelected={selectedSection === index}
                   />
-                  <ContentArea section={section.title} color={section.color} isActive={selectedSection === index} />
+                  <ContentArea 
+                    section={section.title} 
+                    color={section.color} 
+                    isActive={selectedSection === index} 
+                  />
                 </React.Fragment>
               ))}
-            </div>      
+            </div>
           } />
         </Routes>
       </div>
     </Router>
   );
-  
-}
+  }
 
 export default App;
 

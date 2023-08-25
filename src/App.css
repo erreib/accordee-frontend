@@ -26,3 +26,12 @@
 .customize-button:hover {
   background-color: #0056b3;
 }
+
+.section-preview {
+  display: flex;
+  align-items: center;
+}
+
+.section-preview button {
+  margin-left: 10px;
+}
