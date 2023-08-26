@@ -1,11 +1,24 @@
 // src/App.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom'; // Add useLocation
 import axios from 'axios'; // Import axios
 import NavRow from './NavRow';
 import ContentArea from './ContentArea';
 import Customization from './Customization';
+import Signup from './Signup';
+import Dashboard from './Dashboard';
+import DashboardEditor from './DashboardEditor';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import './App.css';
+
+// Place usePrevious function here
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
 
 function App() {
 
@@ -62,9 +75,13 @@ function App() {
   function CustomizeButton() {
     const location = useLocation();
     const isCustomizePage = location.pathname === '/customize';
+    const isRoot = location.pathname === '/';
+    
     const handleClick = () => {
       setRefreshKey((prevKey) => prevKey + 1); // Increment refreshKey to trigger data fetching
     };
+  
+    if (!isRoot && !isCustomizePage) return null;
   
     return (
       <Link
@@ -76,44 +93,105 @@ function App() {
       </Link>
     );
   }
+  
+  function SignupButton() {
+    const location = useLocation();
+    const isSignupPage = location.pathname === '/signup';
+    const isRoot = location.pathname === '/';
+    const isCustomizePage = location.pathname === '/customize';  // Define it here too
+  
+    if (!isRoot && !isCustomizePage) return null;
+  
+    return (
+      <Link
+        to={isSignupPage ? '/' : '/signup'}
+        className="signup-button"
+      >
+        {isSignupPage ? 'Go to Home' : 'Signup'}
+      </Link>
+    );
+  }
 
+  function AnimatedSwitch() {
+    const location = useLocation();
+    const prevLocation = usePrevious(location) || location; // set a default value
+    
+    let key = location.pathname;
+    let classNames = 'slide';
+    
+    // Only determine slide direction based on location change if prevLocation exists
+    if (prevLocation && location.pathname !== prevLocation.pathname) {
+      const goingToEdit = location.pathname.includes('/edit');
+      const comingFromEdit = prevLocation.pathname.includes('/edit');
+  
+      // If going to edit screen, slide to the left; otherwise, slide to the right
+      const slideDirection = goingToEdit && !comingFromEdit ? 'Left' : 'Right';
+      classNames += slideDirection;
+    } else {
+      // Default case to handle the first render
+      classNames += 'Left'; // or whichever you prefer as default
+    }
+    
+    return (
+      <TransitionGroup className="transition-group">
+        <CSSTransition key={key} classNames={classNames} timeout={{ enter: 300, exit: 300 }}>
+          <section className="route-section">
+            <Routes location={location}>
+              <Route path="/dashboard/:username/edit" element={<DashboardEditor />} />
+              <Route path="/dashboard/:username" element={<Dashboard />} />
+            </Routes>
+          </section>
+        </CSSTransition>
+      </TransitionGroup>
+    );
+  }
+    
+  
+  
+      
   return (
     <Router>
-      <div>
-        <CustomizeButton />
-        <Routes>
-          <Route path="/customize" element={<Customization title={title} setTitle={setTitle} />} />
-          <Route path="/" element={
-            <div className="app">
-              <NavRow 
-                title={title} 
-                color="#B0BEC5" 
-                onSelect={() => setSelectedSection(null)} 
-                isShrinked={selectedSection !== null} 
-              />
-              {sections.map((section, index) => (
-                <React.Fragment key={index}>
-                  <NavRow
-                    title={section.title}
-                    color={section.color}
-                    onSelect={() => setSelectedSection(index)}
-                    isShrinked={selectedSection !== null && selectedSection !== index}
-                    isSelected={selectedSection === index}
-                  />
-                  <ContentArea 
-                    section={section.title} 
-                    color={section.color} 
-                    isActive={selectedSection === index} 
-                  />
-                </React.Fragment>
-              ))}
-            </div>
-          } />
-        </Routes>
-      </div>
+      <AnimatedSwitch />
+      <CustomizeButton />
+      <SignupButton />
+      <Routes>
+        <Route path="/customize" element={<Customization title={title} setTitle={setTitle} />} />
+        <Route path="/signup" element={<Signup />} />
+        
+        {/* <Route path="/dashboard/:username" element={<Dashboard />} />
+        <Route path="/dashboard/:username/edit" element={<DashboardEditor />} /> */}
+
+        <Route path="/" element={
+          <div className="app">
+            <NavRow 
+              title={title} 
+              color="#B0BEC5" 
+              onSelect={() => setSelectedSection(null)} 
+              isShrinked={selectedSection !== null} 
+            />
+            {sections.map((section, index) => (
+              <React.Fragment key={index}>
+                <NavRow
+                  title={section.title}
+                  color={section.color}
+                  onSelect={() => setSelectedSection(index)}
+                  isShrinked={selectedSection !== null && selectedSection !== index}
+                  isSelected={selectedSection === index}
+                />
+                <ContentArea 
+                  section={section.title} 
+                  color={section.color} 
+                  isActive={selectedSection === index} 
+                />
+              </React.Fragment>
+            ))}
+          </div>
+        } />
+      </Routes>
     </Router>
   );
-  }
+}
+
 
 export default App;
 

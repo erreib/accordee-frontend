@@ -5,7 +5,7 @@
   height: 100vh;
 }
 
-.customization-container {
+.customization-container,.signup-container {
   margin-top: 50px; /* Adjust this value to move the field down as much as you like */
 }
 
@@ -23,6 +23,23 @@
   font-weight: bold;
 }
 
+.signup-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  z-index: 10; 
+}
+
 .customize-button:hover {
   background-color: #0056b3;
 }
@@ -34,4 +51,78 @@
 
 .section-preview button {
   margin-left: 10px;
+}
+
+.user-dashboard-container {
+  position: relative;  /* Make this a positioning context */
+}
+
+.floating-button-container {
+  position: absolute;  /* Absolute positioning */
+  top: 0;
+  right: 0;
+  z-index: 1;  /* Make sure it's on top */
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  background-color: rgba(255, 255, 255, 0.8);  /* Semi-transparent background */
+  padding: 8px;
+  border-radius: 4px;  /* Optional rounded corners */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);  /* Optional shadow */
+}
+
+
+
+
+/* Page animations */
+.slideLeft-enter, .slideRight-enter, .slideLeft-exit, .slideRight-exit {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  opacity: 0;
+  transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
+}
+
+/* When entering from the right */
+.slideRight-enter {
+  transform: translateX(100%);
+  z-index: 1;
+}
+.slideRight-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* When entering from the left */
+.slideLeft-enter {
+  transform: translateX(100%);
+  z-index: 1;
+}
+.slideLeft-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* When exiting to the left */
+.slideLeft-exit {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 0;
+}
+.slideLeft-exit-active {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* When exiting to the right */
+.slideRight-exit {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 0;
+}
+.slideRight-exit-active {
+  transform: translateX(100%);
+  opacity: 0;
 }

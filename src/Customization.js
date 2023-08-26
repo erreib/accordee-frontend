@@ -1,8 +1,8 @@
 // src/Customization.js
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChromePicker } from 'react-color'; // Import color picker
+import './App.css'
 
 function Customization({ title, setTitle, setShouldRefresh }) {
 
