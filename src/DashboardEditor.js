@@ -54,8 +54,6 @@ function DashboardEditor() {
       });
   };
 
-  // Functions and logic from Customization.js
-
   const updateSectionTitleInDB = (index, newTitle) => {
     const newSections = [...sections];
     newSections[index].title = newTitle;
@@ -99,6 +97,22 @@ function DashboardEditor() {
     }
   };
 
+  const moveSection = (fromIndex, toIndex) => {
+    const newSections = [...sections];
+    const [movedItem] = newSections.splice(fromIndex, 1);
+    newSections.splice(toIndex, 0, movedItem);
+    setSections(newSections);
+  
+    // Send updated ordering to the server
+    axios.patch(`http://localhost:5000/dashboard/${username}/sections/reorder`, { newOrder: newSections.map((s, i) => i) })
+      .then((res) => {
+        // Handle success
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
+    
   return (
     <div id="main-container" className="dashboard-editor-container">
 
@@ -111,8 +125,10 @@ function DashboardEditor() {
         <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleTitleChange} />
         <div className="sections-customization">
             <h3>Add/Remove sections</h3>
+            
             {sections.map((section, index) => (
             <div key={index}>
+
                 {isEditing === index ? (
                 <input
                 type="text"
@@ -160,6 +176,11 @@ function DashboardEditor() {
                 />
                 )}
                 <button onClick={() => removeSection(index)}>-</button>
+                
+                <button disabled={index === 0} onClick={() => moveSection(index, index - 1)}>Up</button>
+                <button disabled={index === sections.length - 1} onClick={() => moveSection(index, index + 1)}>Down</button>
+
+
             </div>
             ))}
             <button onClick={addSection}>+</button>
