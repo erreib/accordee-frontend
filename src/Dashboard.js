@@ -3,10 +3,12 @@ import NavRow from './NavRow';
 import ContentArea from './ContentArea';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useUser } from './UserContext';
 import './App.css'
 
 function UserDashboard() {
   const { username } = useParams();
+  const { user } = useUser();  // Get the current user from the context
   const [dashboard, setDashboard] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,11 +37,14 @@ function UserDashboard() {
 
   return (
     <div id="main-container" className="user-dashboard-container">
-      <div className="floating-button-container">
-        <span>User Dashboard for {username}</span>
-        <button onClick={handleEdit}>Edit</button>
-      </div>
 
+      {user && user.username === username && (
+        <div className="floating-button-container">
+          <span>User Dashboard for {username}</span>
+          <button onClick={handleEdit}>Edit</button>
+        </div>
+      )}
+      
       {error && <div>{error}</div>}
 
       {!error && dashboard && (

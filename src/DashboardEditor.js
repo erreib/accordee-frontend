@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams,useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChromePicker } from 'react-color';
-import { CSSTransition } from 'react-transition-group';
 import './App.css'
 
 function DashboardEditor() {
@@ -91,7 +90,6 @@ function DashboardEditor() {
   };
 
   return (
-    <CSSTransition in={true} timeout={300} classNames="transition">
     <div id="main-container" className="dashboard-editor-container">
 
         <div className="floating-button-container">
@@ -157,7 +155,6 @@ function DashboardEditor() {
             <button onClick={addSection}>+</button>
         </div>
     </div>
-    </CSSTransition>
   );
 }
 
