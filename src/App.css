@@ -73,8 +73,11 @@
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);  /* Optional shadow */
 }
 
-
-
+.accordion {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
 /* Page animations */
 .slideLeft-enter, .slideRight-enter, .slideLeft-exit, .slideRight-exit {

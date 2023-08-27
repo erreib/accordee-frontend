@@ -146,9 +146,7 @@ function App() {
     );
   }
     
-  
-  
-      
+
   return (
     <Router>
       <AnimatedSwitch />
