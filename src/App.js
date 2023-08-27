@@ -70,7 +70,10 @@ function UserStatus() {
           <button onClick={handleLogout}>Logout</button>
         </>
       ) : (
-        'Not logged in'
+        <>
+          Not logged in
+          <Link to="/login">Login</Link> {/* Change "/login" to the path of your login page */}
+        </>
       )}
     </div>
   );

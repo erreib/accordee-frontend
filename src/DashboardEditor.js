@@ -1,8 +1,9 @@
 // src/DashboardEditor.js
 import React, { useEffect, useState } from 'react';
-import { useParams,useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChromePicker } from 'react-color';
+import { useUser } from './UserContext';
 import './App.css'
 
 function DashboardEditor() {
@@ -12,11 +13,20 @@ function DashboardEditor() {
   const [pickerIsOpen, setPickerIsOpen] = useState(null);
   const [isEditing, setIsEditing] = useState(null);
   const [newTitle, setNewTitle] = useState('');
+  const { user } = useUser();
   const navigate = useNavigate();
+  const { username: usernameFromURL } = useParams();
 
   const handleBackToDashboard = () => {
     navigate(`/dashboard/${username}`);  // Replace this with the actual path to the user's dashboard
   };
+
+// Redirect if the username from the URL does not match the logged-in user's username
+  useEffect(() => {
+    if (user && user.username !== usernameFromURL) {
+      navigate(`/dashboard/${username}`);
+    }
+  }, [user, usernameFromURL, navigate]);
   
   useEffect(() => {
     axios.get(`http://localhost:5000/dashboard/${username}`)
