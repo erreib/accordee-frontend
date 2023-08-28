@@ -57,6 +57,7 @@ function UserDashboard() {
               onSelect={() => setSelectedSection(null)} 
               isShrinked={selectedSection !== null} 
             />
+            
             {dashboard.sections.map((section, index) => (
               <React.Fragment key={index}>
                 <NavRow
@@ -67,7 +68,7 @@ function UserDashboard() {
                   isSelected={selectedSection === index}
                 />
                 <ContentArea 
-                  section={section.title} 
+                  section={section} // Pass the entire section object, not just the title
                   color={section.color} 
                   isActive={selectedSection === index} 
                 />

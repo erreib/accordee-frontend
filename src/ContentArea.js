@@ -6,9 +6,12 @@ function ContentArea({ section, color, isActive }) {
   const adjustedColor = adjustColor(color);
   const className = isActive ? 'contentArea active' : 'contentArea';
 
+  // Use the content from the section prop, or fallback to the default text
+  const displayContent = section.content || `Content for ${section.title}`;
+
   return (
     <div className={className} style={{ backgroundColor: adjustedColor }}>
-      Content for {section}
+      {displayContent}
     </div>
   );
 }

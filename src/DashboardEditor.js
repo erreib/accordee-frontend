@@ -66,6 +66,18 @@ function DashboardEditor() {
       });
   };
 
+  const updateSectionContentInDB = (index, newContent) => {
+    const newSections = [...sections];
+    newSections[index].content = newContent;
+    axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections })
+        .then(() => {
+            setSections(newSections);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+  };
+
   const addSection = () => {
     const newSection = {
       title: `Section ${sections.length + 1}`,
@@ -141,9 +153,9 @@ function DashboardEditor() {
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 />
-            ) : (
-                <span>{section.title}</span>
-            )}
+                ) : (
+                    <span>{section.title}</span>
+                )}
             {isEditing === index ? (
                 <button
                 onClick={() => {
@@ -181,6 +193,14 @@ function DashboardEditor() {
                     onChangeComplete={(color) => handleColorChange(color, index)}
                 />
                 )}
+
+                <input 
+                  type="text" 
+                  placeholder={`Content for Section ${index + 1}`}
+                  value={section.content}
+                  onChange={(e) => updateSectionContentInDB(index, e.target.value)}
+                />
+
                 <button onClick={() => removeSection(index)}>-</button>
                 
                 <button disabled={index === 0} onClick={() => moveSection(index, index - 1)}>Up</button>
