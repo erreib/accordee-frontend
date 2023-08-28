@@ -101,10 +101,16 @@ function DashboardEditor() {
     const newSections = [...sections];
     const [movedItem] = newSections.splice(fromIndex, 1);
     newSections.splice(toIndex, 0, movedItem);
+  
+    // Update the "order" field for each section
+    newSections.forEach((section, index) => {
+      section.order = index;
+    });
+  
     setSections(newSections);
   
-    // Send updated ordering to the server
-    axios.patch(`http://localhost:5000/dashboard/${username}/sections/reorder`, { newOrder: newSections.map((s, i) => i) })
+    // Send updated ordering to the server (including the new "order" fields)
+    axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections })
       .then((res) => {
         // Handle success
       })
@@ -112,7 +118,7 @@ function DashboardEditor() {
         console.error('Error:', error);
       });
   };
-    
+      
   return (
     <div id="main-container" className="dashboard-editor-container">
 
