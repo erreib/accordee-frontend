@@ -196,7 +196,7 @@ function DashboardEditor() {
 
                 <input 
                   type="text" 
-                  placeholder={`Content for Section ${index + 1}`}
+                  placeholder={`Content for ${section.title}`}
                   value={section.content}
                   onChange={(e) => updateSectionContentInDB(index, e.target.value)}
                 />
