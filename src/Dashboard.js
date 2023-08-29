@@ -16,19 +16,29 @@ function UserDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/dashboard/${username}`)
-      .then((response) => {
-        setDashboard(response.data.dashboard);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError('User not found or other error');
-        setLoading(false);
-      });
+    // Check if the username parameter is valid before making the API request
+    if (username) {
+      axios.get(`http://localhost:5000/${username}`)
+        .then((response) => {
+          setDashboard(response.data.dashboard);
+          setLoading(false);
+          setError(null); // Clear any previous error
+        })
+        .catch((err) => {
+          console.error('API error:', err);
+          if (err.response && err.response.status !== 404) {
+            setError('User not found or other error');
+          }
+          setLoading(false);
+  
+        });
+    } else {
+      setLoading(false); // No need to load anything if username is not available
+    }
   }, [username]);
-
+  
   const handleEdit = () => {
-    navigate(`/dashboard/${username}/edit`);
+    navigate(`/${username}/edit`);
   };  
 
   if (loading) {

@@ -20,7 +20,7 @@ function Signup() {
 
       if (response.status === 201) {
         // setMessage('User successfully created');
-        navigate(`/dashboard/${username}`);
+        navigate(`/${username}`);
       }
     } catch (error) {
       if (error.response) {

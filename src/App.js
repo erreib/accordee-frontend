@@ -37,8 +37,8 @@ function AnimatedSwitch() {
       >
         <section className="route-section" style={{ position: 'absolute', width: '100%', top: 0 }}>
           <Routes>
-            <Route path="/dashboard/:username/edit" element={<DashboardEditor />} />
-            <Route path="/dashboard/:username" element={<Dashboard />} />
+            <Route path=":username/edit" element={<DashboardEditor />} />
+            <Route path=":username" element={<Dashboard />} />
           </Routes>
         </section>
       </CSSTransition>
@@ -87,8 +87,8 @@ function App() {
         <SignupButton />
         <UserStatus />
         <Routes>
-          <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<div>Accordion Project</div>} />
         </Routes>
       </Router>

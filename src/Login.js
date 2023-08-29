@@ -1,21 +1,28 @@
+// src/Login.js
+import React, { useState } from 'react';
 import axios from 'axios';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useUser } from './UserContext';
 
-const Login = () => {
-  const navigate = useNavigate();  // Use the navigate function
+import { useNavigate } from 'react-router-dom';
+
+function Login() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
   const { setUser, setToken } = useUser();
   const [error, setError] = useState(null);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const username = event.target.username.value;
-    const password = event.target.password.value;
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { username, password });
-      const { userId, token } = response.data;
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        username,
+        password,
+      });
+
+      // Assume the server sends a token upon successful login
+      const { userId, token } = response.data.token;
 
       setUser({
         id: userId,
@@ -30,23 +37,30 @@ const Login = () => {
 
       setError(null);
 
-      navigate(`/dashboard/${username}`);  // Navigate to the user-specific dashboard
+      // Navigate to the user's dashboard (replace 'username' with the actual username)
+      navigate(`/${username}`);
     } catch (error) {
-      console.error('Error logging in:', error);
+      console.error('Login error:', error);
       setError('Invalid username or password');
     }
   };
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <input name="username" placeholder="Username" />
-        <input name="password" type="password" placeholder="Password" />
+      <h2>Login</h2>
+      <form onSubmit={handleLogin}>
+        <div>
+          <label>Username:</label>
+          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
         <button type="submit">Login</button>
       </form>
-      {error && <p className="error">{error}</p>}
     </div>
   );
-};
+}
 
 export default Login;

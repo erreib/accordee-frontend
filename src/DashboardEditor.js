@@ -19,18 +19,18 @@ function DashboardEditor() {
   const [debounceTimer, setDebounceTimer] = useState(null);
   
   const handleBackToDashboard = () => {
-    navigate(`/dashboard/${username}`);  // Replace this with the actual path to the user's dashboard
+    navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
   };
 
 // Redirect if the username from the URL does not match the logged-in user's username
   useEffect(() => {
     if (user && user.username !== usernameFromURL) {
-      navigate(`/dashboard/${username}`);
+      navigate(`/${username}`);
     }
   }, [user, usernameFromURL, navigate]);
   
   useEffect(() => {
-    axios.get(`http://localhost:5000/dashboard/${username}`)
+    axios.get(`http://localhost:5000/${username}`)
       .then((response) => {
         setDashboard(response.data.dashboard);
         setSections(response.data.dashboard.sections);
@@ -49,7 +49,7 @@ function DashboardEditor() {
   };
 
   const updateTitleInDB = (newTitle) => {
-    axios.post(`http://localhost:5000/dashboard/${username}/update`, { title: newTitle })
+    axios.post(`http://localhost:5000/${username}/update`, { title: newTitle })
       .catch((error) => {
         console.error('Error:', error);
       });
@@ -58,7 +58,7 @@ function DashboardEditor() {
   const updateSectionTitleInDB = (index, newTitle) => {
     const newSections = [...sections];
     newSections[index].title = newTitle;
-    axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections })
+    axios.post(`http://localhost:5000/${username}/sections`, { sections: newSections })
       .then(() => {
         setSections(newSections);
       })
@@ -79,7 +79,7 @@ function DashboardEditor() {
     }
   
     const newTimer = setTimeout(() => {
-      axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections })
+      axios.post(`http://localhost:5000/${username}/sections`, { sections: newSections })
         .then(() => {
           // Database successfully updated
         })
@@ -99,20 +99,20 @@ function DashboardEditor() {
     };
     const newSections = [...sections, newSection];
     setSections(newSections);
-    axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections });
+    axios.post(`http://localhost:5000/${username}/sections`, { sections: newSections });
   };
 
   const removeSection = (index) => {
     const newSections = sections.filter((_, i) => i !== index);
     setSections(newSections);
-    axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections });
+    axios.post(`http://localhost:5000/${username}/sections`, { sections: newSections });
   };
 
   const handleColorChange = (color, index) => {
     const newSections = [...sections];
     newSections[index].color = color.hex;
     setSections(newSections);
-    axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections });
+    axios.post(`http://localhost:5000/${username}/sections`, { sections: newSections });
   };
 
   const togglePicker = (index) => {
@@ -136,7 +136,7 @@ function DashboardEditor() {
     setSections(newSections);
   
     // Send updated ordering to the server (including the new "order" fields)
-    axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections })
+    axios.post(`http://localhost:5000/${username}/sections`, { sections: newSections })
       .then((res) => {
         // Handle success
       })
