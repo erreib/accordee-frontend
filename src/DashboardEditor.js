@@ -16,7 +16,8 @@ function DashboardEditor() {
   const { user } = useUser();
   const navigate = useNavigate();
   const { username: usernameFromURL } = useParams();
-
+  const [debounceTimer, setDebounceTimer] = useState(null);
+  
   const handleBackToDashboard = () => {
     navigate(`/dashboard/${username}`);  // Replace this with the actual path to the user's dashboard
   };
@@ -67,16 +68,29 @@ function DashboardEditor() {
   };
 
   const updateSectionContentInDB = (index, newContent) => {
+    // Step 1: Update local state immediately
     const newSections = [...sections];
     newSections[index].content = newContent;
-    axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections })
+    setSections(newSections);
+  
+    // Step 2: Update the database, but debounce this to reduce the load on your server
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+  
+    const newTimer = setTimeout(() => {
+      axios.post(`http://localhost:5000/dashboard/${username}/sections`, { sections: newSections })
         .then(() => {
-            setSections(newSections);
+          // Database successfully updated
         })
         .catch((error) => {
-            console.error('Error:', error);
+          console.error('Error:', error);
         });
+    }, 300);  // 300 milliseconds delay
+  
+    setDebounceTimer(newTimer);
   };
+    
 
   const addSection = () => {
     const newSection = {
@@ -196,8 +210,8 @@ function DashboardEditor() {
 
                 <input 
                   type="text" 
-                  placeholder={`Content for ${section.title}`}
-                  value={section.content}
+                  placeholder="Enter custom content..." 
+                  value={section.content || ''}
                   onChange={(e) => updateSectionContentInDB(index, e.target.value)}
                 />
 
