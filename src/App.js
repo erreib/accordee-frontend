@@ -11,6 +11,8 @@ import { UserProvider, useUser } from './UserContext';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import './App.css';
 
+// require('dotenv').config(); // Load environment variables from .env file
+
 function SignupButton() {
   const location = useLocation();
   const isSignupPage = location.pathname === '/signup';
