@@ -13,7 +13,7 @@ function Signup() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/signup', {
+      const response = await axios.post('https://clownfish-helmet.cyclic.app/api/auth/signup', {
         username,
         password,
       });

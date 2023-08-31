@@ -18,7 +18,7 @@ function UserDashboard() {
   useEffect(() => {
     // Check if the username parameter is valid before making the API request
     if (username) {
-      axios.get(`http://localhost:3000/${username}`)
+      axios.get(`https://clownfish-helmet.cyclic.app/${username}`)
         .then((response) => {
           setDashboard(response.data.dashboard);
           setLoading(false);
