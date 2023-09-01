@@ -6,6 +6,8 @@ import { ChromePicker } from 'react-color';
 import { useUser } from './UserContext';
 import './App.css'
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
 function DashboardEditor() {
   const { username } = useParams();
   const [dashboard, setDashboard] = useState(null);
@@ -30,7 +32,7 @@ function DashboardEditor() {
   }, [user, usernameFromURL, navigate]);
   
   useEffect(() => {
-    axios.get(`https://clownfish-helmet.cyclic.app/${username}`)
+    axios.get(`${backendUrl}/${username}`)
       .then((response) => {
         setDashboard(response.data.dashboard);
         setSections(response.data.dashboard.sections);
@@ -49,7 +51,7 @@ function DashboardEditor() {
   };
 
   const updateTitleInDB = (newTitle) => {
-    axios.post(`https://clownfish-helmet.cyclic.app/${username}/update`, { title: newTitle })
+    axios.post(`${backendUrl}/${username}/update`, { title: newTitle })
       .catch((error) => {
         console.error('Error:', error);
       });
@@ -58,7 +60,7 @@ function DashboardEditor() {
   const updateSectionTitleInDB = (index, newTitle) => {
     const newSections = [...sections];
     newSections[index].title = newTitle;
-    axios.post(`https://clownfish-helmet.cyclic.app/${username}/sections`, { sections: newSections })
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
       .then(() => {
         setSections(newSections);
       })
@@ -79,7 +81,7 @@ function DashboardEditor() {
     }
   
     const newTimer = setTimeout(() => {
-      axios.post(`https://clownfish-helmet.cyclic.app/${username}/sections`, { sections: newSections })
+      axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
         .then(() => {
           // Database successfully updated
         })
@@ -99,20 +101,20 @@ function DashboardEditor() {
     };
     const newSections = [...sections, newSection];
     setSections(newSections);
-    axios.post(`https://clownfish-helmet.cyclic.app/${username}/sections`, { sections: newSections });
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
   };
 
   const removeSection = (index) => {
     const newSections = sections.filter((_, i) => i !== index);
     setSections(newSections);
-    axios.post(`https://clownfish-helmet.cyclic.app/${username}/sections`, { sections: newSections });
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
   };
 
   const handleColorChange = (color, index) => {
     const newSections = [...sections];
     newSections[index].color = color.hex;
     setSections(newSections);
-    axios.post(`https://clownfish-helmet.cyclic.app/${username}/sections`, { sections: newSections });
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
   };
 
   const togglePicker = (index) => {
@@ -136,7 +138,7 @@ function DashboardEditor() {
     setSections(newSections);
   
     // Send updated ordering to the server (including the new "order" fields)
-    axios.post(`https://clownfish-helmet.cyclic.app/${username}/sections`, { sections: newSections })
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
       .then((res) => {
         // Handle success
       })

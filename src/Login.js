@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useUser } from './UserContext';
-
 import { useNavigate } from 'react-router-dom';
+
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -16,7 +17,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://clownfish-helmet.cyclic.app/api/auth/login', {
+      const response = await axios.post(`${backendUrl}/api/auth/login`, {
         username,
         password,
       });

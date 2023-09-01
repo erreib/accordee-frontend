@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useUser } from './UserContext';
 import './App.css'
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
 function UserDashboard() {
   const { username } = useParams();
   const { user } = useUser();  // Get the current user from the context
@@ -18,7 +20,7 @@ function UserDashboard() {
   useEffect(() => {
     // Check if the username parameter is valid before making the API request
     if (username) {
-      axios.get(`https://clownfish-helmet.cyclic.app/${username}`)
+      axios.get(`${backendUrl}/${username}`)
         .then((response) => {
           setDashboard(response.data.dashboard);
           setLoading(false);
