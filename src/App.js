@@ -11,8 +11,6 @@ import { UserProvider, useUser } from './UserContext';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import './App.css';
 
-// require('dotenv').config(); // Load environment variables from .env file
-
 function SignupButton() {
   const location = useLocation();
   const isSignupPage = location.pathname === '/signup';
@@ -23,28 +21,6 @@ function SignupButton() {
     >
       {isSignupPage ? 'Go to Home' : 'Signup'}
     </Link>
-  );
-}
-
-function AnimatedSwitch() {
-  const location = useLocation();
-  let key = location.pathname.split('/')[1] || '/';
-
-  return (
-    <TransitionGroup className="transition-group" style={{ position: 'relative' }}>
-      <CSSTransition
-        key={key}
-        classNames="slide" // Assuming slide is your transition class
-        timeout={{ enter: 300, exit: 300 }}
-      >
-        <section className="route-section" style={{ position: 'absolute', width: '100%', top: 0 }}>
-          <Routes>
-            <Route path=":username/edit" element={<DashboardEditor />} />
-            <Route path=":username" element={<Dashboard />} />
-          </Routes>
-        </section>
-      </CSSTransition>
-    </TransitionGroup>
   );
 }
 
@@ -78,6 +54,28 @@ function UserStatus() {
         </>
       )}
     </div>
+  );
+}
+
+function AnimatedSwitch() {
+  const location = useLocation();
+  let key = location.pathname.split('/')[1] || '/';
+
+  return (
+    <TransitionGroup className="transition-group" style={{ position: 'relative' }}>
+      <CSSTransition
+        key={key}
+        classNames="slide" // Assuming slide is your transition class
+        timeout={{ enter: 300, exit: 300 }}
+      >
+        <section className="route-section" style={{ position: 'absolute', width: '100%', top: 0 }}>
+          <Routes>
+            <Route path=":username/edit" element={<DashboardEditor />} />
+            <Route path=":username" element={<Dashboard />} />
+          </Routes>
+        </section>
+      </CSSTransition>
+    </TransitionGroup>
   );
 }
 

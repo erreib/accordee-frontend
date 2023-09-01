@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import AccordionLayout from './AccordionLayout';
+import AccordionLayout from './layouts/accordion/AccordionLayout';
+import TabbedLayout from './layouts/tabbed/TabbedLayout';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from './UserContext';
@@ -13,12 +14,17 @@ function UserDashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [selectedSection, setSelectedSection] = useState(null); // Define selectedSection state
+  const [selectedTab, setSelectedTab] = useState(null); // Initialize selectedTab state
+
+  const [layoutChoice, setDashboardLayout] = useState('accordion');
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check if the username parameter is valid before making the API request
     if (username) {
+      // Fetch dashboard data
       axios.get(`${backendUrl}/${username}`)
         .then((response) => {
           setDashboard(response.data.dashboard);
@@ -31,7 +37,16 @@ function UserDashboard() {
             setError('User not found or other error');
           }
           setLoading(false);
+        });
   
+      // Fetch layout preference
+      axios.get(`${backendUrl}/${username}/layout`)
+        .then((response) => {
+          setDashboardLayout(response.data.layout);
+        })
+        .catch((err) => {
+          console.error('API error:', err);
+          // Handle errors related to fetching layout preference here if needed
         });
     } else {
       setLoading(false); // No need to load anything if username is not available
@@ -61,9 +76,13 @@ function UserDashboard() {
       {!error && dashboard && (
         <div>
 
-        <div>
-          <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
-        </div>
+          {layoutChoice === 'accordion' && (
+            <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
+          )}
+
+          {layoutChoice === 'tabbed' && (
+            <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+          )}
 
         </div>
       )}
