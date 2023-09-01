@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChromePicker } from 'react-color';
 import { useUser } from './UserContext';
+import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
 import './App.css'
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -19,6 +20,7 @@ function DashboardEditor() {
   const navigate = useNavigate();
   const { username: usernameFromURL } = useParams();
   const [debounceTimer, setDebounceTimer] = useState(null);
+  const [dashboardLayout, setDashboardLayout] = useState('accordion'); // Initialize with a default layout
   
   const handleBackToDashboard = () => {
     navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
@@ -41,6 +43,28 @@ function DashboardEditor() {
         console.error('An error occurred while fetching data:', error);
       });
   }, [username]);
+
+  useEffect(() => {
+    // Fetch the user's dashboard layout choice from the backend
+    axios.get(`${backendUrl}/${username}/layout`)
+      .then((response) => {
+        setDashboardLayout(response.data.layout);
+      })
+      .catch((error) => {
+        console.error('An error occurred while fetching layout data:', error);
+      });
+  }, [username]);
+
+  const handleLayoutChange = (newLayout) => {
+    // Update the user's dashboard layout choice in the backend
+    axios.post(`${backendUrl}/${username}/layout`, { layout: newLayout })
+      .then(() => {
+        setDashboardLayout(newLayout);
+      })
+      .catch((error) => {
+        console.error('Error updating layout:', error);
+      });
+  };
 
   const handleTitleChange = (event) => {
     const newTitle = event.target.value;
@@ -155,8 +179,12 @@ function DashboardEditor() {
         </div>
 
         <h1>Edit Dashboard for {username}</h1>
+        
+        <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
+
         <label htmlFor="title">Title: </label>
         <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleTitleChange} />
+
         <div className="sections-customization">
             <h3>Add/Remove sections</h3>
             

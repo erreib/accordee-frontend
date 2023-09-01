@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import NavRow from './NavRow';
-import ContentArea from './ContentArea';
+import AccordionLayout from './AccordionLayout';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from './UserContext';
@@ -14,7 +13,7 @@ function UserDashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedSection, setSelectedSection] = useState(null);  // Local state for selected section
+  const [selectedSection, setSelectedSection] = useState(null); // Define selectedSection state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,32 +60,11 @@ function UserDashboard() {
 
       {!error && dashboard && (
         <div>
-          {/* Here is the accordion interface, similar to your main page */}
-          <div className="accordion">
-            <NavRow 
-              title={dashboard.title} 
-              color="#B0BEC5" 
-              onSelect={() => setSelectedSection(null)} 
-              isShrinked={selectedSection !== null} 
-            />
-            
-            {dashboard.sections.map((section, index) => (
-              <React.Fragment key={index}>
-                <NavRow
-                  title={section.title}
-                  color={section.color}
-                  onSelect={() => setSelectedSection(index)}
-                  isShrinked={selectedSection !== null && selectedSection !== index}
-                  isSelected={selectedSection === index}
-                />
-                <ContentArea 
-                  section={section} // Pass the entire section object, not just the title
-                  color={section.color} 
-                  isActive={selectedSection === index} 
-                />
-              </React.Fragment>
-            ))}
-          </div>
+
+        <div>
+          <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
+        </div>
+
         </div>
       )}
     </div>
