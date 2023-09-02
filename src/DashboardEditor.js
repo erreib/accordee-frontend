@@ -21,6 +21,7 @@ function DashboardEditor() {
   const { username: usernameFromURL } = useParams();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [dashboardLayout, setDashboardLayout] = useState('accordion'); // Initialize with a default layout
+  const [selectedFile, setSelectedFile] = useState(null);
   
   const handleBackToDashboard = () => {
     navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
@@ -170,7 +171,40 @@ function DashboardEditor() {
         console.error('Error:', error);
       });
   };
-      
+
+  // Function to handle file selection
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+  };
+
+  // Function to handle file upload
+  const handleFileUpload = () => {
+    if (selectedFile) {
+      // Create a FormData object to send the file
+      const formData = new FormData();
+      formData.append('media', selectedFile);
+
+      // Make a POST request to your upload endpoint
+      fetch(`${backendUrl}/${username}/upload-media`, {
+        method: 'POST',
+        body: formData,
+      })
+        .then((response) => {
+          if (response.ok) {
+            // File uploaded successfully, you can update the UI as needed
+            console.log('File uploaded successfully');
+          } else {
+            console.error('Error uploading file');
+          }
+        })
+        .catch((error) => {
+          console.error('Error uploading file:', error);
+        });
+    }
+  };
+
+
   return (
     <div id="main-container" className="dashboard-editor-container">
 
@@ -200,7 +234,7 @@ function DashboardEditor() {
                 ) : (
                     <span>{section.title}</span>
                 )}
-            {isEditing === index ? (
+                {isEditing === index ? (
                 <button
                 onClick={() => {
                     // Call function to update title in DB here
@@ -211,7 +245,8 @@ function DashboardEditor() {
                 >
                 Save
                 </button>
-            ) : (
+                ) : (
+                
                 <button
                 onClick={() => {
                     setNewTitle(section.title); // set current title to temp state
@@ -220,7 +255,8 @@ function DashboardEditor() {
                 >
                 Edit
                 </button>
-            )}
+                )}
+
                 <button
                 style={{
                     backgroundColor: section.color,
@@ -244,6 +280,9 @@ function DashboardEditor() {
                   value={section.content || ''}
                   onChange={(e) => updateSectionContentInDB(index, e.target.value)}
                 />
+
+                <input type="file" accept="image/*,video/*" onChange={handleFileSelect} />
+                <button onClick={handleFileUpload}>Upload</button>
 
                 <button onClick={() => removeSection(index)}>-</button>
                 
