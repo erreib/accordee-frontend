@@ -22,6 +22,7 @@ function DashboardEditor() {
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [dashboardLayout, setDashboardLayout] = useState('accordion'); // Initialize with a default layout
   const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadedMedia, setUploadedMedia] = useState([]);
   
   const handleBackToDashboard = () => {
     navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
@@ -55,6 +56,31 @@ function DashboardEditor() {
         console.error('An error occurred while fetching layout data:', error);
       });
   }, [username]);
+
+  useEffect(() => {
+    // Fetch the user's uploadedMedia array from the backend
+    axios.get(`${backendUrl}/${username}/uploaded-media`)
+      .then((response) => {
+        setUploadedMedia(response.data.uploadedMedia || []);
+      })
+      .catch((error) => {
+        console.error('An error occurred while fetching uploaded media:', error);
+      });
+  }, [username]);  // The effect will re-run if the username changes
+
+  // New handleDelete function
+  const handleDelete = (url) => {
+    // Make an API call to delete the file
+    axios.delete(`${backendUrl}/${username}/delete-media`, { data: { url } })
+      .then((response) => {
+        // Remove the URL from the uploadedMedia state array
+        const newUploadedMedia = uploadedMedia.filter(item => item !== url);
+        setUploadedMedia(newUploadedMedia);
+      })
+      .catch((error) => {
+        console.error('An error occurred while deleting the file:', error);
+      });
+  };
 
   const handleLayoutChange = (newLayout) => {
     // Update the user's dashboard layout choice in the backend
@@ -172,38 +198,30 @@ function DashboardEditor() {
       });
   };
 
-  // Function to handle file selection
-  const handleFileSelect = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
-  };
-
-  // Function to handle file upload
-  const handleFileUpload = () => {
-    if (selectedFile) {
-      // Create a FormData object to send the file
-      const formData = new FormData();
-      formData.append('media', selectedFile);
-
-      // Make a POST request to your upload endpoint
-      fetch(`${backendUrl}/${username}/upload-media`, {
-        method: 'POST',
-        body: formData,
-      })
-        .then((response) => {
-          if (response.ok) {
-            // File uploaded successfully, you can update the UI as needed
-            console.log('File uploaded successfully');
-          } else {
-            console.error('Error uploading file');
-          }
-        })
-        .catch((error) => {
-          console.error('Error uploading file:', error);
-        });
+  const handleFileUpload = async () => {
+    // Create a FormData object and append the file
+    const formData = new FormData();
+    formData.append('media', selectedFile);
+  
+    // Make the API call to upload the file
+    try {
+      await axios.post(`${backendUrl}/${username}/upload-media`, formData);
+      
+      // After successful upload, construct the new media URL
+      const newMediaUrl = `https://storage.cloud.google.com/accordee-media/${selectedFile.name}`;
+  
+      // Update the uploadedMedia state, but only if the URL is not a duplicate
+      setUploadedMedia(prevState => {
+        if (!prevState.includes(newMediaUrl)) {
+          return [...prevState, newMediaUrl];
+        }
+        return prevState;
+      });
+  
+    } catch (error) {
+      console.error('Error uploading file:', error);
     }
-  };
-
+  };  
 
   return (
     <div id="main-container" className="dashboard-editor-container">
@@ -216,8 +234,23 @@ function DashboardEditor() {
         
         <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
 
-        <label htmlFor="title">Title: </label>
-        <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleTitleChange} />
+        <div><label htmlFor="title">Title: </label>
+        <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleTitleChange} /></div>
+
+        <div>
+        <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])} />
+        <button onClick={handleFileUpload}>Upload</button>
+        
+        <ul>
+          {uploadedMedia.map((url, index) => (
+            <li key={index}>
+              <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+              <button onClick={() => handleDelete(url)}>Delete</button>
+            </li>
+          ))}
+        </ul>
+
+        </div>
 
         <div className="sections-customization">
             <h3>Add/Remove sections</h3>
@@ -280,9 +313,6 @@ function DashboardEditor() {
                   value={section.content || ''}
                   onChange={(e) => updateSectionContentInDB(index, e.target.value)}
                 />
-
-                <input type="file" accept="image/*,video/*" onChange={handleFileSelect} />
-                <button onClick={handleFileUpload}>Upload</button>
 
                 <button onClick={() => removeSection(index)}>-</button>
                 
