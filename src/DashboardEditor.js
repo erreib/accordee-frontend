@@ -208,7 +208,7 @@ function DashboardEditor() {
       await axios.post(`${backendUrl}/${username}/upload-media`, formData);
       
       // After successful upload, construct the new media URL
-      const newMediaUrl = `https://storage.cloud.google.com/accordee-media/${username}/${selectedFile.name}`;
+      const newMediaUrl = `${process.env.GCP_BUCKET_URL}/${username}/${selectedFile.name}`;
   
       // Update the uploadedMedia state, but only if the URL is not a duplicate
       setUploadedMedia(prevState => {
