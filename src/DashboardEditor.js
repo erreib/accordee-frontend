@@ -5,9 +5,10 @@ import axios from 'axios';
 import { ChromePicker } from 'react-color';
 import { useUser } from './UserContext';
 import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
-import './App.css'
+import './App.css';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
 
 function DashboardEditor() {
   const { username } = useParams();
@@ -208,7 +209,7 @@ function DashboardEditor() {
       await axios.post(`${backendUrl}/${username}/upload-media`, formData);
       
       // After successful upload, construct the new media URL
-      const newMediaUrl = `${process.env.GCP_BUCKET_URL}/${username}/${selectedFile.name}`;
+      const newMediaUrl = `${bucketUrl}/${username}/${selectedFile.name}`;
   
       // Update the uploadedMedia state, but only if the URL is not a duplicate
       setUploadedMedia(prevState => {
