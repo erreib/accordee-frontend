@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 function DashboardLayoutSelector({ currentLayout, onChange }) {
   const layoutOptions = [
+    { value: 'basic', label: 'Basic' },
     { value: 'accordion', label: 'Accordion' },
     { value: 'tabbed', label: 'Tabbed' },
     // Add more layout options as needed

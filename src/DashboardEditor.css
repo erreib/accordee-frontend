@@ -1,0 +1,82 @@
+/* Container for the entire editor */
+.editor-container {
+    margin: 2em auto;
+    max-width: 800px;
+    padding: 1em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header styles */
+  .editor-header {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 1em;
+  }
+  
+  /* Layout selector styles */
+  .layout-selector {
+    margin-bottom: 1em;
+  }
+  
+  .layout-selector label {
+    font-weight: bold;
+  }
+  
+  /* Section list styles */
+  .sections-list {
+    margin-top: 1em;
+  }
+  
+  .section-item {
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin: 0.5em 0;
+  }
+  
+  /* Button styles */
+  .button {
+    padding: 0.5em 1em;
+    margin: 0.5em;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+  
+  .button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Style for individual rows in the sections list */
+.section-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1em;
+    margin: 0.5em 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    height:30px;
+}
+  
+  /* Style for buttons within each row */
+  .row-button {
+    padding: 0.5em 1em;
+    margin-left: 0.5em;
+    cursor: pointer;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+  
+  .row-button:hover {
+    background-color: #1976D2;
+  }
+  
+  .disabled-arrow {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  

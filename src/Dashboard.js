@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import AccordionLayout from './layouts/accordion/AccordionLayout';
-import TabbedLayout from './layouts/tabbed/TabbedLayout';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from './UserContext';
 import './App.css'
+
+import AccordionLayout from './layouts/accordion/AccordionLayout';
+import TabbedLayout from './layouts/tabbed/TabbedLayout';
+import BasicLayout from './layouts/basic/BasicLayout'; // Don't forget to import BasicLayout
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -18,7 +20,7 @@ function UserDashboard() {
   const [selectedSection, setSelectedSection] = useState(null); // Define selectedSection state
   const [selectedTab, setSelectedTab] = useState(null); // Initialize selectedTab state
 
-  const [layoutChoice, setDashboardLayout] = useState('accordion');
+  const [layoutChoice, setDashboardLayout] = useState('basic');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,6 +85,9 @@ function UserDashboard() {
           {layoutChoice === 'tabbed' && (
             <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
           )}
+
+          {layoutChoice === 'basic' && 
+            <BasicLayout sections={dashboard.sections} />}
 
         </div>
       )}

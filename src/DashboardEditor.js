@@ -5,7 +5,13 @@ import axios from 'axios';
 import { ChromePicker } from 'react-color';
 import { useUser } from './UserContext';
 import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
+
+import { useAutoAnimate } from '@formkit/auto-animate/react';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
+import './DashboardEditor.css';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
@@ -24,6 +30,7 @@ function DashboardEditor() {
   const [dashboardLayout, setDashboardLayout] = useState('accordion'); // Initialize with a default layout
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadedMedia, setUploadedMedia] = useState([]);
+  const [animationParent] = useAutoAnimate();
   
   const handleBackToDashboard = () => {
     navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
@@ -225,7 +232,7 @@ function DashboardEditor() {
   };  
 
   return (
-    <div id="main-container" className="dashboard-editor-container">
+    <div id="main-container" className="editor-container">
 
         <div className="floating-button-container">
             <button onClick={handleBackToDashboard}>Back to Dashboard</button>
@@ -233,12 +240,13 @@ function DashboardEditor() {
 
         <h1>Edit Dashboard for {username}</h1>
         
-        <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
+        <div className="layout-selector">
+          <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
+        </div>
 
         <div><label htmlFor="title">Title: </label>
         <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleTitleChange} /></div>
 
-        <div>
         <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])} />
         <button onClick={handleFileUpload}>Upload</button>
         
@@ -251,13 +259,12 @@ function DashboardEditor() {
           ))}
         </ul>
 
-        </div>
+        <h3>Add/Remove sections</h3>
 
-        <div className="sections-customization">
-            <h3>Add/Remove sections</h3>
+        <div ref={animationParent} className="sections-list">
             
             {sections.map((section, index) => (
-            <div key={index}>
+              <div className={`section-item`} key={index}>
 
                 {isEditing === index ? (
                 <input
@@ -270,6 +277,7 @@ function DashboardEditor() {
                 )}
                 {isEditing === index ? (
                 <button
+                className="row-button"
                 onClick={() => {
                     // Call function to update title in DB here
                     // setSections to update the section title
@@ -282,6 +290,7 @@ function DashboardEditor() {
                 ) : (
                 
                 <button
+                className="row-button"
                 onClick={() => {
                     setNewTitle(section.title); // set current title to temp state
                     setIsEditing(index); // set to editing mode
@@ -317,13 +326,25 @@ function DashboardEditor() {
 
                 <button onClick={() => removeSection(index)}>-</button>
                 
-                <button disabled={index === 0} onClick={() => moveSection(index, index - 1)}>Up</button>
-                <button disabled={index === sections.length - 1} onClick={() => moveSection(index, index + 1)}>Down</button>
-
+                <button 
+                  className={`row-button ${index === 0 ? 'disabled-arrow' : ''}`} 
+                  disabled={index === 0} 
+                  onClick={() => moveSection(index, index - 1)}
+                >
+                  <FontAwesomeIcon icon={faArrowUp} />
+                </button>
+                <button 
+                  className={`row-button ${index === sections.length - 1 ? 'disabled-arrow' : ''}`} 
+                  disabled={index === sections.length - 1} 
+                  onClick={() => moveSection(index, index + 1)}
+                >
+                  <FontAwesomeIcon icon={faArrowDown} />
+                </button>
 
             </div>
             ))}
-            <button onClick={addSection}>+</button>
+
+            <button className="button" onClick={addSection}>+</button>
         </div>
     </div>
   );
