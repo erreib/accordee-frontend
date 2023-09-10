@@ -26,13 +26,20 @@ function UserDashboard() {
   useEffect(() => {
     // Check if the username parameter is valid before making the API request
     if (username) {
-      // Fetch dashboard data
-      axios.get(`${backendUrl}/${username}`)
-        .then((response) => {
-          setDashboard(response.data.dashboard);
+      // Create an array of API calls
+      const apiCalls = [
+        axios.get(`${backendUrl}/${username}`), // Fetch dashboard data
+        axios.get(`${backendUrl}/${username}/layout`) // Fetch layout preference
+      ];
+  
+      // Execute all API calls concurrently
+      axios.all(apiCalls)
+        .then(axios.spread((dashboardResponse, layoutResponse) => {
+          setDashboard(dashboardResponse.data.dashboard);
+          setDashboardLayout(layoutResponse.data.layout);
           setLoading(false);
           setError(null); // Clear any previous error
-        })
+        }))
         .catch((err) => {
           console.error('API error:', err);
           if (err.response && err.response.status !== 404) {
@@ -40,21 +47,11 @@ function UserDashboard() {
           }
           setLoading(false);
         });
-  
-      // Fetch layout preference
-      axios.get(`${backendUrl}/${username}/layout`)
-        .then((response) => {
-          setDashboardLayout(response.data.layout);
-        })
-        .catch((err) => {
-          console.error('API error:', err);
-          // Handle errors related to fetching layout preference here if needed
-        });
     } else {
       setLoading(false); // No need to load anything if username is not available
     }
   }, [username]);
-  
+    
   const handleEdit = () => {
     navigate(`/${username}/edit`);
   };  
