@@ -1,0 +1,32 @@
+/* SkeletonLoader.css */
+.skeleton-container {
+    display: flex;
+    padding: 20px;
+  }
+  
+  .skeleton-side-menu,
+  .skeleton-header,
+  .skeleton-card {
+    background-color: #eee; /* Light gray */
+  }
+  
+  .skeleton-side-menu {
+    width: 200px;
+    height: 100vh;
+    margin-right: 20px;
+  }
+  
+  .skeleton-main-content {
+    flex-grow: 1;
+  }
+  
+  .skeleton-header {
+    height: 60px;
+    margin-bottom: 20px;
+  }
+  
+  .skeleton-card {
+    height: 200px;
+    margin-bottom: 20px;
+  }
+  
