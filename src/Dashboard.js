@@ -57,7 +57,7 @@ function UserDashboard() {
     navigate(`/${username}/edit`);
   };
 
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false); //Turn initial loading state for user dashboard on or off by setting true or false
 
   useEffect(() => {
     // Set isLoading to false when data is fetched
