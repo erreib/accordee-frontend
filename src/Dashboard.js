@@ -57,7 +57,6 @@ function UserDashboard() {
   const [isLoading, setIsLoading] = useState(true); //Turn initial loading state for user dashboard on or off by setting true or false
 
   return (
-    <>
         <Suspense fallback={<SpinnerLoader />}>
           <div id="main-container" className="user-dashboard-container">
           {user && user.username === username && (
@@ -83,8 +82,6 @@ function UserDashboard() {
           )}
         </div>
       </Suspense>
-      )}
-    </>
   );
 
 }
