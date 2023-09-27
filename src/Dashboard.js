@@ -57,7 +57,6 @@ function UserDashboard() {
   const [isLoading, setIsLoading] = useState(true); //Turn initial loading state for user dashboard on or off by setting true or false
 
   return (
-        <Suspense fallback={<SpinnerLoader />}>
           <div id="main-container" className="user-dashboard-container">
           {user && user.username === username && (
             <div className="floating-button-container">
@@ -70,18 +69,27 @@ function UserDashboard() {
     
           {!error && dashboard && (
             <div>
-              {layoutChoice === 'accordion' && (
-                <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
-              )}
-              {layoutChoice === 'tabbed' && (
-                <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
-              )}
-              {layoutChoice === 'basic' && 
-                <BasicLayout sections={dashboard.sections} />}
+
+              <Suspense fallback={<SpinnerLoader />}>
+                {layoutChoice === 'accordion' && (
+                  <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
+                )}
+              </Suspense>
+
+              <Suspense fallback={<SpinnerLoader />}>
+                {layoutChoice === 'tabbed' && (
+                  <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+                )}
+              </Suspense>
+
+              <Suspense fallback={<SpinnerLoader />}>
+                {layoutChoice === 'basic' && 
+                  <BasicLayout sections={dashboard.sections} />}
+              </Suspense>
+
             </div>
           )}
         </div>
-      </Suspense>
   );
 
 }
