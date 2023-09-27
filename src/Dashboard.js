@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from './UserContext';
 import './App.css'
-
-import AccordionLayout from './layouts/accordion/AccordionLayout';
-import TabbedLayout from './layouts/tabbed/TabbedLayout';
-import BasicLayout from './layouts/basic/BasicLayout';
 import SpinnerLoader from './loaders/SpinnerLoader';
+
+const AccordionLayout = lazy(() => import('./layouts/accordion/AccordionLayout'));
+const TabbedLayout = lazy(() => import('./layouts/tabbed/TabbedLayout'));
+const BasicLayout = lazy(() => import('./layouts/basic/BasicLayout'));
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -58,32 +58,31 @@ function UserDashboard() {
 
   return (
     <>
-      {isLoading ? (
-        <SpinnerLoader />
-      ) : (
-        <div id="main-container" className="user-dashboard-container">
-        {user && user.username === username && (
-          <div className="floating-button-container">
-            <span>User Dashboard for {username}</span>
-            <button onClick={handleEdit}>Edit</button>
-          </div>
-        )}
-        
-        {error && <div>{error}</div>}
-  
-        {!error && dashboard && (
-          <div>
-            {layoutChoice === 'accordion' && (
-              <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
-            )}
-            {layoutChoice === 'tabbed' && (
-              <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
-            )}
-            {layoutChoice === 'basic' && 
-              <BasicLayout sections={dashboard.sections} />}
-          </div>
-        )}
-      </div>
+        <Suspense fallback={<SpinnerLoader />}>
+          <div id="main-container" className="user-dashboard-container">
+          {user && user.username === username && (
+            <div className="floating-button-container">
+              <span>User Dashboard for {username}</span>
+              <button onClick={handleEdit}>Edit</button>
+            </div>
+          )}
+          
+          {error && <div>{error}</div>}
+    
+          {!error && dashboard && (
+            <div>
+              {layoutChoice === 'accordion' && (
+                <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
+              )}
+              {layoutChoice === 'tabbed' && (
+                <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+              )}
+              {layoutChoice === 'basic' && 
+                <BasicLayout sections={dashboard.sections} />}
+            </div>
+          )}
+        </div>
+      </Suspense>
       )}
     </>
   );
