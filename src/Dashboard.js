@@ -7,7 +7,7 @@ import './App.css'
 import AccordionLayout from './layouts/accordion/AccordionLayout';
 import TabbedLayout from './layouts/tabbed/TabbedLayout';
 import BasicLayout from './layouts/basic/BasicLayout';
-import SkeletonLoader from './SkeletonLoader';
+import SpinnerLoader from './loaders/SpinnerLoader';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -16,7 +16,6 @@ function UserDashboard() {
   const { user } = useUser();
   const [dashboard, setDashboard] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
@@ -25,49 +24,42 @@ function UserDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (username) {
-      const apiCalls = [
-        axios.get(`${backendUrl}/${username}`),
-        axios.get(`${backendUrl}/${username}/layout`)
-      ];
+    async function fetchData() {
+      if (!username) {
+        setIsLoading(false);
+        return;
+      }
   
-      axios.all(apiCalls)
-        .then(axios.spread((dashboardResponse, layoutResponse) => {
-          setDashboard(dashboardResponse.data.dashboard);
-          setDashboardLayout(layoutResponse.data.layout);
-          setLoading(false);  // You can keep this if you're using it elsewhere
-          setIsLoading(false);  // Add this line
-          setError(null);
-        }))
-        .catch((err) => {
-          console.error('API error:', err);
-          if (err.response && err.response.status !== 404) {
-            setError('User not found or other error');
-          }
-          setLoading(false);  // You can keep this if you're using it elsewhere
-          setIsLoading(false);  // Add this line
-        });
-    } else {
-      setLoading(false);  // You can keep this if you're using it elsewhere
-      setIsLoading(false);  // Add this line
+      try {
+        const [dashboardResponse, layoutResponse] = await Promise.all([
+          axios.get(`${backendUrl}/${username}`),
+          axios.get(`${backendUrl}/${username}/layout`)
+        ]);
+  
+        setDashboard(dashboardResponse.data.dashboard);
+        setDashboardLayout(layoutResponse.data.layout);
+        setError(null);
+      } catch (err) {
+        console.error('API error:', err);
+        setError('User not found or other error');
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }, [username]);  
+  
+    fetchData();
+  }, [username]);
 
   const handleEdit = () => {
     navigate(`/${username}/edit`);
   };
 
-    const [isLoading, setIsLoading] = useState(true); //Turn initial loading state for user dashboard on or off by setting true or false
-
-  useEffect(() => {
-    // Set isLoading to false when data is fetched
-    // ...
-  }, []);
+  const [isLoading, setIsLoading] = useState(true); //Turn initial loading state for user dashboard on or off by setting true or false
 
   return (
     <>
       {isLoading ? (
-        <SkeletonLoader />
+        <SpinnerLoader />
       ) : (
         <div id="main-container" className="user-dashboard-container">
         {user && user.username === username && (
