@@ -26,7 +26,6 @@ function UserDashboard() {
   useEffect(() => {
     async function fetchData() {
       if (!username) {
-        setIsLoading(false);
         return;
       }
   
@@ -43,18 +42,16 @@ function UserDashboard() {
         console.error('API error:', err);
         setError('User not found or other error');
       } finally {
-        setIsLoading(false);
       }
     }
   
     fetchData();
-  }, [username]);
+  });
 
   const handleEdit = () => {
     navigate(`/${username}/edit`);
   };
 
-  const [isLoading, setIsLoading] = useState(true); //Turn initial loading state for user dashboard on or off by setting true or false
 
   return (
           <div id="main-container" className="user-dashboard-container">
@@ -83,8 +80,8 @@ function UserDashboard() {
               </Suspense>
 
               <Suspense fallback={<SpinnerLoader />}>
-                {layoutChoice === 'basic' && 
-                  <BasicLayout sections={dashboard.sections} />}
+              {layoutChoice === 'basic' && 
+                <BasicLayout sections={dashboard.sections} />}
               </Suspense>
 
             </div>

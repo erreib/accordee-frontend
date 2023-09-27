@@ -2,13 +2,11 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 
 import Dashboard from './Dashboard';
 import DashboardEditor from './DashboardEditor';
-
 import Signup from './Signup';
 import Login from './Login';
-
+import LandingPage from './LandingPage';
 import { UserProvider, useUser } from './UserContext';
 
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import './App.css';
 
 function SignupButton() {
@@ -57,39 +55,18 @@ function UserStatus() {
   );
 }
 
-function AnimatedSwitch() {
-  const location = useLocation();
-  let key = location.pathname.split('/')[1] || '/';
-
-  return (
-    <TransitionGroup className="transition-group" style={{ position: 'relative' }}>
-      <CSSTransition
-        key={key}
-        classNames="slide" // Assuming slide is your transition class
-        timeout={{ enter: 300, exit: 300 }}
-      >
-        <section className="route-section" style={{ position: 'absolute', width: '100%', top: 0 }}>
-          <Routes>
-            <Route path=":username/edit" element={<DashboardEditor />} />
-            <Route path=":username" element={<Dashboard />} />
-          </Routes>
-        </section>
-      </CSSTransition>
-    </TransitionGroup>
-  );
-}
-
 function App() {
   return (
     <UserProvider>
       <Router>
-        <AnimatedSwitch />
         <SignupButton />
         <UserStatus />
         <Routes>
+          <Route path=":username/edit" element={<DashboardEditor />} />
+          <Route path=":username" element={<Dashboard />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<div>Accordion Project</div>} />
+          <Route path="/" element={<LandingPage />} />
         </Routes>
       </Router>
     </UserProvider>

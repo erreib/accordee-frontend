@@ -5,11 +5,10 @@ import axios from 'axios';
 import { ChromePicker } from 'react-color';
 import { useUser } from './UserContext';
 import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
-
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+
 import './App.css';
 import './DashboardEditor.css';
 
@@ -21,8 +20,6 @@ function DashboardEditor() {
   const [dashboard, setDashboard] = useState(null);
   const [sections, setSections] = useState([]);
   const [pickerIsOpen, setPickerIsOpen] = useState(null);
-  const [isEditing, setIsEditing] = useState(null);
-  const [newTitle, setNewTitle] = useState('');
   const { user } = useUser();
   const navigate = useNavigate();
   const { username: usernameFromURL } = useParams();
@@ -39,9 +36,10 @@ function DashboardEditor() {
 // Redirect if the username from the URL does not match the logged-in user's username
   useEffect(() => {
     if (user && user.username !== usernameFromURL) {
-      navigate(`/${username}`);
+        navigate(`/${username}`);
     }
-  }, [user, usernameFromURL, navigate]);
+  }, [user, usernameFromURL, navigate, username]);
+
   
   useEffect(() => {
     axios.get(`${backendUrl}/${username}`)
@@ -116,22 +114,18 @@ function DashboardEditor() {
       });
   };
 
-  const updateSectionTitleInDB = (index, newTitle) => {
-    const newSections = [...sections];
-    newSections[index].title = newTitle;
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
-      .then(() => {
-        setSections(newSections);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  };
-
-  const updateSectionContentInDB = (index, newContent) => {
+  const updateSectionInfoInDB = (index, newTitle, newContent) => {
     // Step 1: Update local state immediately
     const newSections = [...sections];
-    newSections[index].content = newContent;
+  
+    // Update the title and content if they are not undefined
+    if (newTitle !== undefined) {
+      newSections[index].title = newTitle;
+    }
+    if (newContent !== undefined) {
+      newSections[index].content = newContent;
+    }
+  
     setSections(newSections);
   
     // Step 2: Update the database, but debounce this to reduce the load on your server
@@ -150,8 +144,7 @@ function DashboardEditor() {
     }, 300);  // 300 milliseconds delay
   
     setDebounceTimer(newTimer);
-  };
-    
+  };  
 
   const addSection = () => {
     const newSection = {
@@ -266,39 +259,12 @@ function DashboardEditor() {
             {sections.map((section, index) => (
               <div className={`section-item`} key={index}>
 
-                {isEditing === index ? (
-                <input
-                type="text"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
+                <input 
+                  type="text" 
+                  placeholder="Enter section title..." 
+                  value={section.title || ''} 
+                  onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
                 />
-                ) : (
-                    <span>{section.title}</span>
-                )}
-                {isEditing === index ? (
-                <button
-                className="row-button"
-                onClick={() => {
-                    // Call function to update title in DB here
-                    // setSections to update the section title
-                    updateSectionTitleInDB(index, newTitle);
-                    setIsEditing(null);
-                }}
-                >
-                Save
-                </button>
-                ) : (
-                
-                <button
-                className="row-button"
-                onClick={() => {
-                    setNewTitle(section.title); // set current title to temp state
-                    setIsEditing(index); // set to editing mode
-                }}
-                >
-                Edit
-                </button>
-                )}
 
                 <button
                 style={{
@@ -320,8 +286,8 @@ function DashboardEditor() {
                 <input 
                   type="text" 
                   placeholder="Enter custom content..." 
-                  value={section.content || ''}
-                  onChange={(e) => updateSectionContentInDB(index, e.target.value)}
+                  value={section.content || ''} 
+                  onChange={(e) => updateSectionInfoInDB(index, undefined, e.target.value)}
                 />
 
                 <button onClick={() => removeSection(index)}>-</button>
