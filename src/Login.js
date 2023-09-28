@@ -16,6 +16,14 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    // Check if the username and password fields are empty
+    if (!username || !password) {
+      setError("Both fields are required");
+      return;
+    }
+
+
     try {
       const response = await axios.post(`${backendUrl}/api/auth/login`, {
         username,
@@ -47,12 +55,12 @@ function Login() {
   };
 
   return (
-    <div className="signup-container">
+    <div className="portal-container">
       <h1>Login</h1>
       <form onSubmit={handleLogin}>
         <div>
           <input 
-            className="signup-input"
+            className="form-input"
             type="text" 
             placeholder="Username" 
             value={username} 
@@ -61,16 +69,16 @@ function Login() {
         </div>
         <div>
           <input 
-            className="signup-input"
+            className="form-input"
             type="password" 
             placeholder="Password" 
             value={password} 
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button className="signup-form-button" type="submit">Login</button>
+        <button className="form-submit-button" type="submit">Login</button>
       </form>
-      {error && <p className="signup-error">{error}</p>}
+      {error && <p className="form-error">{error}</p>}
     </div>
   );
   

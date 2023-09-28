@@ -50,12 +50,12 @@ const Signup = () => {
   };
 
     return (
-      <div className="signup-container">
+      <div className="portal-container">
         <h1>Signup</h1>
         <form onSubmit={handleSubmit}>
           <div>
             <input 
-              className="signup-input"
+              className="form-input"
               type="text" 
               placeholder="Username" 
               value={username} 
@@ -64,18 +64,18 @@ const Signup = () => {
           </div>
           <div>
             <input 
-              className="signup-input"
+              className="form-input"
               type="password" 
               placeholder="Password" 
               value={password} 
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button className="signup-form-button" type="submit">Signup</button>
+            <button className="form-submit-button" type="submit">Signup</button>
 
           </div>
     
         </form>
-        {error && <p className="signup-error">{error}</p>}
+        {error && <p className="form-error">{error}</p>}
       </div>
     );
   };

@@ -5,7 +5,7 @@
   height: 100vh;
 }
 
-.customization-container,.signup-container {
+.customization-container,.portal-container {
   margin-top: 50px; /* Adjust this value to move the field down as much as you like */
 }
 
@@ -56,19 +56,7 @@
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);  /* Optional shadow */
 }
 
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
-
-.login-container form div {
-  margin: 10px;
-}
-
-.signup-container {
+.portal-container {
   max-width: 400px;
   margin:  20px auto;
   padding: 20px;
@@ -80,7 +68,7 @@
   }
 }
 
-.signup-input {
+.form-input {
   width: calc(100% - 24px);  // Subtract the left and right padding
   padding: 12px;
   margin-bottom: 16px;
@@ -90,7 +78,7 @@
   box-sizing: border-box;  // Include padding and border in the element's total width and height
 }
 
-.signup-form-button {
+.form-submit-button {
   padding: 12px 24px;
   background-color: #007bff;
   color: white;
@@ -100,7 +88,7 @@
   font-size: 16px;
 }
 
-.signup-error {
+.form-error {
   color: red;
   font-weight: bold;
 }
