@@ -42,13 +42,13 @@ function UserStatus() {
     <div className="login-status">
       {user && user.username ? (
         <>
-          Logged in as {user.username} 
-          <button onClick={handleLogout}>Logout</button>
+          Logged in as <Link className="username-link" to={`/${user.username}`}>{user.username}</Link> 
+          <button className="logout-button" onClick={handleLogout}>Logout</button>
         </>
       ) : (
         <>
           Not logged in
-          <Link to="/login">Login</Link> {/* Change "/login" to the path of your login page */}
+          <Link className="login-link-button" to="/login">Login</Link>
         </>
       )}
     </div>
