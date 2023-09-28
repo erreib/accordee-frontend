@@ -67,3 +67,40 @@
 .login-container form div {
   margin: 10px;
 }
+
+.signup-container {
+  max-width: 400px;
+  margin:  20px auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
+
+  h1 {
+    margin-top:0;
+  }
+}
+
+.signup-input {
+  width: calc(100% - 24px);  // Subtract the left and right padding
+  padding: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box;  // Include padding and border in the element's total width and height
+}
+
+.signup-form-button {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.signup-error {
+  color: red;
+  font-weight: bold;
+}

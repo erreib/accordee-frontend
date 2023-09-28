@@ -49,28 +49,35 @@ const Signup = () => {
     }
   };
 
-  return (
-    <div>
-      <h1>Signup</h1>
-      <form onSubmit={handleSubmit}>
-        <div><input 
-          type="text" 
-          placeholder="Username" 
-          value={username} 
-          onChange={(e) => setUsername(e.target.value)}
-        /></div>
-        <div><input 
-          type="password" 
-          placeholder="Password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)}
-        /></div>
+    return (
+      <div className="signup-container">
+        <h1>Signup</h1>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <input 
+              className="signup-input"
+              type="text" 
+              placeholder="Username" 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+          <div>
+            <input 
+              className="signup-input"
+              type="password" 
+              placeholder="Password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button className="signup-form-button" type="submit">Signup</button>
 
-        <button type="submit">Signup</button>
-      </form>
-      {error && <p>{error}</p>}
-    </div>
-  );
-};
+          </div>
+    
+        </form>
+        {error && <p className="signup-error">{error}</p>}
+      </div>
+    );
+  };
 
 export default Signup;

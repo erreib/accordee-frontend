@@ -47,21 +47,33 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="signup-container">
+      <h1>Login</h1>
       <form onSubmit={handleLogin}>
         <div>
-          <label>Username:</label>
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <input 
+            className="signup-input"
+            type="text" 
+            placeholder="Username" 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)}
+          />
         </div>
         <div>
-          <label>Password:</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input 
+            className="signup-input"
+            type="password" 
+            placeholder="Password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
-        <button type="submit">Login</button>
+        <button className="signup-form-button" type="submit">Login</button>
       </form>
+      {error && <p className="signup-error">{error}</p>}
     </div>
   );
+  
 }
 
 export default Login;
