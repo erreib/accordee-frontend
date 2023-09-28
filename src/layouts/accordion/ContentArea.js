@@ -1,6 +1,6 @@
 // src/ContentArea.js
 import React from 'react';
-import './ContentArea.css';
+import './AccordionStyle.scss'
 
 function ContentArea({ section, color, isActive }) {
   const adjustedColor = adjustColor(color);

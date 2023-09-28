@@ -53,18 +53,18 @@ const Signup = () => {
     <div>
       <h1>Signup</h1>
       <form onSubmit={handleSubmit}>
-        <input 
+        <div><input 
           type="text" 
           placeholder="Username" 
           value={username} 
           onChange={(e) => setUsername(e.target.value)}
-        />
-        <input 
+        /></div>
+        <div><input 
           type="password" 
           placeholder="Password" 
           value={password} 
           onChange={(e) => setPassword(e.target.value)}
-        />
+        /></div>
 
         <button type="submit">Signup</button>
       </form>

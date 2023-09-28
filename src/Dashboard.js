@@ -2,7 +2,7 @@ import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from './UserContext';
-import './App.css'
+import './App.scss'
 import SpinnerLoader from './loaders/SpinnerLoader';
 
 const AccordionLayout = lazy(() => import('./layouts/accordion/AccordionLayout'));
@@ -54,39 +54,39 @@ function UserDashboard() {
 
 
   return (
-          <div id="main-container" className="user-dashboard-container">
-          {user && user.username === username && (
-            <div className="floating-button-container">
-              <span>User Dashboard for {username}</span>
-              <button onClick={handleEdit}>Edit</button>
-            </div>
-          )}
-          
-          {error && <div>{error}</div>}
-    
-          {!error && dashboard && (
-            <div>
-
-              <Suspense fallback={<SpinnerLoader />}>
-                {layoutChoice === 'accordion' && (
-                  <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
-                )}
-              </Suspense>
-
-              <Suspense fallback={<SpinnerLoader />}>
-                {layoutChoice === 'tabbed' && (
-                  <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
-                )}
-              </Suspense>
-
-              <Suspense fallback={<SpinnerLoader />}>
-              {layoutChoice === 'basic' && 
-                <BasicLayout sections={dashboard.sections} />}
-              </Suspense>
-
-            </div>
-          )}
+    <div id="main-container" className="user-dashboard-container">
+      {user && user.username === username && (
+        <div className="floating-button-container">
+          <span>User Dashboard for {username}</span>
+          <button onClick={handleEdit}>Edit</button>
         </div>
+      )}
+      
+      {error && <div>{error}</div>}
+
+      {!error && dashboard && (
+        <div>
+
+          <Suspense fallback={<SpinnerLoader />}>
+            {layoutChoice === 'accordion' && (
+              <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
+            )}
+          </Suspense>
+
+          <Suspense fallback={<SpinnerLoader />}>
+            {layoutChoice === 'tabbed' && (
+              <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+            )}
+          </Suspense>
+
+          <Suspense fallback={<SpinnerLoader />}>
+          {layoutChoice === 'basic' && 
+            <BasicLayout sections={dashboard.sections} />}
+          </Suspense>
+
+        </div>
+      )}
+    </div>
   );
 
 }

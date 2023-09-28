@@ -7,7 +7,7 @@ import Login from './Login';
 import LandingPage from './LandingPage';
 import { UserProvider, useUser } from './UserContext';
 
-import './App.css';
+import './App.scss';
 
 function SignupButton() {
   const location = useLocation();

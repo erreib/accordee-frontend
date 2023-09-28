@@ -1,0 +1,24 @@
+// Container for the whole dashboard
+
+.basic-layout-body {
+  background: linear-gradient(to right, #c9d6ff, #e2e2e2);
+  font-family: 'Arial', sans-serif;
+}
+
+.dashboard-container {
+  max-width: 680px;
+  margin: auto;
+  padding: 20px;
+  // Remove default list styling
+  ul {
+    // Style each section as a card
+    li {
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #fff;
+      text-align: center;
+    }
+  }
+}

@@ -1,6 +1,6 @@
 // src/NavRow.js
 import React from 'react';
-import './NavRow.css';
+import './AccordionStyle.scss'
 
 function NavRow({ title, onSelect, color, isShrinked, isSelected }) {
   let className = 'navRow';

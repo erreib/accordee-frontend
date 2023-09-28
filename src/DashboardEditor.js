@@ -9,8 +9,8 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
-import './App.css';
-import './DashboardEditor.css';
+import './App.scss';
+import './DashboardEditor.scss';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
@@ -259,13 +259,6 @@ function DashboardEditor() {
             {sections.map((section, index) => (
               <div className={`section-item`} key={index}>
 
-                <input 
-                  type="text" 
-                  placeholder="Enter section title..." 
-                  value={section.title || ''} 
-                  onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
-                />
-
                 <button
                 style={{
                     backgroundColor: section.color,
@@ -282,6 +275,13 @@ function DashboardEditor() {
                     onChangeComplete={(color) => handleColorChange(color, index)}
                 />
                 )}
+
+                <input 
+                  type="text" 
+                  placeholder="Enter section title..." 
+                  value={section.title || ''} 
+                  onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
+                />
 
                 <input 
                   type="text" 

@@ -2,6 +2,7 @@
 import React from 'react';
 import NavRow from './NavRow';
 import ContentArea from './ContentArea';
+import './AccordionStyle.scss'
 
 function AccordionLayout({ dashboard, selectedSection, setSelectedSection }) {
     
