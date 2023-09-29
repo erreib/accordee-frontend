@@ -1,13 +1,15 @@
 // src/DashboardEditor.js
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import Dashboard from './Dashboard'; // Import Dashboard component
 import axios from 'axios';
+import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
+
+import { useParams, useNavigate } from 'react-router-dom';
 import { ChromePicker } from 'react-color';
 import { useUser } from './UserContext';
-import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faArrowDown, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 import './App.scss';
 import './DashboardEditor.scss';
@@ -28,19 +30,19 @@ function DashboardEditor() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadedMedia, setUploadedMedia] = useState([]);
   const [animationParent] = useAutoAnimate();
-  
+
   const handleBackToDashboard = () => {
     navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
   };
 
-// Redirect if the username from the URL does not match the logged-in user's username
+  // Redirect if the username from the URL does not match the logged-in user's username
   useEffect(() => {
     if (user && user.username !== usernameFromURL) {
-        navigate(`/${username}`);
+      navigate(`/${username}`);
     }
   }, [user, usernameFromURL, navigate, username]);
 
-  
+
   useEffect(() => {
     axios.get(`${backendUrl}/${username}`)
       .then((response) => {
@@ -49,6 +51,7 @@ function DashboardEditor() {
       })
       .catch((error) => {
         console.error('An error occurred while fetching data:', error);
+        alert("An error occurred. Please try again.");
       });
   }, [username]);
 
@@ -117,7 +120,7 @@ function DashboardEditor() {
   const updateSectionInfoInDB = (index, newTitle, newContent) => {
     // Step 1: Update local state immediately
     const newSections = [...sections];
-  
+
     // Update the title and content if they are not undefined
     if (newTitle !== undefined) {
       newSections[index].title = newTitle;
@@ -125,14 +128,14 @@ function DashboardEditor() {
     if (newContent !== undefined) {
       newSections[index].content = newContent;
     }
-  
+
     setSections(newSections);
-  
+
     // Step 2: Update the database, but debounce this to reduce the load on your server
     if (debounceTimer) {
       clearTimeout(debounceTimer);
     }
-  
+
     const newTimer = setTimeout(() => {
       axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
         .then(() => {
@@ -142,9 +145,9 @@ function DashboardEditor() {
           console.error('Error:', error);
         });
     }, 300);  // 300 milliseconds delay
-  
+
     setDebounceTimer(newTimer);
-  };  
+  };
 
   const addSection = () => {
     const newSection = {
@@ -181,14 +184,14 @@ function DashboardEditor() {
     const newSections = [...sections];
     const [movedItem] = newSections.splice(fromIndex, 1);
     newSections.splice(toIndex, 0, movedItem);
-  
+
     // Update the "order" field for each section
     newSections.forEach((section, index) => {
       section.order = index;
     });
-  
+
     setSections(newSections);
-  
+
     // Send updated ordering to the server (including the new "order" fields)
     axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
       .then((res) => {
@@ -203,14 +206,14 @@ function DashboardEditor() {
     // Create a FormData object and append the file
     const formData = new FormData();
     formData.append('media', selectedFile);
-  
+
     // Make the API call to upload the file
     try {
       await axios.post(`${backendUrl}/${username}/upload-media`, formData);
-      
+
       // After successful upload, construct the new media URL
       const newMediaUrl = `${bucketUrl}/${username}/${selectedFile.name}`;
-  
+
       // Update the uploadedMedia state, but only if the URL is not a duplicate
       setUploadedMedia(prevState => {
         if (!prevState.includes(newMediaUrl)) {
@@ -218,100 +221,116 @@ function DashboardEditor() {
         }
         return prevState;
       });
-  
+
     } catch (error) {
       console.error('Error uploading file:', error);
     }
-  };  
+  };
 
   return (
     <div id="main-container" className="editor-container">
 
-        <div className="floating-button-container">
-            <button onClick={handleBackToDashboard}>Back to Dashboard</button>
-        </div>
+      <div className="floating-button-container">
+        <button className="back-button" onClick={handleBackToDashboard}>
+          <FontAwesomeIcon icon={faArrowLeft} /> Back to Dashboard
+        </button>
+      </div>
+
+      <div className="mini-dashboard-preview">
+        <h3>Preview</h3>
+        <Dashboard sections={sections} layout={dashboardLayout} isPreview={true} />
+      </div>
+
+      <div className="editor-wrapper">
 
         <h1>Edit Dashboard for {username}</h1>
-        
+
         <div className="layout-selector">
+          <p>Select a layout for your dashboard:</p>
           <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
         </div>
 
         <div><label htmlFor="title">Title: </label>
-        <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleTitleChange} /></div>
+          <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleTitleChange} /></div>
+
+        <div className="section-management">
+          <h3>Add/Remove sections</h3>
+
+          <div ref={animationParent} className="sections-list">
+
+            {sections.map((section, index) => (
+              <div className={`section-item`} key={index}>
+
+                <button
+                  style={{
+                    backgroundColor: section.color,
+                    width: '20px',
+                    height: '20px',
+                  }}
+                  onClick={() => togglePicker(index)}
+                >
+                  {pickerIsOpen === index ? '▼' : '▶'}
+                </button>
+                {pickerIsOpen === index && (
+                  <><button onClick={() => setPickerIsOpen(null)}>Close</button>
+                    <ChromePicker
+                      color={section.color}
+                      onChangeComplete={(color) => handleColorChange(color, index)}
+                    /></>
+                )}
+
+                <input
+                  type="text"
+                  placeholder="Enter section title..."
+                  value={section.title || ''}
+                  onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
+                />
+
+                <input
+                  type="text"
+                  placeholder="Enter custom content..."
+                  value={section.content || ''}
+                  onChange={(e) => updateSectionInfoInDB(index, undefined, e.target.value)}
+                />
+
+                <button onClick={() => removeSection(index)}>-</button>
+
+                <button
+                  className={`row-button ${index === 0 ? 'disabled-arrow' : ''}`}
+                  disabled={index === 0}
+                  onClick={() => moveSection(index, index - 1)}
+                >
+                  <FontAwesomeIcon icon={faArrowUp} />
+                </button>
+                <button
+                  className={`row-button ${index === sections.length - 1 ? 'disabled-arrow' : ''}`}
+                  disabled={index === sections.length - 1}
+                  onClick={() => moveSection(index, index + 1)}
+                >
+                  <FontAwesomeIcon icon={faArrowDown} />
+                </button>
+              </div>
+            ))}
+
+            <button className="button" onClick={addSection}>+</button>
+          </div>
+        </div>
 
         <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])} />
+        <p>Supported file types: jpg, png, gif</p>
         <button onClick={handleFileUpload}>Upload</button>
-        
+
         <ul>
           {uploadedMedia.map((url, index) => (
             <li key={index}>
+              <img src={url} alt="Uploaded Thumbnail" width="50" height="50" />
               <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
               <button onClick={() => handleDelete(url)}>Delete</button>
             </li>
           ))}
         </ul>
+      </div>
 
-        <h3>Add/Remove sections</h3>
-
-        <div ref={animationParent} className="sections-list">
-            
-            {sections.map((section, index) => (
-              <div className={`section-item`} key={index}>
-
-                <button
-                style={{
-                    backgroundColor: section.color,
-                    width: '20px',
-                    height: '20px',
-                }}
-                onClick={() => togglePicker(index)}
-                >
-                {pickerIsOpen === index ? '▼' : '▶'}
-                </button>
-                {pickerIsOpen === index && (
-                <ChromePicker
-                    color={section.color}
-                    onChangeComplete={(color) => handleColorChange(color, index)}
-                />
-                )}
-
-                <input 
-                  type="text" 
-                  placeholder="Enter section title..." 
-                  value={section.title || ''} 
-                  onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
-                />
-
-                <input 
-                  type="text" 
-                  placeholder="Enter custom content..." 
-                  value={section.content || ''} 
-                  onChange={(e) => updateSectionInfoInDB(index, undefined, e.target.value)}
-                />
-
-                <button onClick={() => removeSection(index)}>-</button>
-                
-                <button 
-                  className={`row-button ${index === 0 ? 'disabled-arrow' : ''}`} 
-                  disabled={index === 0} 
-                  onClick={() => moveSection(index, index - 1)}
-                >
-                  <FontAwesomeIcon icon={faArrowUp} />
-                </button>
-                <button 
-                  className={`row-button ${index === sections.length - 1 ? 'disabled-arrow' : ''}`} 
-                  disabled={index === sections.length - 1} 
-                  onClick={() => moveSection(index, index + 1)}
-                >
-                  <FontAwesomeIcon icon={faArrowDown} />
-                </button>
-
-            </div>
-            ))}
-
-            <button className="button" onClick={addSection}>+</button>
-        </div>
     </div>
   );
 }

@@ -11,7 +11,7 @@ const BasicLayout = lazy(() => import('./layouts/basic/BasicLayout'));
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-function UserDashboard() {
+function UserDashboard({ isPreview }) {
   const { username } = useParams();
   const { user } = useUser();
   const [dashboard, setDashboard] = useState(null);
@@ -55,7 +55,7 @@ function UserDashboard() {
 
   return (
     <div id="main-container" className="user-dashboard-container">
-      {user && user.username === username && (
+      {!isPreview && user && user.username === username && (
         <div className="floating-button-container">
           <span>User Dashboard for {username}</span>
           <button onClick={handleEdit}>Edit</button>

@@ -10,7 +10,7 @@
 }
 
 .signup-button {
-  position: absolute;
+  position: fixed;
   bottom: 20px;
   right: 20px;
   background-color: #4CAF50; /* Green */
@@ -41,7 +41,7 @@
 }
 
 .floating-button-container {
-  position: absolute;  /* Absolute positioning */
+  position: fixed;  /* Absolute positioning */
   top: 0;
   right: 0;
   z-index: 1;  /* Make sure it's on top */
