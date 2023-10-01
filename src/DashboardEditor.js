@@ -237,7 +237,6 @@ function DashboardEditor() {
       </div>
 
       <div className="mini-dashboard-preview">
-        <h3>Preview</h3>
         <Dashboard sections={sections} layout={dashboardLayout} isPreview={true} />
       </div>
 
