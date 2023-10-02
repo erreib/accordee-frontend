@@ -17,14 +17,32 @@ import './DashboardEditor.scss';
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
 
-function DashboardEditor() {
-  const { username } = useParams();
+const useFetchDashboardData = (username) => {
   const [dashboard, setDashboard] = useState(null);
   const [sections, setSections] = useState([]);
-  const [pickerIsOpen, setPickerIsOpen] = useState(null);
+
+  useEffect(() => {
+    axios.get(`${backendUrl}/${username}`)
+      .then((response) => {
+        setDashboard(response.data.dashboard);
+        setSections(response.data.dashboard.sections);
+      })
+      .catch((error) => {
+        console.error('An error occurred while fetching data:', error);
+        alert("An error occurred. Please try again.");
+      });
+  }, [username]);
+
+  return [dashboard, sections, setDashboard, setSections];
+};
+
+function DashboardEditor() {
+  const { username } = useParams();
   const { user } = useUser();
-  const navigate = useNavigate();
   const { username: usernameFromURL } = useParams();
+  const [dashboard, sections, setDashboard, setSections] = useFetchDashboardData(username);
+  const [pickerIsOpen, setPickerIsOpen] = useState(null);
+  const navigate = useNavigate();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [dashboardLayout, setDashboardLayout] = useState('accordion'); // Initialize with a default layout
   const [selectedFile, setSelectedFile] = useState(null);
@@ -41,19 +59,6 @@ function DashboardEditor() {
       navigate(`/${username}`);
     }
   }, [user, usernameFromURL, navigate, username]);
-
-
-  useEffect(() => {
-    axios.get(`${backendUrl}/${username}`)
-      .then((response) => {
-        setDashboard(response.data.dashboard);
-        setSections(response.data.dashboard.sections);
-      })
-      .catch((error) => {
-        console.error('An error occurred while fetching data:', error);
-        alert("An error occurred. Please try again.");
-      });
-  }, [username]);
 
   useEffect(() => {
     // Fetch the user's dashboard layout choice from the backend
@@ -102,28 +107,40 @@ function DashboardEditor() {
       });
   };
 
-  const handleTitleChange = (event) => {
-    const newTitle = event.target.value;
+  const handleDashboardTitleChange = (event) => {
+    const newDashboardTitle = event.target.value;
     if (dashboard) {
-      setDashboard({ ...dashboard, title: newTitle });
-      updateTitleInDB(newTitle);
+      setDashboard({ ...dashboard, title: newDashboardTitle });
+      updateDashboardTitleInDB(newDashboardTitle);
     }
   };
 
-  const updateTitleInDB = (newTitle) => {
-    axios.post(`${backendUrl}/${username}/update`, { title: newTitle })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+  const updateDashboardTitleInDB = (newDashboardTitle) => {
+    // Cancel the previous timer, if any
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    // Set a new timer
+    const newTimer = setTimeout(() => {
+      axios.post(`${backendUrl}/${username}/update`, { title: newDashboardTitle })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    }, 300); // 300 milliseconds delay
+
+    // Update the debounceTimer state
+    setDebounceTimer(newTimer);
   };
 
-  const updateSectionInfoInDB = (index, newTitle, newContent) => {
+
+  const updateSectionInfoInDB = (index, newSectionTitle, newContent) => {
     // Step 1: Update local state immediately
     const newSections = [...sections];
 
     // Update the title and content if they are not undefined
-    if (newTitle !== undefined) {
-      newSections[index].title = newTitle;
+    if (newSectionTitle !== undefined) {
+      newSections[index].title = newSectionTitle;
     }
     if (newContent !== undefined) {
       newSections[index].content = newContent;
@@ -250,7 +267,7 @@ function DashboardEditor() {
         </div>
 
         <div><label htmlFor="title">Title: </label>
-          <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleTitleChange} /></div>
+          <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} /></div>
 
         <div className="section-management">
           <h3>Add/Remove sections</h3>

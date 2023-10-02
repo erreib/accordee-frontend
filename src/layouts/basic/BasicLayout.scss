@@ -1,17 +1,20 @@
 // Container for the whole dashboard
-
-.basic-layout-body {
+.dashboard-container {
+  margin: auto;
+  height:100vh;
   background: linear-gradient(to right, #c9d6ff, #e2e2e2);
   font-family: 'Arial', sans-serif;
-}
-
-.dashboard-container {
-  max-width: 680px;
-  margin: auto;
-  padding: 20px;
-  // Remove default list styling
+  .dashboard-inner-container {
+    display:flex;
+    justify-content: center;
+  }
+  // Modify default list styling
   ul {
     margin:0;
+    width:100%;
+    max-width: 680px;
+    list-style: none;
+    padding:15px;
     li {
       border-radius: 12px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
