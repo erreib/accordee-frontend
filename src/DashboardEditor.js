@@ -17,6 +17,25 @@ import './DashboardEditor.scss';
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
 
+// Custom Hook for debouncing
+const useDebounce = (callback, delay) => {
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
+  const debouncedFunction = (...args) => {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    const newTimer = setTimeout(() => {
+      callback(...args);
+    }, delay);
+
+    setDebounceTimer(newTimer);
+  };
+
+  return debouncedFunction;
+};
+
 const useFetchDashboardData = (username) => {
   const [dashboard, setDashboard] = useState(null);
   const [sections, setSections] = useState([]);
@@ -43,7 +62,6 @@ function DashboardEditor() {
   const [dashboard, sections, setDashboard, setSections] = useFetchDashboardData(username);
   const [pickerIsOpen, setPickerIsOpen] = useState(null);
   const navigate = useNavigate();
-  const [debounceTimer, setDebounceTimer] = useState(null);
   const [dashboardLayout, setDashboardLayout] = useState('accordion'); // Initialize with a default layout
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadedMedia, setUploadedMedia] = useState([]);
@@ -52,6 +70,12 @@ function DashboardEditor() {
   const handleBackToDashboard = () => {
     navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
   };
+
+  useEffect(() => {
+    if (user === null) {
+      navigate(`/${username}`);  // Navigate to the user's dashboard
+    }
+  }, [user,username,navigate]);
 
   // Redirect if the username from the URL does not match the logged-in user's username
   useEffect(() => {
@@ -107,32 +131,30 @@ function DashboardEditor() {
       });
   };
 
+  const debouncedUpdateTitle = useDebounce((newTitle) => {
+    axios.post(`${backendUrl}/${username}/update`, { title: newTitle })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }, 300);
+
+  const debouncedUpdateSections = useDebounce((newSections) => {
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+      .then(() => {
+        // Database successfully updated
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }, 300);
+
   const handleDashboardTitleChange = (event) => {
     const newDashboardTitle = event.target.value;
     if (dashboard) {
       setDashboard({ ...dashboard, title: newDashboardTitle });
-      updateDashboardTitleInDB(newDashboardTitle);
+      debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
     }
   };
-
-  const updateDashboardTitleInDB = (newDashboardTitle) => {
-    // Cancel the previous timer, if any
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    // Set a new timer
-    const newTimer = setTimeout(() => {
-      axios.post(`${backendUrl}/${username}/update`, { title: newDashboardTitle })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
-    }, 300); // 300 milliseconds delay
-
-    // Update the debounceTimer state
-    setDebounceTimer(newTimer);
-  };
-
 
   const updateSectionInfoInDB = (index, newSectionTitle, newContent) => {
     // Step 1: Update local state immediately
@@ -147,24 +169,10 @@ function DashboardEditor() {
     }
 
     setSections(newSections);
-
-    // Step 2: Update the database, but debounce this to reduce the load on your server
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    const newTimer = setTimeout(() => {
-      axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
-        .then(() => {
-          // Database successfully updated
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
-    }, 300);  // 300 milliseconds delay
-
-    setDebounceTimer(newTimer);
+    
+    debouncedUpdateSections(newSections);  // Using debounced function here
   };
+
 
   const addSection = () => {
     const newSection = {
