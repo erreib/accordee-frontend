@@ -61,6 +61,10 @@ function UserDashboard({ isPreview }) {
           <button onClick={handleEdit}>Edit</button>
         </div>
       )}
+
+      {!isPreview && (  
+      <div className="dashboard-bg-element"></div>
+      )}
       
       {error && <div>{error}</div>}
 

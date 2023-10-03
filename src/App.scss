@@ -9,6 +9,18 @@
   margin-top: 50px; /* Adjust this value to move the field down as much as you like */
 }
 
+:root {
+  --dashboard-bg-color: linear-gradient(135deg, #0036e8, #d30909);
+}
+
+.dashboard-bg-element {
+position:fixed;
+height:100vh;
+width:100%;
+background: var(--dashboard-bg-color);
+z-index:-1;
+}
+
 .signup-button {
   position: fixed;
   bottom: 20px;

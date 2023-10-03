@@ -67,9 +67,13 @@ function DashboardEditor() {
   const [uploadedMedia, setUploadedMedia] = useState([]);
   const [animationParent] = useAutoAnimate();
 
+  const [customDomain, setCustomDomain] = useState('');
+  const [verificationToken, setVerificationToken] = useState('');
+  const [isVerified, setIsVerified] = useState('false');
+  
   const handleBackToDashboard = () => {
     navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
-  };
+  }; 
 
   useEffect(() => {
     if (user === null) {
@@ -105,6 +109,68 @@ function DashboardEditor() {
         console.error('An error occurred while fetching uploaded media:', error);
       });
   }, [username]);  // The effect will re-run if the username changes
+
+  useEffect(() => {
+    // Fetch verification details from the backend
+    const fetchVerificationDetails = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/${username}/get-verification-details`);
+        setVerificationToken(response.data.verificationToken);
+        setCustomDomain(response.data.customDomain);
+        setIsVerified(response.data.isVerified);  // No change needed here
+      } catch (error) {
+        console.error('Failed to fetch verification details:', error);
+      }
+    };
+  
+    fetchVerificationDetails();
+  }, [username]);  
+
+  const handleGenDomainVerification = async () => {
+    // Generate a unique token for verification.
+    const token = Math.random().toString(36).substr(2, 9);
+    setVerificationToken(token);
+  
+    try {
+      // Use the user object to send the user ID and verification token to your backend
+      const response = await axios.post(`${backendUrl}/${username}/generate-verification-token`, {
+        userId: user.id,  // Use 'id' to align with your UserContext field
+        verificationToken: token,
+        customDomain,  // Include customDomain here
+      });
+  
+      if (response.data.success) {
+        setIsVerified(false);  // Reset the verification status on the frontend
+        // Maybe show a success message to the user that the token was generated
+      } else {
+        // Show an error message to the user
+      }
+    } catch (error) {
+      console.error('Failed to generate verification token:', error);
+      // Show an error message to the user
+    }
+  };
+
+  const handleVerifyDNS = async () => {
+    try {
+      // Use the user object to send the user ID to your backend
+      const response = await axios.post(`${backendUrl}/${username}/verify-dns`, {
+        userId: user.id,  // Use 'id' to align with your UserContext field
+      });
+  
+      if (response.data.success) {
+        setIsVerified(true);  // Domain is verified
+        // Maybe show a success message to the user
+      } else {
+        setIsVerified(false);  // Domain verification failed
+        // Show an error message to the user
+      }
+    } catch (error) {
+      setIsVerified(false);  // An error occurred, so consider it as a failed verification
+      console.error('Failed to verify DNS:', error);
+      // Show an error message to the user
+    }
+  };  
 
   // New handleDelete function
   const handleDelete = (url) => {
@@ -353,6 +419,28 @@ function DashboardEditor() {
             </li>
           ))}
         </ul>
+
+        <div>
+          <input
+            type="text"
+            placeholder="Custom Domain"
+            value={customDomain}
+            onChange={e => setCustomDomain(e.target.value)}
+          />
+          <button onClick={handleGenDomainVerification}>Generate Verification Token</button>
+        </div>
+
+        {verificationToken && (
+          <div>
+            <p>Please add the following TXT record to your DNS settings to verify domain ownership:</p>
+            <code>{verificationToken}</code>
+            <button onClick={handleVerifyDNS}>Verify Domain</button>
+          </div>
+        )}
+
+        {isVerified && <p>Domain verified!</p>}
+
+
       </div>
 
     </div>

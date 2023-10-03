@@ -3,7 +3,7 @@ import './BasicLayout.scss';
 
 const BasicLayout = ({ sections }) => {
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container">      
       <div className="dashboard-inner-container">
         <ul>
           {sections.map((section, index) => (
