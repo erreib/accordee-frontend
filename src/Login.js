@@ -16,43 +16,42 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     // Check if the username and password fields are empty
     if (!username || !password) {
       setError("Both fields are required");
       return;
     }
-
-
+    
     try {
       const response = await axios.post(`${backendUrl}/api/auth/login`, {
         username,
         password,
       });
-
-      // Assume the server sends a token upon successful login
-      const { userId, token } = response.data.token;
-
+  
+      // Assume the server sends a token and userId upon successful login
+      const { userId, token } = response.data;  // Corrected this line
+  
       setUser({
         id: userId,
         username: username
       });
-
+  
       setToken(token);
-
+  
       localStorage.setItem('userId', userId);
       localStorage.setItem('token', token);
       localStorage.setItem('username', username);
-
+  
       setError(null);
-
+  
       // Navigate to the user's dashboard (replace 'username' with the actual username)
       navigate(`/${username}`);
     } catch (error) {
       console.error('Login error:', error);
       setError('Invalid username or password');
     }
-  };
+  };  
 
   return (
     <div className="portal-container">
