@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-
 import Dashboard from './Dashboard';
 import DashboardEditor from './DashboardEditor';
 import Signup from './Signup';
-import Login from './Login';
+import Login from './login/Login';
+import LoginForm from './login/LoginForm';  // <-- Import LoginForm
 import LandingPage from './LandingPage';
 import { UserProvider, useUser } from './UserContext';
 
@@ -24,6 +25,7 @@ function SignupButton() {
 
 function UserStatus() {
   const { user, setUser, setToken } = useUser();
+  const [showLoginModal, setShowLoginModal] = useState(false);  // <-- Add this line
 
   const handleLogout = () => {
     // Clear user state
@@ -48,7 +50,14 @@ function UserStatus() {
       ) : (
         <>
           Not logged in
-          <Link className="login-link-button" to="/login">Login</Link>
+          {!showLoginModal && <button onClick={() => setShowLoginModal(true)}>Login</button>} {/* Show login button only when modal is not shown */}
+          
+          {showLoginModal && (
+            <>
+              <button onClick={() => setShowLoginModal(false)}>Close</button>
+              <LoginForm />
+            </>
+          )}
         </>
       )}
     </div>
