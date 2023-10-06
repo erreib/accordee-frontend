@@ -1,5 +1,6 @@
 /* Font settings for the whole landing page */
 .landing-page {
+  position: relative;  // Set position to relative
   font-family: 'Arial', sans-serif;
 }
 
@@ -102,6 +103,13 @@
   100% {
     transform: rotateX(360deg) rotateY(360deg) scale(1);
   }
+}
+
+.bubble-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
 
 /* Landing features */

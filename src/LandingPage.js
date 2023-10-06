@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';  // Add useEffect and useRef
 import { Link } from 'react-router-dom';
 import './LandingPage.scss';
 
@@ -17,9 +17,74 @@ function CubeAnimation() {
   );
 }
 
+function BubbleBackground() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let mouseX = canvas.width / 2;
+    let mouseY = canvas.height / 2;
+
+    canvas.addEventListener('mousemove', (event) => {
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+    });
+
+    const bubbles = [];
+    for (let i = 0; i < 50; i++) {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height;
+      const size = Math.random() * 30 + 10;
+      bubbles.push({ x, y, size, dx: 0, dy: -2 });
+    }
+
+    const drawBubbles = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const bubble of bubbles) {
+        ctx.beginPath();
+        ctx.arc(bubble.x, bubble.y, bubble.size, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(173, 216, 230, 0.2)';
+        ctx.fill();
+
+        const distanceToMouseX = mouseX - bubble.x;
+        const distanceToMouseY = mouseY - bubble.y;
+        const distanceToMouse = Math.sqrt(distanceToMouseX ** 2 + distanceToMouseY ** 2);
+
+        if (distanceToMouse < 150) {
+          bubble.dx = distanceToMouseX / 100;
+          bubble.dy = distanceToMouseY / 100;
+        } else {
+          bubble.dy = -2;
+          bubble.dx = 0;
+        }
+
+        bubble.x += bubble.dx;
+        bubble.y += bubble.dy;
+
+        if (bubble.y + bubble.size < 0) {
+          bubble.y = canvas.height + bubble.size;
+        }
+      }
+      requestAnimationFrame(drawBubbles);
+    };
+    ctx.fillStyle = '#33333';
+
+    drawBubbles();
+  }, []);
+
+  return (
+    <canvas ref={canvasRef} className="bubble-background"></canvas>
+  );
+}
+
 function LandingPage() {
   return (
     <div className="landing-page">
+      <BubbleBackground />
       <header className="landing-header">
         <h1>Accordee</h1>
         <nav>
