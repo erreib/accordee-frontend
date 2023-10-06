@@ -20,9 +20,14 @@ function UserDashboard({ isPreview }) {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
 
-  const { dashboardLayout, setDashboardLayout, dashboard, setDashboard } = useDashboard();
+  const { 
+    dashboardLayout, setDashboardLayout, 
+    dashboard, setDashboard,
+    updateTrigger 
+  } = useDashboard();
 
   const navigate = useNavigate();
+
 
   useEffect(() => {
     async function fetchData() {
@@ -47,7 +52,9 @@ function UserDashboard({ isPreview }) {
     }
   
     fetchData();
-  },[username,setDashboardLayout,setDashboard]);
+  }, [username, updateTrigger, setDashboardLayout, setDashboard]);
+  
+  
 
   const handleEdit = () => {
     navigate(`/${username}/edit`);

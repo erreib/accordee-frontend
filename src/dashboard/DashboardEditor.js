@@ -19,7 +19,7 @@ import './DashboardEditor.scss';
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
 
-// Custom Hook for debouncing
+// Debounce timer to handle input changes on the user's dashboard settings
 const useDebounce = (callback, delay) => {
   const [debounceTimer, setDebounceTimer] = useState(null);
 
@@ -38,33 +38,16 @@ const useDebounce = (callback, delay) => {
   return debouncedFunction;
 };
 
-// const useFetchDashboardData = (username) => {
-//   const [dashboard, setDashboard] = useState(null);
-//   const [sections, setSections] = useState([]);
-
-//   useEffect(() => {
-//     axios.get(`${backendUrl}/${username}`)
-//       .then((response) => {
-//         setDashboard(response.data.dashboard);
-//         setSections(response.data.dashboard.sections);
-//       })
-//       .catch((error) => {
-//         console.error('An error occurred while fetching data:', error);
-//         alert("An error occurred. Please try again.");
-//       });
-//   }, [username]);
-
-//   return [dashboard, sections, setDashboard, setSections];
-// };
-
 function DashboardEditor() {
   const { user } = useUser();
   const { username , username: usernameFromURL } = useParams();
-  // const [dashboard, sections, setDashboard, setSections] = useFetchDashboardData(username);
-  
-  // const { dashboardLayout, setDashboardLayout } = useDashboard();
-  const { dashboard, setDashboard, sections, setSections, dashboardLayout, setDashboardLayout } = useDashboard();
 
+  const { 
+    dashboard, setDashboard, 
+    sections, setSections, 
+    dashboardLayout, setDashboardLayout,
+    setUpdateTrigger
+  } = useDashboard(); // Getting values from DashboardContext
 
   const [pickerIsOpen, setPickerIsOpen] = useState(null);
   const navigate = useNavigate();
@@ -149,21 +132,40 @@ function DashboardEditor() {
       });
   }, 300);
 
+  const handleDashboardTitleChange = (event) => {
+    const newDashboardTitle = event.target.value;
+    if (dashboard) {
+      setDashboard({ ...dashboard, title: newDashboardTitle });
+      debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
+    }
+  };
+
   const debouncedUpdateSections = useDebounce((newSections) => {
     axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
       .then(() => {
         // Database successfully updated
+        setUpdateTrigger(prevTrigger => prevTrigger + 1);
       })
       .catch((error) => {
         console.error('Error:', error);
       });
   }, 300);
 
-  const handleDashboardTitleChange = (event) => {
-    const newDashboardTitle = event.target.value;
-    if (dashboard) {
-      setDashboard({ ...dashboard, title: newDashboardTitle });
-      debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
+  const handleColorChange = (color, index) => {
+    const newSections = [...sections];
+    newSections[index].color = color.hex;
+    setSections(newSections);
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+    .then(() => {
+      setUpdateTrigger(prevTrigger => prevTrigger + 1);
+    } )
+  };
+
+  const togglePicker = (index) => {
+    if (pickerIsOpen === index) {
+      setPickerIsOpen(null);
+    } else {
+      setPickerIsOpen(index);
     }
   };
 
@@ -183,59 +185,69 @@ function DashboardEditor() {
     
     debouncedUpdateSections(newSections);  // Using debounced function here
   };
-
-  const handleColorChange = (color, index) => {
-    const newSections = [...sections];
-    newSections[index].color = color.hex;
-    setSections(newSections);
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
-  };
-
-  const togglePicker = (index) => {
-    if (pickerIsOpen === index) {
-      setPickerIsOpen(null);
-    } else {
-      setPickerIsOpen(index);
-    }
-  };
+  
 
   const moveSection = (fromIndex, toIndex) => {
     const newSections = [...sections];
     const [movedItem] = newSections.splice(fromIndex, 1);
     newSections.splice(toIndex, 0, movedItem);
-
+  
     // Update the "order" field for each section
     newSections.forEach((section, index) => {
       section.order = index;
     });
-
+  
+    // Update the sections first
     setSections(newSections);
-
-    // Send updated ordering to the server (including the new "order" fields)
+  
+    // Then update the backend
     axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
-      .then((res) => {
-        // Handle success
+      .then(() => {
+        // Once the backend is updated, then update the trigger
+        setUpdateTrigger(prevTrigger => prevTrigger + 1);
       })
       .catch((error) => {
         console.error('Error:', error);
       });
   };
-
+  
   const addSection = () => {
     const newSection = {
       title: `Section ${sections.length + 1}`,
       color: '#FFFFFF',
     };
     const newSections = [...sections, newSection];
+  
+    // Update the sections first
     setSections(newSections);
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
+  
+    // Then update the backend
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+      .then(() => {
+        // Once the backend is updated, then update the trigger
+        setUpdateTrigger(prevTrigger => prevTrigger + 1);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
-
+  
   const removeSection = (index) => {
     const newSections = sections.filter((_, i) => i !== index);
+  
+    // Update the sections first
     setSections(newSections);
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
-  };
+  
+    // Then update the backend
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+      .then(() => {
+        // Once the backend is updated, then update the trigger
+        setUpdateTrigger(prevTrigger => prevTrigger + 1);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };  
 
   useEffect(() => {
     // Fetch the user's uploadedMedia array from the backend
