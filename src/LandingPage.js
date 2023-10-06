@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';  // Add useEffect and useRef
 import { Link } from 'react-router-dom';
+
 import './LandingPage.scss';
 
 function CubeAnimation() {

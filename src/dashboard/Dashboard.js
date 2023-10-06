@@ -2,9 +2,10 @@ import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from '../UserContext';
-import '../App.scss'
 import SpinnerLoader from '../loaders/SpinnerLoader';
 import { useDashboard } from './DashboardContext';
+
+import '../App.scss'
 
 const AccordionLayout = lazy(() => import('./layouts/accordion/AccordionLayout'));
 const TabbedLayout = lazy(() => import('./layouts/tabbed/TabbedLayout'));
