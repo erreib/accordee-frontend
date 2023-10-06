@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import Dashboard from './Dashboard';
-import DashboardEditor from './DashboardEditor';
+
+import Dashboard from './dashboard/Dashboard';
+import DashboardEditor from './dashboard/DashboardEditor';
+import { DashboardProvider } from './dashboard/DashboardContext';
+
 import Signup from './Signup';
 import Login from './login/Login';
 import LoginForm from './login/LoginForm';  // <-- Import LoginForm
 import LandingPage from './LandingPage';
+
 import { UserProvider, useUser } from './UserContext';
 
 import './App.scss';
@@ -64,6 +68,22 @@ function UserStatus() {
   );
 }
 
+function DashboardWithProvider(props) {
+  return (
+    <DashboardProvider>
+      <Dashboard {...props} />
+    </DashboardProvider>
+  );
+}
+
+function DashboardEditorWithProvider(props) {
+  return (
+    <DashboardProvider>
+      <DashboardEditor {...props} />
+    </DashboardProvider>
+  );
+}
+
 function App() {
   return (
     <UserProvider>
@@ -71,11 +91,11 @@ function App() {
         <SignupButton />
         <UserStatus />
         <Routes>
-          <Route path=":username/edit" element={<DashboardEditor />} />
-          <Route path=":username" element={<Dashboard />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<LandingPage />} />
+          <Route path=":username/edit" element={<DashboardEditorWithProvider />} />
+          <Route path=":username" element={<DashboardWithProvider />} />
         </Routes>
       </Router>
     </UserProvider>

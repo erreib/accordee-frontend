@@ -1,9 +1,10 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useUser } from './UserContext';
-import './App.scss'
-import SpinnerLoader from './loaders/SpinnerLoader';
+import { useUser } from '../UserContext';
+import '../App.scss'
+import SpinnerLoader from '../loaders/SpinnerLoader';
+import { useDashboard } from './DashboardContext';
 
 const AccordionLayout = lazy(() => import('./layouts/accordion/AccordionLayout'));
 const TabbedLayout = lazy(() => import('./layouts/tabbed/TabbedLayout'));
@@ -14,13 +15,13 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL;
 function UserDashboard({ isPreview }) {
   const { username } = useParams();
   const { user } = useUser();
-  const [dashboard, setDashboard] = useState(null);
   const [error, setError] = useState(null);
 
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
 
-  const [layoutChoice, setDashboardLayout] = useState('basic');
+  const { dashboardLayout, setDashboardLayout, dashboard, setDashboard } = useDashboard();
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,7 +47,7 @@ function UserDashboard({ isPreview }) {
     }
   
     fetchData();
-  });
+  },[username,setDashboardLayout,setDashboard]);
 
   const handleEdit = () => {
     navigate(`/${username}/edit`);
@@ -72,19 +73,19 @@ function UserDashboard({ isPreview }) {
         <div>
 
           <Suspense fallback={<SpinnerLoader />}>
-            {layoutChoice === 'accordion' && (
+            {dashboardLayout  === 'accordion' && (
               <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
             )}
           </Suspense>
 
           <Suspense fallback={<SpinnerLoader />}>
-            {layoutChoice === 'tabbed' && (
+            {dashboardLayout  === 'tabbed' && (
               <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
             )}
           </Suspense>
 
           <Suspense fallback={<SpinnerLoader />}>
-          {layoutChoice === 'basic' && 
+          {dashboardLayout  === 'basic' && 
             <BasicLayout sections={dashboard.sections} />}
           </Suspense>
 

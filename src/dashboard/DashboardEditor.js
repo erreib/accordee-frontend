@@ -1,17 +1,19 @@
 // src/DashboardEditor.js
 import React, { useEffect, useState } from 'react';
-import Dashboard from './Dashboard'; // Import Dashboard component
 import axios from 'axios';
+
+import Dashboard from './Dashboard'; // Import Dashboard component
 import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
+import { useDashboard } from './DashboardContext';
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChromePicker } from 'react-color';
-import { useUser } from './UserContext';
+import { useUser } from '../UserContext';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
-import './App.scss';
+import '../App.scss';
 import './DashboardEditor.scss';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -36,11 +38,65 @@ const useDebounce = (callback, delay) => {
   return debouncedFunction;
 };
 
-const useFetchDashboardData = (username) => {
-  const [dashboard, setDashboard] = useState(null);
-  const [sections, setSections] = useState([]);
+// const useFetchDashboardData = (username) => {
+//   const [dashboard, setDashboard] = useState(null);
+//   const [sections, setSections] = useState([]);
+
+//   useEffect(() => {
+//     axios.get(`${backendUrl}/${username}`)
+//       .then((response) => {
+//         setDashboard(response.data.dashboard);
+//         setSections(response.data.dashboard.sections);
+//       })
+//       .catch((error) => {
+//         console.error('An error occurred while fetching data:', error);
+//         alert("An error occurred. Please try again.");
+//       });
+//   }, [username]);
+
+//   return [dashboard, sections, setDashboard, setSections];
+// };
+
+function DashboardEditor() {
+  const { user } = useUser();
+  const { username , username: usernameFromURL } = useParams();
+  // const [dashboard, sections, setDashboard, setSections] = useFetchDashboardData(username);
+  
+  // const { dashboardLayout, setDashboardLayout } = useDashboard();
+  const { dashboard, setDashboard, sections, setSections, dashboardLayout, setDashboardLayout } = useDashboard();
+
+
+  const [pickerIsOpen, setPickerIsOpen] = useState(null);
+  const navigate = useNavigate();
+
+  const [animationParent] = useAutoAnimate();
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadedMedia, setUploadedMedia] = useState([]);
+
+  const [customDomain, setCustomDomain] = useState('');
+  const [verificationToken, setVerificationToken] = useState('');
+  const [isVerified, setIsVerified] = useState('false');
+
+  const axiosConfig = {
+    headers: {}
+  };
+
+  if (user && user.token) {
+    axiosConfig.headers['Authorization'] = `Bearer ${user.token}`;
+  }
+
+  if (user && user.token) {
+    console.log("User Token:", user.token);  // Debug line
+    axiosConfig.headers['Authorization'] = `Bearer ${user.token}`;
+  }
+  
+  const handleBackToDashboard = () => {
+    navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
+  }; 
 
   useEffect(() => {
+    // Fetch initial data
     axios.get(`${backendUrl}/${username}`)
       .then((response) => {
         setDashboard(response.data.dashboard);
@@ -48,36 +104,12 @@ const useFetchDashboardData = (username) => {
       })
       .catch((error) => {
         console.error('An error occurred while fetching data:', error);
-        alert("An error occurred. Please try again.");
       });
-  }, [username]);
-
-  return [dashboard, sections, setDashboard, setSections];
-};
-
-function DashboardEditor() {
-  const { username } = useParams();
-  const { user } = useUser();
-  const { username: usernameFromURL } = useParams();
-  const [dashboard, sections, setDashboard, setSections] = useFetchDashboardData(username);
-  const [pickerIsOpen, setPickerIsOpen] = useState(null);
-  const navigate = useNavigate();
-  const [dashboardLayout, setDashboardLayout] = useState('accordion'); // Initialize with a default layout
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadedMedia, setUploadedMedia] = useState([]);
-  const [animationParent] = useAutoAnimate();
-
-  const [customDomain, setCustomDomain] = useState('');
-  const [verificationToken, setVerificationToken] = useState('');
-  const [isVerified, setIsVerified] = useState('false');
-  
-  const handleBackToDashboard = () => {
-    navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
-  }; 
+  }, [username, setDashboard, setSections]);  
 
   useEffect(() => {
     if (user === null) {
-      navigate(`/${username}`);  // Navigate to the user's dashboard
+      navigate(`/${username}`);  // Navigate to the user's dashboard if not logged in
     }
   }, [user,username,navigate]);
 
@@ -97,7 +129,113 @@ function DashboardEditor() {
       .catch((error) => {
         console.error('An error occurred while fetching layout data:', error);
       });
-  }, [username]);
+  }, [username,setDashboardLayout]);
+
+  const handleLayoutChange = (newLayout) => {
+    // Update the user's dashboard layout choice in the backend
+    axios.post(`${backendUrl}/${username}/layout`, { layout: newLayout })
+    .then(() => {
+        setDashboardLayout(newLayout);
+      })
+      .catch((error) => {
+        console.error('Error updating layout:', error);
+      });
+  };
+
+  const debouncedUpdateTitle = useDebounce((newTitle) => {
+    axios.post(`${backendUrl}/${username}/update`, { title: newTitle })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }, 300);
+
+  const debouncedUpdateSections = useDebounce((newSections) => {
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+      .then(() => {
+        // Database successfully updated
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }, 300);
+
+  const handleDashboardTitleChange = (event) => {
+    const newDashboardTitle = event.target.value;
+    if (dashboard) {
+      setDashboard({ ...dashboard, title: newDashboardTitle });
+      debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
+    }
+  };
+
+  const updateSectionInfoInDB = (index, newSectionTitle, newContent) => {
+    // Step 1: Update local state immediately
+    const newSections = [...sections];
+
+    // Update the title and content if they are not undefined
+    if (newSectionTitle !== undefined) {
+      newSections[index].title = newSectionTitle;
+    }
+    if (newContent !== undefined) {
+      newSections[index].content = newContent;
+    }
+
+    setSections(newSections);
+    
+    debouncedUpdateSections(newSections);  // Using debounced function here
+  };
+
+  const handleColorChange = (color, index) => {
+    const newSections = [...sections];
+    newSections[index].color = color.hex;
+    setSections(newSections);
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
+  };
+
+  const togglePicker = (index) => {
+    if (pickerIsOpen === index) {
+      setPickerIsOpen(null);
+    } else {
+      setPickerIsOpen(index);
+    }
+  };
+
+  const moveSection = (fromIndex, toIndex) => {
+    const newSections = [...sections];
+    const [movedItem] = newSections.splice(fromIndex, 1);
+    newSections.splice(toIndex, 0, movedItem);
+
+    // Update the "order" field for each section
+    newSections.forEach((section, index) => {
+      section.order = index;
+    });
+
+    setSections(newSections);
+
+    // Send updated ordering to the server (including the new "order" fields)
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+      .then((res) => {
+        // Handle success
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
+
+  const addSection = () => {
+    const newSection = {
+      title: `Section ${sections.length + 1}`,
+      color: '#FFFFFF',
+    };
+    const newSections = [...sections, newSection];
+    setSections(newSections);
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
+  };
+
+  const removeSection = (index) => {
+    const newSections = sections.filter((_, i) => i !== index);
+    setSections(newSections);
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
+  };
 
   useEffect(() => {
     // Fetch the user's uploadedMedia array from the backend
@@ -183,113 +321,6 @@ function DashboardEditor() {
       })
       .catch((error) => {
         console.error('An error occurred while deleting the file:', error);
-      });
-  };
-
-  const handleLayoutChange = (newLayout) => {
-    // Update the user's dashboard layout choice in the backend
-    axios.post(`${backendUrl}/${username}/layout`, { layout: newLayout })
-      .then(() => {
-        setDashboardLayout(newLayout);
-      })
-      .catch((error) => {
-        console.error('Error updating layout:', error);
-      });
-  };
-
-  const debouncedUpdateTitle = useDebounce((newTitle) => {
-    axios.post(`${backendUrl}/${username}/update`, { title: newTitle })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  }, 300);
-
-  const debouncedUpdateSections = useDebounce((newSections) => {
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
-      .then(() => {
-        // Database successfully updated
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  }, 300);
-
-  const handleDashboardTitleChange = (event) => {
-    const newDashboardTitle = event.target.value;
-    if (dashboard) {
-      setDashboard({ ...dashboard, title: newDashboardTitle });
-      debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
-    }
-  };
-
-  const updateSectionInfoInDB = (index, newSectionTitle, newContent) => {
-    // Step 1: Update local state immediately
-    const newSections = [...sections];
-
-    // Update the title and content if they are not undefined
-    if (newSectionTitle !== undefined) {
-      newSections[index].title = newSectionTitle;
-    }
-    if (newContent !== undefined) {
-      newSections[index].content = newContent;
-    }
-
-    setSections(newSections);
-    
-    debouncedUpdateSections(newSections);  // Using debounced function here
-  };
-
-
-  const addSection = () => {
-    const newSection = {
-      title: `Section ${sections.length + 1}`,
-      color: '#FFFFFF',
-    };
-    const newSections = [...sections, newSection];
-    setSections(newSections);
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
-  };
-
-  const removeSection = (index) => {
-    const newSections = sections.filter((_, i) => i !== index);
-    setSections(newSections);
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
-  };
-
-  const handleColorChange = (color, index) => {
-    const newSections = [...sections];
-    newSections[index].color = color.hex;
-    setSections(newSections);
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections });
-  };
-
-  const togglePicker = (index) => {
-    if (pickerIsOpen === index) {
-      setPickerIsOpen(null);
-    } else {
-      setPickerIsOpen(index);
-    }
-  };
-
-  const moveSection = (fromIndex, toIndex) => {
-    const newSections = [...sections];
-    const [movedItem] = newSections.splice(fromIndex, 1);
-    newSections.splice(toIndex, 0, movedItem);
-
-    // Update the "order" field for each section
-    newSections.forEach((section, index) => {
-      section.order = index;
-    });
-
-    setSections(newSections);
-
-    // Send updated ordering to the server (including the new "order" fields)
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
-      .then((res) => {
-        // Handle success
-      })
-      .catch((error) => {
-        console.error('Error:', error);
       });
   };
 

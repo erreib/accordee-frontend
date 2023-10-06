@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import './BasicLayout.scss';
-import SpinnerLoader from '../../loaders/SpinnerLoader';
+import SpinnerLoader from '../../../loaders/SpinnerLoader';
 
 const BasicLayout = ({ sections }) => {
   return (

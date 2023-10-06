@@ -1,5 +1,5 @@
 // TabbedLayout.js
-import React, { useState } from 'react';
+import React from 'react';
 import NavTab from './NavTab';
 import TabContent from './TabContent';
 
