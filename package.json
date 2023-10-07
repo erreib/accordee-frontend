@@ -18,10 +18,12 @@
     "react-scripts": "5.0.1",
     "react-transition-group": "^4.4.5",
     "sass": "^1.68.0",
+    "serve": "^14.2.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "dev": "react-scripts start",
+    "start": "serve build -s -n -L -p $PORT",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
