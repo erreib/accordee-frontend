@@ -24,7 +24,7 @@ import './App.scss';
 //   throw new Error("Missing Publishable Key")
 // }
 
-const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
+const clerkPubKey = 'pk_test_cmF0aW9uYWwtc3BhbmllbC00NC5jbGVyay5hY2NvdW50cy5kZXYk';
 
 function UserStatus() {
   const { isLoaded, isSignedIn, user } = useUser();
