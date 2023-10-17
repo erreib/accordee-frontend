@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "REACT_APP_CLERK_PUBLISHABLE_KEY=$REACT_APP_CLERK_PUBLISHABLE_KEY" > /app/.env
+exec "$@"

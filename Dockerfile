@@ -1,13 +1,13 @@
-# Use an official Node runtime as the build image
-FROM node:14 AS build-stage
+# Use an official Node runtime as a base image
+FROM node:14
 
-# Set the working directory
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package.json and package-lock.json for installing dependencies
 COPY package*.json ./
 
-# Install project dependencies
+# Install any needed packages
 RUN npm install
 
 # Copy the current directory contents into the container
@@ -16,21 +16,20 @@ COPY . .
 # Build the app
 RUN npm run build
 
-# Production stage
-FROM node:14 AS production-stage
+# Install serve for serving the application
+RUN npm install -g serve
 
-# Set working directory
-WORKDIR /app
+# Copy entrypoint script into the image
+COPY entrypoint.sh /entrypoint.sh
 
-# Copy the build folder and package files
-COPY --from=build-stage /app/build/ /app/build/
-COPY package*.json ./
+# Make sure the script is executable
+RUN chmod +x /entrypoint.sh
 
-# Install 'serve' package
-RUN npm install serve
+# Set the entry point
+ENTRYPOINT ["/entrypoint.sh"]
 
-# Expose the web server port
-EXPOSE 3000
+# Make port 5000 available to the outside world
+EXPOSE 5000
 
-# Command to run the application
-CMD ["npm", "start"]
+# Command to run the application using serve
+CMD serve -s build -l $PORT
