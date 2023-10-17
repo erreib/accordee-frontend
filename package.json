@@ -27,7 +27,9 @@
     "start": "serve build -s -n -L -p $PORT",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "docker-build": "DOCKER_BUILDKIT=1 docker build -t reg.dev.eriksmedia.com/erreib/accordee-frontend .",
+    "docker-push": "docker push reg.dev.eriksmedia.com/erreib/accordee-frontend"
   },
   "eslintConfig": {
     "extends": [
