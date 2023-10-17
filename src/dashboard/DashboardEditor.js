@@ -16,9 +16,7 @@ import { faArrowUp, faArrowDown, faArrowLeft } from '@fortawesome/free-solid-svg
 import '../App.scss';
 import './DashboardEditor.scss';
 
-// const backendUrl = process.env.REACT_APP_BACKEND_URL;
-const backendUrl = 'https://backend.accord.ee';
-
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
 
 // Debounce timer to handle input changes on the user's dashboard settings

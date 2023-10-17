@@ -11,8 +11,7 @@ const AccordionLayout = lazy(() => import('./layouts/accordion/AccordionLayout')
 const TabbedLayout = lazy(() => import('./layouts/tabbed/TabbedLayout'));
 const BasicLayout = lazy(() => import('./layouts/basic/BasicLayout'));
 
-// const backendUrl = process.env.REACT_APP_BACKEND_URL;
-const backendUrl = 'https://backend.accord.ee';
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 function UserDashboard({ isPreview }) {
   const { username } = useParams();
