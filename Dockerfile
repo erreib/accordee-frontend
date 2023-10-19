@@ -1,26 +1,20 @@
-# Use an official Node runtime as a base image
-FROM node:14
+# Use the official Node.js image as the base image
+FROM node:16
+
+# Set environment variables
+ENV REACT_APP_BACKEND_URL=https://backend.accord.ee
+ENV REACT_APP_GCP_BUCKET_URL=https://storage.cloud.google.com/accordee-media
+ENV REACT_APP_CLERK_PUBLISHABLE_KEY=pk_test_cmF0aW9uYWwtc3BhbmllbC00NC5jbGVyay5hY2NvdW50cy5kZXYk
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json for installing dependencies
-COPY package*.json ./
+# Copy your app's source code to the container
+COPY . /app
 
-# Install any needed packages
+# Install dependencies and build your React app
 RUN npm install
-
-# Copy the current directory contents into the container
-COPY . .
-
-# Build the app
 RUN npm run build
 
-# Install serve for serving the application
-RUN npm install -g serve
-
-# Make port 5000 available to the outside world
-EXPOSE 5000
-
-# Command to run the application using serve
-CMD serve -s build -l $PORT
+# Start your app
+CMD ["npm", "start"]

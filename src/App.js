@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes, useNavigate, useLocation, Link } from "re
 import Dashboard from './dashboard/Dashboard';
 import DashboardEditor from './dashboard/DashboardEditor';
 import { DashboardProvider } from './dashboard/DashboardContext';
-import { REACT_APP_CLERK_PUBLISHABLE_KEY } from './config';
 
 import LandingPage from './LandingPage';
 
@@ -26,7 +25,7 @@ import './App.scss';
 // }
 
 // const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-const clerkPubKey = REACT_APP_CLERK_PUBLISHABLE_KEY;
+const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
 function UserStatus() {
   const { isLoaded, isSignedIn, user } = useUser();

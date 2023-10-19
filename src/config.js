@@ -1,1 +1,0 @@
-export const REACT_APP_CLERK_PUBLISHABLE_KEY='pk_test_cmF0aW9uYWwtc3BhbmllbC00NC5jbGVyay5hY2NvdW50cy5kZXYk'
