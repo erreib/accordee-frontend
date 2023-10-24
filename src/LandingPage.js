@@ -101,7 +101,7 @@ function LandingPage() {
       <section className="landing-banner">
         <div className="landing-banner-content">
           <h2>Welcome to Accordee Project</h2>
-          <p>Your one-stop solution for a simple link dashboard. Testing CI docker deploy.</p>
+          <p>Your one-stop solution for a simple link dashboard. Testing CI docker deploy. One more.</p>
         </div>
         <CubeAnimation />
       </section>
