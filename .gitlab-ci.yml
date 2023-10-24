@@ -1,0 +1,8 @@
+before_script:
+  - docker info
+
+build_image:
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY/$CI_REGISTRY_USER/accordee-frontend .
+    - docker push $CI_REGISTRY/$CI_REGISTRY_USER/accordee-frontend
