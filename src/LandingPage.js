@@ -90,18 +90,15 @@ function LandingPage() {
         <h1>Accordee</h1>
         <nav>
           <ul>
-            {/* <li><Link to="/login">Login</Link></li>
-            <li><Link to="/signup">Signup</Link></li> */}
-            <li><Link to="/sign-in">Sign In</Link></li>
-            <li><Link to="/sign-up">Sign Up</Link></li>
-
+            <li><Link to="/login">Login</Link></li>
+            <li><Link to="/signup">Signup</Link></li>
           </ul>
         </nav>
       </header>
       <section className="landing-banner">
         <div className="landing-banner-content">
           <h2>Welcome to Accordee Project</h2>
-          <p>Your one-stop solution for a simple link dashboard. Testing CI docker deploy. One more.</p>
+          <p>Your one-stop solution for a simple link dashboard.</p>
         </div>
         <CubeAnimation />
       </section>

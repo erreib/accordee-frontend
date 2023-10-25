@@ -1,7 +1,7 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {useUser} from "@clerk/clerk-react";
+import { useUser } from '../UserContext';
 import SpinnerLoader from '../loaders/SpinnerLoader';
 import { useDashboard } from './DashboardContext';
 

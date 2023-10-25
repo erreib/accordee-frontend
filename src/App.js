@@ -1,67 +1,72 @@
-import { BrowserRouter, Route, Routes, useNavigate, useLocation, Link } from "react-router-dom";
+import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 
 import Dashboard from './dashboard/Dashboard';
 import DashboardEditor from './dashboard/DashboardEditor';
 import { DashboardProvider } from './dashboard/DashboardContext';
 
+import Signup from './Signup';
+import Login from './login/Login';
+import LoginForm from './login/LoginForm';  // <-- Import LoginForm
 import LandingPage from './LandingPage';
 
-import {
-  useClerk,
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  UserButton,
-  useUser,
-  RedirectToSignIn,
-  SignIn,
-  SignUp
-} from "@clerk/clerk-react";
+import { UserProvider, useUser } from './UserContext';
 
 import './App.scss';
 
-// if (!process.env.REACT_APP_CLERK_PUBLISHABLE_KEY) {
-//   throw new Error("Missing Publishable Key")
-// }
-
-// const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
+function SignupButton() {
+  const location = useLocation();
+  const isSignupPage = location.pathname === '/signup';
+  return (
+    <Link
+      to={isSignupPage ? '/' : '/signup'}
+      className="signup-button"
+    >
+      {isSignupPage ? 'Go to Home' : 'Signup'}
+    </Link>
+  );
+}
 
 function UserStatus() {
-  const { isLoaded, isSignedIn, user } = useUser();
-  const clerk = useClerk();
-  const navigate = useNavigate();
-  const location = useLocation(); // <-- Add this line to get the current location
+  const { user, setUser, setToken } = useUser();
+  const [showLoginModal, setShowLoginModal] = useState(false);  // <-- Add this line
 
-  const handleSignOut = () => {
-    clerk.signOut().then(() => {
-      // Check if the current location includes '/edit'
-      if (location.pathname.includes('/edit')) {
-        navigate(`/${user.username}`);
-      }
-      // No need to navigate if they're not on the '/edit' page
-    });
+  const handleLogout = () => {
+    // Clear user state
+    setUser(null);
+
+    // Clear token state
+    setToken(null);
+
+    // Remove from localStorage
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    localStorage.removeItem('token');
   };
-
-  if (!isLoaded || !isSignedIn) {
-    return null;
-  }
 
   return (
     <div className="login-status">
-      <div>Hello, {user.firstName} welcome to Clerk</div>
-      <div>UserID: {user.id}</div>
-      <div>Username: <Link className="username-link" to={`/${user.username}`}>{user.username}</Link></div>
-
-      <UserButton />
-      <button onClick={() => handleSignOut(user, navigate)}>Logout</button>
-
+      {user && user.username ? (
+        <>
+          Logged in as <Link className="username-link" to={`/${user.username}`}>{user.username}</Link> 
+          <button className="logout-button" onClick={handleLogout}>Logout</button>
+        </>
+      ) : (
+        <>
+          Not logged in
+          {!showLoginModal && <button onClick={() => setShowLoginModal(true)}>Login</button>} {/* Show login button only when modal is not shown */}
+          
+          {showLoginModal && (
+            <>
+              <button onClick={() => setShowLoginModal(false)}>Close</button>
+              <LoginForm />
+            </>
+          )}
+        </>
+      )}
     </div>
   );
-
 }
-
-
 
 function DashboardWithProvider(props) {
   return (
@@ -79,54 +84,21 @@ function DashboardEditorWithProvider(props) {
   );
 }
 
-function ClerkProviderWithRoutes() {
-  const navigate = useNavigate();
- 
-  return (
-    <ClerkProvider
-      publishableKey={clerkPubKey}
-      navigate={(to) => navigate(to)}
-    >
-
-      <UserStatus />
-      
-      <Routes>
-        <Route path="/" element={<LandingPage  />} />
-        
-        <Route
-          path="/sign-in/*"
-          element={<SignIn routing="path" path="/sign-in" />}
-        />
-        <Route
-          path="/sign-up/*"
-          element={<SignUp routing="path" path="/sign-up" />}
-        />
-
-        <Route path=":username" element={
-          <DashboardWithProvider />
-        } />
-
-        <Route path=":username/edit" element={
-          <>
-            <SignedIn>
-              <DashboardEditorWithProvider />
-            </SignedIn>
-            <SignedOut>
-              <RedirectToSignIn />
-            </SignedOut>
-          </>
-        } />
-
-      </Routes>
-    </ClerkProvider>
-  );
-}
-
 function App() {
   return (
-    <BrowserRouter>
-      <ClerkProviderWithRoutes />
-    </BrowserRouter>
+    <UserProvider>
+      <Router>
+        <SignupButton />
+        <UserStatus />
+        <Routes>
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path=":username/edit" element={<DashboardEditorWithProvider />} />
+          <Route path=":username" element={<DashboardWithProvider />} />
+        </Routes>
+      </Router>
+    </UserProvider>
   );
 }
 
