@@ -47,76 +47,19 @@
   justify-content: space-around;
   align-items: center;
   background-color: #eee;
-  padding: 2rem 0;
-}
-
-/* Cube animation */
-.cube-container {
-  perspective: 1000px;
-}
-
-.cube {
-  width: 100px;
-  transform-style: preserve-3d;
-  animation: enhancedRotateCube 20s infinite linear;
-}
-
-/* Cube faces */
-.face {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  background: rgba(255,255,255,0.8);
-  border: 1px solid #ccc;
-
-  /* Add more colors to faces for a more dynamic look */
-  &:nth-child(1) { background-color: rgba(0, 255, 255, 0.8); }
-  &:nth-child(2) { background-color: rgba(255, 0, 255, 0.8); }
-  &:nth-child(3) { background-color: rgba(255, 255, 0, 0.8); }
-  &:nth-child(4) { background-color: rgba(0, 255, 0, 0.8); }
-  &:nth-child(5) { background-color: rgba(0, 0, 255, 0.8); }
-  &:nth-child(6) { background-color: rgba(255, 0, 0, 0.8); }
-}
-
-.front  { transform: rotateY(  0deg) translateZ(50px); }
-.back   { transform: rotateY(180deg) translateZ(50px); }
-.left   { transform: rotateY(-90deg) translateZ(50px); }
-.right  { transform: rotateY( 90deg) translateZ(50px); }
-.top    { transform: rotateX( 90deg) translateZ(50px); }
-.bottom { transform: rotateX(-90deg) translateZ(50px); }
-
-
-/* Keyframes for cube animation */
-@keyframes enhancedRotateCube {
-  0% {
-    transform: rotateX(0deg) rotateY(0deg) scale(1);
-  }
-  25% {
-    transform: rotateX(90deg) rotateY(90deg) scale(1);
-  }
-  50% {
-    transform: rotateX(180deg) rotateY(180deg) scale(1);
-  }
-  75% {
-    transform: rotateX(270deg) rotateY(270deg) scale(1);
-  }
-  100% {
-    transform: rotateX(360deg) rotateY(360deg) scale(1);
-  }
-}
-
-.bubble-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
 }
 
 /* Landing features */
 .landing-features {
   text-align: center;
+  background-color: #f8f9fa;
+  padding: 2rem 0;
+
+  h2 {
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    color: #333;
+  }
 
   .feature-cards {
     display: flex;
@@ -126,12 +69,38 @@
     .feature-card {
       background-color: #fff;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       margin: 1rem;
-      padding: 1rem;
+      padding: 1.5rem;
       text-align: center;
       width: 30%;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+
+      .feature-icon {
+        font-size: 2rem;
+        color: #007bff;
+        margin-bottom: 1rem;
+      }
+
+      h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+        color: #666;
+      }
     }
   }
+}
+
+.three-fiber-container {
+  width: 50%;
+  height: 400px;
 }
