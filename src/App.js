@@ -8,7 +8,7 @@ import { DashboardProvider } from './dashboard/DashboardContext';
 import Signup from './Signup';
 import Login from './login/Login';
 import LoginForm from './login/LoginForm';  // <-- Import LoginForm
-import LandingPage from './LandingPage';
+import LandingPage from './landing/LandingPage';
 
 import { UserProvider, useUser } from './UserContext';
 
