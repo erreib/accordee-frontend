@@ -1,3 +1,6 @@
+tags:
+  - deployed
+
 before_script:
   - docker info
   - apk add --no-cache curl
