@@ -24,7 +24,7 @@ function LandingPage() {
 
         <div className="landing-banner-content">
           <h2>Welcome to Accordee Project</h2>
-          <p>Your one-stop solution for a simple link dashboard.</p>
+          <p>Your one-stop solution for a simple link dashboard. And I'm testing the CI behavior.</p>
         </div>
 
         <ThreeFiberScene />
