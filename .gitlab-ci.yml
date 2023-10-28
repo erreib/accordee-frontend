@@ -1,11 +1,12 @@
-tags:
-  - deployed
+
 
 before_script:
   - docker info
   - apk add --no-cache curl
 
 build_image:
+  tags:
+    - deployed
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - DOCKER_BUILDKIT=1 docker build -t $CI_REGISTRY/$CI_REGISTRY_USER/accordee-frontend .
