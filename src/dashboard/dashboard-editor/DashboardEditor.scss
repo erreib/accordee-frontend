@@ -2,27 +2,27 @@
 .editor-container {
   max-width: none;
   display: flex;
-  justify-content: space-around;
 }
 
 .mini-dashboard-preview {
   border-right: 1px solid #aeaeae;
   background: var(--dashboard-bg-color);
-  position: fixed;
-  width: 37%;
-  height: 100%;
+  position: sticky;
+  height: 100vh;
+  width: 40%;
+  top:0;
   left: 0;
   overflow-y:auto;
+  
   h3 {
     margin-bottom: 10px;
   }
 }
 
 .editor-wrapper {
-  width: 60%;
-  margin-left: 40%;
-  margin-right:2%;
   overflow-y: auto;
+  width:60%;
+  padding: 0 25px;
 }
 
 /* Header styles */

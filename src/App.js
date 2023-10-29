@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 
 import Dashboard from './dashboard/Dashboard';
-import DashboardEditor from './dashboard/DashboardEditor';
+import DashboardEditor from './dashboard/dashboard-editor/DashboardEditor';
 import { DashboardProvider } from './dashboard/DashboardContext';
 
 import Signup from './Signup';

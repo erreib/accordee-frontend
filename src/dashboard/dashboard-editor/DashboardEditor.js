@@ -2,18 +2,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import Dashboard from './Dashboard'; // Import Dashboard component
+import Dashboard from '../../dashboard/Dashboard'; // Import Dashboard component
 import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
-import { useDashboard } from './DashboardContext';
+import DomainVerification from './DomainVerification';  // Import the new component
+import FileUploader from './FileUploader'; // Import the new component
 
+import { useDashboard } from '../DashboardContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChromePicker } from 'react-color';
-import { useUser } from '../UserContext';
+import { useUser } from '../../UserContext';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
-import '../App.scss';
+import '../../App.scss';
 import './DashboardEditor.scss';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -53,13 +55,6 @@ function DashboardEditor() {
   const navigate = useNavigate();
 
   const [animationParent] = useAutoAnimate();
-
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadedMedia, setUploadedMedia] = useState([]);
-
-  const [customDomain, setCustomDomain] = useState('');
-  const [verificationToken, setVerificationToken] = useState('');
-  const [isVerified, setIsVerified] = useState('false');
 
   const axiosConfig = {
     headers: {}
@@ -249,118 +244,6 @@ function DashboardEditor() {
       });
   };  
 
-  useEffect(() => {
-    // Fetch the user's uploadedMedia array from the backend
-    axios.get(`${backendUrl}/${username}/uploaded-media`)
-      .then((response) => {
-        setUploadedMedia(response.data.uploadedMedia || []);
-      })
-      .catch((error) => {
-        console.error('An error occurred while fetching uploaded media:', error);
-      });
-  }, [username]);  // The effect will re-run if the username changes
-
-  useEffect(() => {
-    // Fetch verification details from the backend
-    const fetchVerificationDetails = async () => {
-      try {
-        const response = await axios.get(`${backendUrl}/${username}/get-verification-details`);
-        setVerificationToken(response.data.verificationToken);
-        setCustomDomain(response.data.customDomain);
-        setIsVerified(response.data.isVerified);  // No change needed here
-      } catch (error) {
-        console.error('Failed to fetch verification details:', error);
-      }
-    };
-  
-    fetchVerificationDetails();
-  }, [username]);  
-
-  const handleGenDomainVerification = async () => {
-    // Generate a unique token for verification.
-    const token = Math.random().toString(36).substr(2, 9);
-    setVerificationToken(token);
-  
-    try {
-      // Use the user object to send the user ID and verification token to your backend
-      const response = await axios.post(`${backendUrl}/${username}/generate-verification-token`, {
-        userId: user.id,  // Use 'id' to align with your UserContext field
-        verificationToken: token,
-        customDomain,  // Include customDomain here
-      });
-  
-      if (response.data.success) {
-        setIsVerified(false);  // Reset the verification status on the frontend
-        // Maybe show a success message to the user that the token was generated
-      } else {
-        // Show an error message to the user
-      }
-    } catch (error) {
-      console.error('Failed to generate verification token:', error);
-      // Show an error message to the user
-    }
-  };
-
-  const handleVerifyDNS = async () => {
-    try {
-      // Use the user object to send the user ID to your backend
-      const response = await axios.post(`${backendUrl}/${username}/verify-dns`, {
-        userId: user.id,  // Use 'id' to align with your UserContext field
-      });
-  
-      if (response.data.success) {
-        setIsVerified(true);  // Domain is verified
-        // Maybe show a success message to the user
-      } else {
-        setIsVerified(false);  // Domain verification failed
-        // Show an error message to the user
-      }
-    } catch (error) {
-      setIsVerified(false);  // An error occurred, so consider it as a failed verification
-      console.error('Failed to verify DNS:', error);
-      // Show an error message to the user
-    }
-  };  
-
-  // New handleDelete function
-  const handleDelete = (url) => {
-    // Make an API call to delete the file
-    axios.delete(`${backendUrl}/${username}/delete-media`, { data: { url } })
-      .then((response) => {
-        // Remove the URL from the uploadedMedia state array
-        const newUploadedMedia = uploadedMedia.filter(item => item !== url);
-        setUploadedMedia(newUploadedMedia);
-      })
-      .catch((error) => {
-        console.error('An error occurred while deleting the file:', error);
-      });
-  };
-
-  const handleFileUpload = async () => {
-    // Create a FormData object and append the file
-    const formData = new FormData();
-    formData.append('media', selectedFile);
-
-    // Make the API call to upload the file
-    try {
-      await axios.post(`${backendUrl}/${username}/upload-media`, formData);
-
-      // After successful upload, construct the new media URL
-      const newMediaUrl = `${bucketUrl}/${username}/${selectedFile.name}`;
-
-      // Update the uploadedMedia state, but only if the URL is not a duplicate
-      setUploadedMedia(prevState => {
-        if (!prevState.includes(newMediaUrl)) {
-          return [...prevState, newMediaUrl];
-        }
-        return prevState;
-      });
-
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }
-  };
-
   return (
     <div id="main-container" className="editor-container">
 
@@ -449,40 +332,17 @@ function DashboardEditor() {
           </div>
         </div>
 
-        <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])} />
-        <p>Supported file types: jpg, png, gif</p>
-        <button onClick={handleFileUpload}>Upload</button>
+        <FileUploader 
+          username={username} 
+          backendUrl={backendUrl} 
+          bucketUrl={bucketUrl} 
+        />
 
-        <ul>
-          {uploadedMedia.map((url, index) => (
-            <li key={index}>
-              <img src={url} alt="Uploaded Thumbnail" width="50" height="50" />
-              <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
-              <button onClick={() => handleDelete(url)}>Delete</button>
-            </li>
-          ))}
-        </ul>
-
-        <div>
-          <input
-            type="text"
-            placeholder="Custom Domain"
-            value={customDomain}
-            onChange={e => setCustomDomain(e.target.value)}
-          />
-          <button onClick={handleGenDomainVerification}>Generate Verification Token</button>
-        </div>
-
-        {verificationToken && (
-          <div>
-            <p>Please add the following TXT record to your DNS settings to verify domain ownership:</p>
-            <code>{verificationToken}</code>
-            <button onClick={handleVerifyDNS}>Verify Domain</button>
-          </div>
-        )}
-
-        {isVerified && <p>Domain verified!</p>}
-
+        <DomainVerification
+          username={username}
+          backendUrl={backendUrl}
+          userId={user ? user.id : null}
+        />
 
       </div>
 
