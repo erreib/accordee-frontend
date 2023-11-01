@@ -11,9 +11,9 @@ import { useDashboard } from '../DashboardContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChromePicker } from 'react-color';
 import { useUser } from '../../UserContext';
-import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUp, faArrowDown, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faArrowDown, faArrowLeft, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import '../../App.scss';
 import './DashboardEditor.scss';
@@ -42,19 +42,18 @@ const useDebounce = (callback, delay) => {
 
 function DashboardEditor() {
   const { user } = useUser();
-  const { username , username: usernameFromURL } = useParams();
+  const { username, username: usernameFromURL } = useParams();
 
-  const { 
-    dashboard, setDashboard, 
-    sections, setSections, 
+  const {
+    dashboard, setDashboard,
+    sections, setSections,
     dashboardLayout, setDashboardLayout,
     setUpdateTrigger
   } = useDashboard(); // Getting values from DashboardContext
 
+  const [isBetaFeaturesExpanded, setIsBetaFeaturesExpanded] = useState(false);  // New state variable
   const [pickerIsOpen, setPickerIsOpen] = useState(null);
   const navigate = useNavigate();
-
-  const [animationParent] = useAutoAnimate();
 
   const axiosConfig = {
     headers: {}
@@ -68,10 +67,10 @@ function DashboardEditor() {
     console.log("User Token:", user.token);  // Debug line
     axiosConfig.headers['Authorization'] = `Bearer ${user.token}`;
   }
-  
+
   const handleBackToDashboard = () => {
     navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
-  }; 
+  };
 
   useEffect(() => {
     // Fetch initial data
@@ -83,13 +82,13 @@ function DashboardEditor() {
       .catch((error) => {
         console.error('An error occurred while fetching data:', error);
       });
-  }, [username, setDashboard, setSections]);  
+  }, [username, setDashboard, setSections]);
 
   useEffect(() => {
     if (user === null) {
       navigate(`/${username}`);  // Navigate to the user's dashboard if not logged in
     }
-  }, [user,username,navigate]);
+  }, [user, username, navigate]);
 
   // Redirect if the username from the URL does not match the logged-in user's username
   useEffect(() => {
@@ -107,12 +106,12 @@ function DashboardEditor() {
       .catch((error) => {
         console.error('An error occurred while fetching layout data:', error);
       });
-  }, [username,setDashboardLayout]);
+  }, [username, setDashboardLayout]);
 
   const handleLayoutChange = (newLayout) => {
     // Update the user's dashboard layout choice in the backend
     axios.post(`${backendUrl}/${username}/layout`, { layout: newLayout })
-    .then(() => {
+      .then(() => {
         setDashboardLayout(newLayout);
       })
       .catch((error) => {
@@ -151,9 +150,9 @@ function DashboardEditor() {
     newSections[index].color = color.hex;
     setSections(newSections);
     axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
-    .then(() => {
-      setUpdateTrigger(prevTrigger => prevTrigger + 1);
-    } )
+      .then(() => {
+        setUpdateTrigger(prevTrigger => prevTrigger + 1);
+      })
   };
 
   const togglePicker = (index) => {
@@ -177,24 +176,39 @@ function DashboardEditor() {
     }
 
     setSections(newSections);
-    
+
     debouncedUpdateSections(newSections);  // Using debounced function here
   };
-  
+
+  const onDragEnd = (result) => {
+    const { destination, source } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    if (destination.index === source.index) {
+      return;
+    }
+
+    moveSection(source.index, destination.index);
+  };
+
+
 
   const moveSection = (fromIndex, toIndex) => {
     const newSections = [...sections];
     const [movedItem] = newSections.splice(fromIndex, 1);
     newSections.splice(toIndex, 0, movedItem);
-  
+
     // Update the "order" field for each section
     newSections.forEach((section, index) => {
       section.order = index;
     });
-  
+
     // Update the sections first
     setSections(newSections);
-  
+
     // Then update the backend
     axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
       .then(() => {
@@ -205,17 +219,17 @@ function DashboardEditor() {
         console.error('Error:', error);
       });
   };
-  
+
   const addSection = () => {
     const newSection = {
       title: `Section ${sections.length + 1}`,
       color: '#FFFFFF',
     };
     const newSections = [...sections, newSection];
-  
+
     // Update the sections first
     setSections(newSections);
-  
+
     // Then update the backend
     axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
       .then(() => {
@@ -226,13 +240,13 @@ function DashboardEditor() {
         console.error('Error:', error);
       });
   };
-  
+
   const removeSection = (index) => {
     const newSections = sections.filter((_, i) => i !== index);
-  
+
     // Update the sections first
     setSections(newSections);
-  
+
     // Then update the backend
     axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
       .then(() => {
@@ -242,7 +256,7 @@ function DashboardEditor() {
       .catch((error) => {
         console.error('Error:', error);
       });
-  };  
+  };
 
   return (
     <div id="main-container" className="editor-container">
@@ -272,77 +286,123 @@ function DashboardEditor() {
         <div className="section-management">
           <h3>Add/Remove sections</h3>
 
-          <div ref={animationParent} className="sections-list">
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="sections">
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps} className="sections-list">
+                  {sections.map((section, index) => (
+                    <Draggable key={index} draggableId={String(index)} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="section-item"
+                        >
+                          <div className="button-container">
+                            <div className="arrow-buttons">
+                              <button
+                                className={`arrow-button ${index === 0 ? 'disabled-arrow' : ''}`}
+                                disabled={index === 0}
+                                onClick={() => moveSection(index, index - 1)}
+                              >
+                                <FontAwesomeIcon icon={faArrowUp} />
+                              </button>
 
-            {sections.map((section, index) => (
-              <div className={`section-item`} key={index}>
+                              <button
+                                className={`arrow-button ${index === sections.length - 1 ? 'disabled-arrow' : ''}`}
+                                disabled={index === sections.length - 1}
+                                onClick={() => moveSection(index, index + 1)}
+                              >
+                                <FontAwesomeIcon icon={faArrowDown} />
+                              </button>
+                            </div>
+                          </div>
+                          <button
+                            style={{
+                              backgroundColor: section.color,
+                              width: '20px',
+                              height: '20px',
+                            }}
+                            onClick={() => togglePicker(index)}
+                          >
+                            {pickerIsOpen === index ? '▼' : '▶'}
+                          </button>
+                          {pickerIsOpen === index && (
+                            <>
+                              <button onClick={() => setPickerIsOpen(null)}>Close</button>
+                              <ChromePicker
+                                color={section.color}
+                                onChangeComplete={(color) => handleColorChange(color, index)}
+                              />
+                            </>
+                          )}
 
-                <button
-                  style={{
-                    backgroundColor: section.color,
-                    width: '20px',
-                    height: '20px',
-                  }}
-                  onClick={() => togglePicker(index)}
-                >
-                  {pickerIsOpen === index ? '▼' : '▶'}
-                </button>
-                {pickerIsOpen === index && (
-                  <><button onClick={() => setPickerIsOpen(null)}>Close</button>
-                    <ChromePicker
-                      color={section.color}
-                      onChangeComplete={(color) => handleColorChange(color, index)}
-                    /></>
-                )}
+                          <input
+                            type="text"
+                            placeholder="Enter section title..."
+                            value={section.title || ''}
+                            onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
+                          />
 
-                <input
-                  type="text"
-                  placeholder="Enter section title..."
-                  value={section.title || ''}
-                  onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
-                />
+                          <input
+                            type="text"
+                            placeholder="Enter custom content..."
+                            value={section.content || ''}
+                            onChange={(e) => updateSectionInfoInDB(index, undefined, e.target.value)}
+                          />
 
-                <input
-                  type="text"
-                  placeholder="Enter custom content..."
-                  value={section.content || ''}
-                  onChange={(e) => updateSectionInfoInDB(index, undefined, e.target.value)}
-                />
+                          <div className="button-container">
+                            <button className="remove-button" onClick={() => removeSection(index)}>
+                              <FontAwesomeIcon icon={faTimes} />
+                            </button>
+                          </div>
 
-                <button onClick={() => removeSection(index)}>-</button>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
 
-                <button
-                  className={`row-button ${index === 0 ? 'disabled-arrow' : ''}`}
-                  disabled={index === 0}
-                  onClick={() => moveSection(index, index - 1)}
-                >
-                  <FontAwesomeIcon icon={faArrowUp} />
-                </button>
-                <button
-                  className={`row-button ${index === sections.length - 1 ? 'disabled-arrow' : ''}`}
-                  disabled={index === sections.length - 1}
-                  onClick={() => moveSection(index, index + 1)}
-                >
-                  <FontAwesomeIcon icon={faArrowDown} />
-                </button>
-              </div>
-            ))}
-
-            <button className="button" onClick={addSection}>+</button>
-          </div>
+          <button className="button" onClick={addSection}>+</button>
         </div>
 
-        <FileUploader 
-          username={username} 
-          backendUrl={backendUrl} 
-          bucketUrl={bucketUrl} 
-        />
+        {/* Beta Features Section */}
+        <div>
+          <button className="button" onClick={() => setIsBetaFeaturesExpanded(!isBetaFeaturesExpanded)}>
+            {isBetaFeaturesExpanded ? 'Collapse Beta Features' : 'Expand Beta Features'}
+          </button>
 
-        <DomainVerification
-          username={username}
-          backendUrl={backendUrl}
-          userId={user ? user.id : null}
-        />
+          {isBetaFeaturesExpanded && (
+            <div className="beta-features-section">
+              <h2>Beta Features</h2>
+
+              <div className="file-uploader-section">
+                <h3>File Uploader</h3>
+                <FileUploader
+                  username={username}
+                  backendUrl={backendUrl}
+                  bucketUrl={bucketUrl}
+                />
+              </div>
+
+              <hr className="section-divider" />
+
+              <div className="domain-verification-section">
+                <h3>Domain Verification</h3>
+                <DomainVerification
+                  username={username}
+                  backendUrl={backendUrl}
+                  userId={user ? user.id : null}
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
       </div>
 
