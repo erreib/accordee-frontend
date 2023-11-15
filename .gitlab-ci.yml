@@ -11,4 +11,4 @@ build_image:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - DOCKER_BUILDKIT=1 docker build -t $CI_REGISTRY/$CI_REGISTRY_USER/accordee-frontend .
     - docker push $CI_REGISTRY/$CI_REGISTRY_USER/accordee-frontend
-    - curl -X POST http://192.168.1.110:9000/api/webhooks/72e205ab-19f8-4494-9dd9-63c008e60f01
+    - curl -X POST http://eriknas:9000/api/webhooks/72e205ab-19f8-4494-9dd9-63c008e60f01
