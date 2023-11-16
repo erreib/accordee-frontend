@@ -6,6 +6,7 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
   const [verificationToken, setVerificationToken] = useState('');
   const [customDomain, setCustomDomain] = useState('');
   const [isVerified, setIsVerified] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);  // State to track loading status
 
   // function to fetch verification details from the backend
   const fetchVerificationDetails = async () => {
@@ -51,6 +52,7 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
   };
 
   const handleVerifyDNS = async () => {
+    setIsLoading(true);  // Start loading
     try {
       // Use the user object to send the user ID to your backend
       const response = await axios.post(`${backendUrl}/${username}/verify-dns`, {
@@ -68,6 +70,8 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
       setIsVerified(false);  // An error occurred, so consider it as a failed verification
       console.error('Failed to verify DNS:', error);
       // Show an error message to the user
+    } finally {
+      setIsLoading(false);  
     }
     fetchVerificationDetails();
   };
@@ -89,6 +93,7 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
           <p>Please add the following TXT record to your DNS settings to verify domain ownership:</p>
           <code>{verificationToken}</code>
           <button onClick={handleVerifyDNS}>Verify Domain</button>
+          {isLoading && <p>Loading...</p>}
         </div>
       )}
 
