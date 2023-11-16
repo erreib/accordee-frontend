@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 
 const DomainVerification = ({ username, backendUrl, userId }) => {
@@ -9,7 +9,7 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
   const [isLoading, setIsLoading] = useState(false);  // State to track loading status
 
   // function to fetch verification details from the backend
-  const fetchVerificationDetails = async () => {
+  const fetchVerificationDetails = useCallback(async () => {
     try {
       const response = await axios.get(`${backendUrl}/${username}/get-verification-details`);
       setVerificationToken(response.data.verificationToken);
@@ -18,13 +18,12 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
     } catch (error) {
       console.error('Failed to fetch verification details:', error);
     }
-  };
+  }, [backendUrl, username]);  // Dependencies  
 
-  // Fetch verification details on component mount
   useEffect(() => {
     fetchVerificationDetails();
-  }, [username, backendUrl]);
-
+  }, [fetchVerificationDetails]);  // Updated dependency array
+  
   const handleGenDomainVerification = async () => {
     // Generate a unique token for verification.
     const token = Math.random().toString(36).substr(2, 9);
