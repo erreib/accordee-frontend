@@ -64,7 +64,6 @@ function DashboardEditor() {
   }
 
   if (user && user.token) {
-    console.log("User Token:", user.token);  // Debug line
     axiosConfig.headers['Authorization'] = `Bearer ${user.token}`;
   }
 
@@ -109,8 +108,13 @@ function DashboardEditor() {
   }, [username, setDashboardLayout]);
 
   const handleLayoutChange = (newLayout) => {
-    // Update the user's dashboard layout choice in the backend
-    axios.post(`${backendUrl}/${username}/layout`, { layout: newLayout })
+    const token = localStorage.getItem('token'); // Assuming the token is stored in local storage
+
+    axios.post(`${backendUrl}/${username}/layout`, { layout: newLayout }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then(() => {
         setDashboardLayout(newLayout);
       })
@@ -120,22 +124,34 @@ function DashboardEditor() {
   };
 
   const debouncedUpdateTitle = useDebounce((newTitle) => {
-    axios.post(`${backendUrl}/${username}/update`, { title: newTitle })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+    const token = localStorage.getItem('token'); // Retrieve the token
+  
+    axios.post(`${backendUrl}/${username}/update`, { title: newTitle }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
   }, 300);
-
+  
   const handleDashboardTitleChange = (event) => {
     const newDashboardTitle = event.target.value;
     if (dashboard) {
       setDashboard({ ...dashboard, title: newDashboardTitle });
       debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
     }
-  };
+  };  
 
   const debouncedUpdateSections = useDebounce((newSections) => {
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+    const token = localStorage.getItem('token'); // Retrieve the token
+
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then(() => {
         // Database successfully updated
         setUpdateTrigger(prevTrigger => prevTrigger + 1);
@@ -149,10 +165,20 @@ function DashboardEditor() {
     const newSections = [...sections];
     newSections[index].color = color.hex;
     setSections(newSections);
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+
+    const token = localStorage.getItem('token'); // Retrieve the token
+
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then(() => {
         setUpdateTrigger(prevTrigger => prevTrigger + 1);
       })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
 
   const togglePicker = (index) => {
@@ -210,7 +236,11 @@ function DashboardEditor() {
     setSections(newSections);
 
     // Then update the backend
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
       .then(() => {
         // Once the backend is updated, then update the trigger
         setUpdateTrigger(prevTrigger => prevTrigger + 1);
@@ -230,8 +260,14 @@ function DashboardEditor() {
     // Update the sections first
     setSections(newSections);
 
+    const token = localStorage.getItem('token'); // Retrieve the token
+
     // Then update the backend
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then(() => {
         // Once the backend is updated, then update the trigger
         setUpdateTrigger(prevTrigger => prevTrigger + 1);
@@ -243,21 +279,27 @@ function DashboardEditor() {
 
   const removeSection = (index) => {
     const newSections = sections.filter((_, i) => i !== index);
-
+  
     // Update the sections first
     setSections(newSections);
-
+  
+    const token = localStorage.getItem('token'); // Retrieve the token
+  
     // Then update the backend
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections })
-      .then(() => {
-        // Once the backend is updated, then update the trigger
-        setUpdateTrigger(prevTrigger => prevTrigger + 1);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(() => {
+      // Once the backend is updated, then update the trigger
+      setUpdateTrigger(prevTrigger => prevTrigger + 1);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
   };
-
+  
   return (
     <div id="main-container" className="editor-container">
 
