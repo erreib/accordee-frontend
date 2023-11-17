@@ -6,12 +6,13 @@ import Dashboard from './dashboard/Dashboard';
 import DashboardEditor from './dashboard/dashboard-editor/DashboardEditor';
 import { DashboardProvider } from './dashboard/DashboardContext';
 
-import Signup from './Signup';
-import Login from './login/Login';
-import LoginForm from './login/LoginForm';  // <-- Import LoginForm
+import Signup from './auth/Signup';
+import Login from './auth/Login';
+import LoginForm from './auth/LoginForm';  // <-- Import LoginForm
 import LandingPage from './landing/LandingPage';
 
-import { UserProvider, useUser } from './UserContext';
+import { UserProvider, useUser } from './auth/UserContext';
+import { AxiosInterceptor } from './AxiosInterceptor'; // Adjust the path as needed
 
 import './App.scss';
 
@@ -29,33 +30,20 @@ function SignupButton() {
 }
 
 function UserStatus() {
-  const { user, setUser, setToken } = useUser();
-  const [showLoginModal, setShowLoginModal] = useState(false);  // <-- Add this line
-
-  const handleLogout = () => {
-    // Clear user state
-    setUser(null);
-
-    // Clear token state
-    setToken(null);
-
-    // Remove from localStorage
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username');
-    localStorage.removeItem('token');
-  };
+  const { user, logout } = useUser(); // Use logout from useUser hook
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   return (
     <div className="login-status">
       {user && user.username ? (
         <>
           Logged in as <Link className="username-link" to={`/${user.username}`}>{user.username}</Link> 
-          <button className="logout-button" onClick={handleLogout}>Logout</button>
+          <button className="logout-button" onClick={logout}>Logout</button>
         </>
       ) : (
         <>
           Not logged in
-          {!showLoginModal && <button onClick={() => setShowLoginModal(true)}>Login</button>} {/* Show login button only when modal is not shown */}
+          {!showLoginModal && <button onClick={() => setShowLoginModal(true)}>Login</button>}
           
           {showLoginModal && (
             <>
@@ -90,6 +78,7 @@ function App() {
     <HelmetProvider>
       <UserProvider>
         <Router>
+          <AxiosInterceptor />
           <SignupButton />
           <UserStatus />
           <Routes>

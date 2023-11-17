@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useUser } from '../UserContext';
+import { useUser } from './UserContext';
 import { useNavigate } from "react-router-dom";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;

@@ -10,7 +10,7 @@ import FileUploader from './FileUploader'; // Import the new component
 import { useDashboard } from '../DashboardContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChromePicker } from 'react-color';
-import { useUser } from '../../UserContext';
+import { useUser } from '../../auth/UserContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown, faArrowLeft, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';

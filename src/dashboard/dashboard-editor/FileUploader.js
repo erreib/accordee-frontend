@@ -16,7 +16,15 @@ const FileUploader = ({ username, backendUrl, bucketUrl }) => {
   }, [username, backendUrl]);
 
   const handleDelete = (url) => {
-    axios.delete(`${backendUrl}/${username}/delete-media`, { data: { url } })
+    const token = localStorage.getItem('token'); // Retrieve the token
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+      },
+      data: { url } // Axios requires data to be in this format for delete requests
+    };
+  
+    axios.delete(`${backendUrl}/${username}/delete-media`, config)
       .then(() => {
         const newUploadedMedia = uploadedMedia.filter(item => item !== url);
         setUploadedMedia(newUploadedMedia);
@@ -25,13 +33,20 @@ const FileUploader = ({ username, backendUrl, bucketUrl }) => {
         console.error('An error occurred while deleting the file:', error);
       });
   };
-
+  
   const handleFileUpload = async () => {
     const formData = new FormData();
     formData.append('media', selectedFile);
-
+  
     try {
-      await axios.post(`${backendUrl}/${username}/upload-media`, formData);
+      const token = localStorage.getItem('token'); // Retrieve the token from local storage or context
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}` // Add the token in the Authorization header
+        }
+      };
+  
+      await axios.post(`${backendUrl}/${username}/upload-media`, formData, config);
       const newMediaUrl = `${bucketUrl}/${username}/${selectedFile.name}`;
       setUploadedMedia(prevState => {
         if (!prevState.includes(newMediaUrl)) {
@@ -43,6 +58,7 @@ const FileUploader = ({ username, backendUrl, bucketUrl }) => {
       console.error('Error uploading file:', error);
     }
   };
+    
 
   return (
     <div>

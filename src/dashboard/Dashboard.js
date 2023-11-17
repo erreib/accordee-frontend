@@ -1,7 +1,7 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useUser } from '../UserContext';
+import { useUser } from '../auth/UserContext';
 import SpinnerLoader from '../loaders/SpinnerLoader';
 import { useDashboard } from './DashboardContext';
 import { Helmet } from 'react-helmet-async';

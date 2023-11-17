@@ -11,6 +11,17 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState({ id: initialUserId, username: initialUsername });
   const [token, setToken] = useState(initialToken);
 
+  const logout = () => {
+    // Clear user info from state
+    setUser(null);
+    setToken(null);
+
+    // Clear user info from local storage
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    localStorage.removeItem('token');
+  };
+
   // Save user info in localStorage whenever it changes
   useEffect(() => {
     if (user && user.id) {
@@ -29,7 +40,7 @@ export const UserProvider = ({ children }) => {
   }, [token]);
 
   return (
-    <UserContext.Provider value={{ user, setUser, token, setToken }}>
+    <UserContext.Provider value={{ user, setUser, token, setToken, logout }}>
       {children}
     </UserContext.Provider>
   );
@@ -38,3 +49,5 @@ export const UserProvider = ({ children }) => {
 export const useUser = () => useContext(UserContext);
 
 export default UserProvider;
+
+export { UserContext };
