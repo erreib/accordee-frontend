@@ -2,11 +2,14 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
+    align-items: center;
+    margin: 0 20px;
   }
   
 .contentArea {
     flex: 4;
     display: flex;
+    width: 100%;
     align-items: center;
     justify-content: center;
     max-height: 0;
@@ -29,6 +32,10 @@
     cursor: pointer;
     transition: all 0.5s ease-in-out;
     font-size: 24px; /* Default font size */
+    margin: 10px;
+    border-radius: 20px;
+    width:100%;
+    max-width:1080px;
 
     &:hover {
       background-color: #f0f0f0;

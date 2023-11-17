@@ -10,13 +10,17 @@
   position: sticky;
   height: 100vh;
   width: 40%;
-  top:0;
+  top: 0;
   left: 0;
-  overflow-y:auto;
-  
+  overflow-y: auto;
+
   h3 {
     margin-bottom: 10px;
   }
+
+  &.style1 { background: var(--style1); }
+  &.style2 { background: var(--style2); }
+  &.style3 { background: var(--style3); }
 }
 
 .editor-wrapper {

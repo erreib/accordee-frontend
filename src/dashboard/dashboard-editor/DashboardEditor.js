@@ -52,6 +52,8 @@ function DashboardEditor() {
     setUpdateTrigger
   } = useDashboard(); // Getting values from DashboardContext
 
+  const [backgroundStyle, setBackgroundStyle] = useState('style1'); // default style
+
   const [isBetaFeaturesExpanded, setIsBetaFeaturesExpanded] = useState(false);  // New state variable
   const [pickerIsOpen, setPickerIsOpen] = useState(null);
   const navigate = useNavigate();
@@ -123,6 +125,39 @@ function DashboardEditor() {
         console.error('Error updating layout:', error);
       });
   };
+
+  const handleBackgroundChange = (e) => {
+    const newBackgroundStyle = e.target.value;
+    setBackgroundStyle(newBackgroundStyle);
+  
+    // Retrieve the token from local storage
+    const token = localStorage.getItem('token');
+  
+    // Call API to update background style in backend
+    axios.post(`${backendUrl}/${username}/background-style`, { backgroundStyle: newBackgroundStyle }, {
+      headers: {
+        'Authorization': `Bearer ${token}` // Include the token in the request header
+      }
+    })
+    .then(() => {
+      // You can update the state or UI here if needed
+    })
+    .catch((error) => {
+      console.error('Error updating background style:', error);
+    });
+  };
+  
+  useEffect(() => {
+    // Fetch the user's background style choice from the backend
+    axios.get(`${backendUrl}/${username}/background-style`)
+      .then((response) => {
+        setBackgroundStyle(response.data.backgroundStyle);
+      })
+      .catch((error) => {
+        console.error('An error occurred while fetching background style data:', error);
+      });
+  }, [username, setBackgroundStyle]);
+  
 
   const debouncedUpdateTitle = useDebounce((newTitle) => {
     const token = localStorage.getItem('token'); // Retrieve the token
@@ -314,7 +349,7 @@ function DashboardEditor() {
         </button>
       </div>
 
-      <div className="mini-dashboard-preview">
+      <div className={`mini-dashboard-preview ${backgroundStyle}`}>
         <Dashboard sections={sections} layout={dashboardLayout} isPreview={true} />
       </div>
 
@@ -325,6 +360,15 @@ function DashboardEditor() {
         <div className="layout-selector">
           <p>Select a layout for your dashboard:</p>
           <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
+        </div>
+
+        <div>
+          <label>Background Style: </label>
+          <select value={backgroundStyle} onChange={handleBackgroundChange}>
+            <option value="style1">Style 1</option>
+            <option value="style2">Style 2</option>
+            <option value="style3">Style 3</option>
+          </select>
         </div>
 
         <div><label htmlFor="title">Title: </label>

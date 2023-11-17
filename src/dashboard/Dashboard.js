@@ -28,6 +28,9 @@ function UserDashboard({ isPreview }) {
     updateTrigger
   } = useDashboard();
 
+  const [backgroundStyle, setBackgroundStyle] = useState('style1');
+
+
   const navigate = useNavigate();
 
 
@@ -36,25 +39,26 @@ function UserDashboard({ isPreview }) {
       if (!username) {
         return;
       }
-
+  
       try {
-        const [dashboardResponse, layoutResponse] = await Promise.all([
+        const [dashboardResponse, layoutResponse, backgroundResponse] = await Promise.all([
           axios.get(`${backendUrl}/${username}`),
-          axios.get(`${backendUrl}/${username}/layout`)
+          axios.get(`${backendUrl}/${username}/layout`),
+          axios.get(`${backendUrl}/${username}/background-style`)
         ]);
-
+  
         setDashboard(dashboardResponse.data.dashboard);
         setDashboardLayout(layoutResponse.data.layout);
-        setError(null);
+        setBackgroundStyle(backgroundResponse.data.backgroundStyle);
       } catch (err) {
         console.error('API error:', err);
-        setError('User not found or other error');
-      } finally {
+        setError('An error occurred while fetching data'); // Consider more specific error messages
       }
     }
-
+  
     fetchData();
-  }, [username, updateTrigger, setDashboardLayout, setDashboard]);
+  }, [username, updateTrigger, setDashboard, setDashboardLayout]); // Removed the set functions from dependencies
+  
 
 
 
@@ -80,7 +84,7 @@ function UserDashboard({ isPreview }) {
       )}
 
       {!isPreview && (
-        <div className="dashboard-bg-element"></div>
+        <div className={`dashboard-bg-element ${backgroundStyle}`}></div>
       )}
 
       {error && <div>{error}</div>}
