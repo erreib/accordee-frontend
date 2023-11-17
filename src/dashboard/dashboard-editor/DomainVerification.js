@@ -26,16 +26,20 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
   
   const handleGenDomainVerification = async () => {
     // Generate a unique token for verification.
-    const token = Math.random().toString(36).substr(2, 9);
-    setVerificationToken(token);
+    const domainToken = Math.random().toString(36).substr(2, 9);
+    setVerificationToken(domainToken);
 
-    try {
-      // Use the user object to send the user ID and verification token to your backend
-      const response = await axios.post(`${backendUrl}/${username}/generate-verification-token`, {
-        userId,  // Use 'id' to align with your UserContext field
-        verificationToken: token,
-        customDomain,  // Include customDomain here
-      });
+    const token = localStorage.getItem('token'); // Assuming the token is stored in local storage
+
+  try {
+    const response = await axios.post(`${backendUrl}/${username}/generate-verification-token`, {
+      verificationToken: domainToken,
+      customDomain
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token}` // Correct way to set headers
+      }
+    });
 
       if (response.data.success) {
         setIsVerified(false);  // Reset the verification status on the frontend
@@ -51,26 +55,31 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
   };
 
   const handleVerifyDNS = async () => {
-    setIsLoading(true);  // Start loading
+    setIsLoading(true);
+    const token = localStorage.getItem('token'); // Get token from local storage
+  
     try {
-      // Use the user object to send the user ID to your backend
-      const response = await axios.post(`${backendUrl}/${username}/verify-dns`, {
-        userId,  // Use 'id' to align with your UserContext field
+      // Send the request with the Authorization header
+      const response = await axios.post(`${backendUrl}/${username}/verify-dns`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Set Authorization header
+        }
       });
-
+  
+      // Process the response
       if (response.data.success) {
-        setIsVerified(true);  // Domain is verified
+        setIsVerified(true); // Domain is verified
         // Maybe show a success message to the user
       } else {
-        setIsVerified(false);  // Domain verification failed
+        setIsVerified(false); // Domain verification failed
         // Show an error message to the user
       }
     } catch (error) {
-      setIsVerified(false);  // An error occurred, so consider it as a failed verification
+      setIsVerified(false); // An error occurred, so consider it as a failed verification
       console.error('Failed to verify DNS:', error);
       // Show an error message to the user
     } finally {
-      setIsLoading(false);  
+      setIsLoading(false);
     }
     fetchVerificationDetails();
   };

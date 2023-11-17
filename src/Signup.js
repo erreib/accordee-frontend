@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext';
+import { Helmet } from 'react-helmet-async';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -51,6 +52,11 @@ const Signup = () => {
 
     return (
       <div className="portal-container">
+
+        <Helmet>
+          <title>Log in or Sign Up | Accordee</title>
+        </Helmet>
+
         <h1>Signup</h1>
         <form onSubmit={handleSubmit}>
           <div>

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useUser } from '../UserContext';
 import SpinnerLoader from '../loaders/SpinnerLoader';
 import { useDashboard } from './DashboardContext';
+import { Helmet } from 'react-helmet-async';
 
 import '../App.scss'
 
@@ -21,10 +22,10 @@ function UserDashboard({ isPreview }) {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
 
-  const { 
-    dashboardLayout, setDashboardLayout, 
+  const {
+    dashboardLayout, setDashboardLayout,
     dashboard, setDashboard,
-    updateTrigger 
+    updateTrigger
   } = useDashboard();
 
   const navigate = useNavigate();
@@ -35,13 +36,13 @@ function UserDashboard({ isPreview }) {
       if (!username) {
         return;
       }
-  
+
       try {
         const [dashboardResponse, layoutResponse] = await Promise.all([
           axios.get(`${backendUrl}/${username}`),
           axios.get(`${backendUrl}/${username}/layout`)
         ]);
-  
+
         setDashboard(dashboardResponse.data.dashboard);
         setDashboardLayout(layoutResponse.data.layout);
         setError(null);
@@ -51,11 +52,11 @@ function UserDashboard({ isPreview }) {
       } finally {
       }
     }
-  
+
     fetchData();
   }, [username, updateTrigger, setDashboardLayout, setDashboard]);
-  
-  
+
+
 
   const handleEdit = () => {
     navigate(`/${username}/edit`);
@@ -64,6 +65,13 @@ function UserDashboard({ isPreview }) {
 
   return (
     <div id="main-container" className="user-dashboard-container">
+
+      {!isPreview && (
+        <Helmet>
+          <title>{username} | Accordee Dashboard</title>
+        </Helmet>
+      )}
+
       {!isPreview && user && user.username === username && (
         <div className="floating-button-container">
           <span>User Dashboard for {username}</span>
@@ -71,30 +79,30 @@ function UserDashboard({ isPreview }) {
         </div>
       )}
 
-      {!isPreview && (  
-      <div className="dashboard-bg-element"></div>
+      {!isPreview && (
+        <div className="dashboard-bg-element"></div>
       )}
-      
+
       {error && <div>{error}</div>}
 
       {!error && dashboard && (
         <div>
 
           <Suspense fallback={<SpinnerLoader />}>
-            {dashboardLayout  === 'accordion' && (
+            {dashboardLayout === 'accordion' && (
               <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
             )}
           </Suspense>
 
           <Suspense fallback={<SpinnerLoader />}>
-            {dashboardLayout  === 'tabbed' && (
+            {dashboardLayout === 'tabbed' && (
               <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
             )}
           </Suspense>
 
           <Suspense fallback={<SpinnerLoader />}>
-          {dashboardLayout  === 'basic' && 
-            <BasicLayout sections={dashboard.sections} />}
+            {dashboardLayout === 'basic' &&
+              <BasicLayout sections={dashboard.sections} />}
           </Suspense>
 
         </div>

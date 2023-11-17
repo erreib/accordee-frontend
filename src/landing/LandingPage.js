@@ -1,6 +1,7 @@
 import React from 'react';  // Add useEffect and useRef
 import { Link } from 'react-router-dom';
 import ThreeFiberScene from './ThreeFiberScene';  // Import the new component
+import { Helmet } from 'react-helmet-async';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTachometerAlt, faTh, faBolt } from '@fortawesome/free-solid-svg-icons';
@@ -10,6 +11,9 @@ import './LandingPage.scss';
 function LandingPage() {
   return (
     <div className="landing-page">
+      <Helmet>
+        <title>Accordee | Fast, fun, free dashboard creator for all your links</title>
+      </Helmet>
       <header className="landing-header">
         <h1>Accordee</h1>
         <nav>
@@ -28,7 +32,7 @@ function LandingPage() {
         </div>
 
         <ThreeFiberScene />
-        
+
       </section>
 
       <section className="landing-features">

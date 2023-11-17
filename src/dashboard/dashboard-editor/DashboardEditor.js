@@ -14,6 +14,7 @@ import { useUser } from '../../UserContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown, faArrowLeft, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Helmet } from 'react-helmet-async';
 
 import '../../App.scss';
 import './DashboardEditor.scss';
@@ -125,24 +126,24 @@ function DashboardEditor() {
 
   const debouncedUpdateTitle = useDebounce((newTitle) => {
     const token = localStorage.getItem('token'); // Retrieve the token
-  
+
     axios.post(`${backendUrl}/${username}/update`, { title: newTitle }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   }, 300);
-  
+
   const handleDashboardTitleChange = (event) => {
     const newDashboardTitle = event.target.value;
     if (dashboard) {
       setDashboard({ ...dashboard, title: newDashboardTitle });
       debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
     }
-  };  
+  };
 
   const debouncedUpdateSections = useDebounce((newSections) => {
     const token = localStorage.getItem('token'); // Retrieve the token
@@ -279,29 +280,33 @@ function DashboardEditor() {
 
   const removeSection = (index) => {
     const newSections = sections.filter((_, i) => i !== index);
-  
+
     // Update the sections first
     setSections(newSections);
-  
+
     const token = localStorage.getItem('token'); // Retrieve the token
-  
+
     // Then update the backend
     axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     })
-    .then(() => {
-      // Once the backend is updated, then update the trigger
-      setUpdateTrigger(prevTrigger => prevTrigger + 1);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+      .then(() => {
+        // Once the backend is updated, then update the trigger
+        setUpdateTrigger(prevTrigger => prevTrigger + 1);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
-  
+
   return (
     <div id="main-container" className="editor-container">
+
+      <Helmet>
+        <title>{username} | Edit | Accordee Dashboard </title>
+      </Helmet>
 
       <div className="floating-button-container">
         <button className="back-button" onClick={handleBackToDashboard}>

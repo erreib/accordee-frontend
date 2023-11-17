@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HelmetProvider } from "react-helmet-async";
 
 import Dashboard from './dashboard/Dashboard';
 import DashboardEditor from './dashboard/dashboard-editor/DashboardEditor';
@@ -86,19 +87,21 @@ function DashboardEditorWithProvider(props) {
 
 function App() {
   return (
-    <UserProvider>
-      <Router>
-        <SignupButton />
-        <UserStatus />
-        <Routes>
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<LandingPage />} />
-          <Route path=":username/edit" element={<DashboardEditorWithProvider />} />
-          <Route path=":username" element={<DashboardWithProvider />} />
-        </Routes>
-      </Router>
-    </UserProvider>
+    <HelmetProvider>
+      <UserProvider>
+        <Router>
+          <SignupButton />
+          <UserStatus />
+          <Routes>
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path=":username/edit" element={<DashboardEditorWithProvider />} />
+            <Route path=":username" element={<DashboardWithProvider />} />
+          </Routes>
+        </Router>
+      </UserProvider>
+    </HelmetProvider>
   );
 }
 
