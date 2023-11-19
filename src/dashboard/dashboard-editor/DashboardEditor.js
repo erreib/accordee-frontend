@@ -49,10 +49,9 @@ function DashboardEditor() {
     dashboard, setDashboard,
     sections, setSections,
     dashboardLayout, setDashboardLayout,
+    backgroundStyle, setBackgroundStyle,
     setUpdateTrigger
   } = useDashboard(); // Getting values from DashboardContext
-
-  const [backgroundStyle, setBackgroundStyle] = useState('style1'); // default style
 
   const [isBetaFeaturesExpanded, setIsBetaFeaturesExpanded] = useState(false);  // New state variable
   const [pickerIsOpen, setPickerIsOpen] = useState(null);
@@ -129,24 +128,24 @@ function DashboardEditor() {
   const handleBackgroundChange = (e) => {
     const newBackgroundStyle = e.target.value;
     setBackgroundStyle(newBackgroundStyle);
-  
+
     // Retrieve the token from local storage
     const token = localStorage.getItem('token');
-  
+
     // Call API to update background style in backend
     axios.post(`${backendUrl}/${username}/background-style`, { backgroundStyle: newBackgroundStyle }, {
       headers: {
         'Authorization': `Bearer ${token}` // Include the token in the request header
       }
     })
-    .then(() => {
-      // You can update the state or UI here if needed
-    })
-    .catch((error) => {
-      console.error('Error updating background style:', error);
-    });
+      .then(() => {
+        // You can update the state or UI here if needed
+      })
+      .catch((error) => {
+        console.error('Error updating background style:', error);
+      });
   };
-  
+
   useEffect(() => {
     // Fetch the user's background style choice from the backend
     axios.get(`${backendUrl}/${username}/background-style`)
@@ -157,7 +156,7 @@ function DashboardEditor() {
         console.error('An error occurred while fetching background style data:', error);
       });
   }, [username, setBackgroundStyle]);
-  
+
 
   const debouncedUpdateTitle = useDebounce((newTitle) => {
     const token = localStorage.getItem('token'); // Retrieve the token
@@ -350,8 +349,14 @@ function DashboardEditor() {
       </div>
 
       <div className={`mini-dashboard-preview ${backgroundStyle}`}>
-        <Dashboard sections={sections} layout={dashboardLayout} isPreview={true} />
+        <Dashboard
+          sections={sections}
+          layout={dashboardLayout}
+          isPreview={true}
+          backgroundStyle={backgroundStyle}
+        />
       </div>
+
 
       <div className="editor-wrapper">
 

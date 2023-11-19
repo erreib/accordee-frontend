@@ -1,8 +1,10 @@
 import { useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from './auth/UserContext'; // Adjust the path as needed
+import { UserContext } from './UserContext'; // Adjust the path as needed
 
+// AxiosInterceptor listens for 401 or 403 errors and redirects the user to login  when detected (temporary
+// solution for expiring bearer tokens until I create a proper session management)
 export function AxiosInterceptor() {
   const navigate = useNavigate();
   const { logout } = useContext(UserContext); // Use the logout function from UserContext

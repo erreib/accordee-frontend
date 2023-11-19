@@ -1,0 +1,17 @@
+:root {
+    --style1: linear-gradient(135deg, #0036e8, #d30909);
+    --style2: linear-gradient(45deg, #009688, #4db6ac);
+    --style3: linear-gradient(135deg, #ff9800, #ffc107);
+  }
+  
+  .dashboard-bg-element {
+    position: fixed;
+    height: 100vh;
+    width: 100%;
+    background: var(--dashboard-bg-color);
+    z-index: -1;
+  }
+  
+  .style1 { background: var(--style1); }
+  .style2 { background: var(--style2); }
+  .style3 { background: var(--style3); }

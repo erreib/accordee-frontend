@@ -12,7 +12,7 @@ import LoginForm from './auth/LoginForm';  // <-- Import LoginForm
 import LandingPage from './landing/LandingPage';
 
 import { UserProvider, useUser } from './auth/UserContext';
-import { AxiosInterceptor } from './AxiosInterceptor'; // Adjust the path as needed
+import { AxiosInterceptor } from './auth/AxiosInterceptor'; // Adjust the path as needed
 
 import './App.scss';
 

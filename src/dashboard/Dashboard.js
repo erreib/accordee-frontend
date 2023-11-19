@@ -6,7 +6,11 @@ import SpinnerLoader from '../loaders/SpinnerLoader';
 import { useDashboard } from './DashboardContext';
 import { Helmet } from 'react-helmet-async';
 
+import FloatingSpheres from './backgrounds/scenes/FloatingSpheres';
+import DynamicWave from './backgrounds/scenes/DynamicWave';
+
 import '../App.scss'
+import './backgrounds/backgroundStyles.scss'
 
 const AccordionLayout = lazy(() => import('./layouts/accordion/AccordionLayout'));
 const TabbedLayout = lazy(() => import('./layouts/tabbed/TabbedLayout'));
@@ -23,30 +27,27 @@ function UserDashboard({ isPreview }) {
   const [selectedTab, setSelectedTab] = useState(null);
 
   const {
-    dashboardLayout, setDashboardLayout,
     dashboard, setDashboard,
+    dashboardLayout, setDashboardLayout,
     backgroundStyle, setBackgroundStyle,
     updateTrigger
   } = useDashboard();
 
-
-
   const navigate = useNavigate();
-
 
   useEffect(() => {
     async function fetchData() {
       if (!username) {
         return;
       }
-  
+
       try {
         const [dashboardResponse, layoutResponse, backgroundResponse] = await Promise.all([
           axios.get(`${backendUrl}/${username}`),
           axios.get(`${backendUrl}/${username}/layout`),
           axios.get(`${backendUrl}/${username}/background-style`)
         ]);
-  
+
         setDashboard(dashboardResponse.data.dashboard);
         setDashboardLayout(layoutResponse.data.layout);
         setBackgroundStyle(backgroundResponse.data.backgroundStyle);
@@ -55,20 +56,32 @@ function UserDashboard({ isPreview }) {
         setError('An error occurred while fetching data'); // Consider more specific error messages
       }
     }
-  
+
     fetchData();
-  }, [username, updateTrigger, setDashboard, setDashboardLayout,setBackgroundStyle]); // Removed the set functions from dependencies
-  
-
-
+  }, [username, updateTrigger, setDashboard, setDashboardLayout, setBackgroundStyle]); // Removed the set functions from dependencies
 
   const handleEdit = () => {
     navigate(`/${username}/edit`);
   };
 
+  const renderBackground = () => {
+    const backgroundComponent = (() => {
+      switch (backgroundStyle) {
+        case 'style2':
+          return <FloatingSpheres />;
+        case 'style3':
+          return <DynamicWave />;
+        // ... other cases
+        default:
+          return null;
+      }
+    })();
+
+    return backgroundComponent;
+  };
 
   return (
-    <div id="main-container" className="user-dashboard-container">
+    <div id="main-container" className={`user-dashboard-container ${isPreview ? 'preview-mode' : ''}`}>
 
       {!isPreview && (
         <Helmet>
@@ -83,9 +96,9 @@ function UserDashboard({ isPreview }) {
         </div>
       )}
 
-      {!isPreview && (
-        <div className={`dashboard-bg-element ${backgroundStyle}`}></div>
-      )}
+      <div className={`dashboard-bg-element ${backgroundStyle} ${isPreview ? 'preview-background-container' : ''}`}>
+        {renderBackground()}
+      </div>
 
       {error && <div>{error}</div>}
 
