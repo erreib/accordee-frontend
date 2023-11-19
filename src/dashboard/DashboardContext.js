@@ -15,12 +15,14 @@ export const DashboardProvider = ({ children }) => {
   const [dashboard, setDashboard] = useState(null); // New
   const [sections, setSections] = useState([]); // New
   const [updateTrigger, setUpdateTrigger] = useState(0); // New
+  const [backgroundStyle, setBackgroundStyle] = useState('style1');
 
   const value = {
     dashboardLayout,setDashboardLayout,
     dashboard,setDashboard, 
     sections,setSections, 
-    updateTrigger,setUpdateTrigger
+    updateTrigger,setUpdateTrigger,
+    backgroundStyle, setBackgroundStyle
   };
 
   return (

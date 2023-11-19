@@ -25,10 +25,10 @@ function UserDashboard({ isPreview }) {
   const {
     dashboardLayout, setDashboardLayout,
     dashboard, setDashboard,
+    backgroundStyle, setBackgroundStyle,
     updateTrigger
   } = useDashboard();
 
-  const [backgroundStyle, setBackgroundStyle] = useState('style1');
 
 
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ function UserDashboard({ isPreview }) {
     }
   
     fetchData();
-  }, [username, updateTrigger, setDashboard, setDashboardLayout]); // Removed the set functions from dependencies
+  }, [username, updateTrigger, setDashboard, setDashboardLayout,setBackgroundStyle]); // Removed the set functions from dependencies
   
 
 
