@@ -53,7 +53,11 @@ function DashboardEditor() {
     setUpdateTrigger
   } = useDashboard(); // Getting values from DashboardContext
 
-  const [isBetaFeaturesExpanded, setIsBetaFeaturesExpanded] = useState(false);  // New state variable
+  const [activeTab, setActiveTab] = useState(() => {
+    const savedTab = localStorage.getItem('activeTab');
+    return savedTab || 'sections';
+  });
+
   const [pickerIsOpen, setPickerIsOpen] = useState(null);
   const navigate = useNavigate();
 
@@ -108,6 +112,13 @@ function DashboardEditor() {
         console.error('An error occurred while fetching layout data:', error);
       });
   }, [username, setDashboardLayout]);
+
+  // Function to switch tabs
+  const handleTabChange = (tabName) => {
+    setActiveTab(tabName);
+    // Save the current tab to localStorage
+    localStorage.setItem('activeTab', tabName);
+  };
 
   const handleLayoutChange = (newLayout) => {
     const token = localStorage.getItem('token'); // Assuming the token is stored in local storage
@@ -255,8 +266,6 @@ function DashboardEditor() {
     moveSection(source.index, destination.index);
   };
 
-
-
   const moveSection = (fromIndex, toIndex) => {
     const newSections = [...sections];
     const [movedItem] = newSections.splice(fromIndex, 1);
@@ -357,123 +366,137 @@ function DashboardEditor() {
         />
       </div>
 
-
       <div className="editor-wrapper">
 
         <h1>Edit Dashboard for {username}</h1>
 
-        <div className="layout-selector">
-          <p>Select a layout for your dashboard:</p>
-          <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
-        </div>
-
-        <div>
-          <label>Background Style: </label>
-          <select value={backgroundStyle} onChange={handleBackgroundChange}>
-            <option value="style1">Style 1</option>
-            <option value="style2">Style 2</option>
-            <option value="style3">Style 3</option>
-          </select>
-        </div>
-
         <div><label htmlFor="title">Title: </label>
-          <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} /></div>
+          <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} />
+        </div>
 
-        <div className="section-management">
-          <h3>Add/Remove sections</h3>
+        <div className="tabs">
+          <button className={activeTab === 'sections' ? 'active-tab' : ''} onClick={() => handleTabChange('sections')}>
+            Sections
+          </button>
+          <button className={activeTab === 'look and feel' ? 'active-tab' : ''} onClick={() => handleTabChange('look and feel')}>
+            Look and Feel
+          </button>
+          <button className={activeTab === 'beta features' ? 'active-tab' : ''} onClick={() => handleTabChange('beta features')}>
+            Beta Features
+          </button>
+        </div>
 
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="sections">
-              {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps} className="sections-list">
-                  {sections.map((section, index) => (
-                    <Draggable key={index} draggableId={String(index)} index={index}>
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className="section-item"
-                        >
-                          <div className="button-container">
-                            <div className="arrow-buttons">
-                              <button
-                                className={`arrow-button ${index === 0 ? 'disabled-arrow' : ''}`}
-                                disabled={index === 0}
-                                onClick={() => moveSection(index, index - 1)}
-                              >
-                                <FontAwesomeIcon icon={faArrowUp} />
-                              </button>
+        {activeTab === 'sections' && (
+          <div className="section-management">
+            <h3>Add/Remove sections</h3>
 
-                              <button
-                                className={`arrow-button ${index === sections.length - 1 ? 'disabled-arrow' : ''}`}
-                                disabled={index === sections.length - 1}
-                                onClick={() => moveSection(index, index + 1)}
-                              >
-                                <FontAwesomeIcon icon={faArrowDown} />
+            <button className="button" onClick={addSection}>+</button>
+
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="sections">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="sections-list">
+                    {sections.map((section, index) => (
+                      <Draggable key={index} draggableId={String(index)} index={index}>
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="section-item"
+                          >
+                            <div className="button-container">
+                              <div className="arrow-buttons">
+                                <button
+                                  className={`arrow-button ${index === 0 ? 'disabled-arrow' : ''}`}
+                                  disabled={index === 0}
+                                  onClick={() => moveSection(index, index - 1)}
+                                >
+                                  <FontAwesomeIcon icon={faArrowUp} />
+                                </button>
+
+                                <button
+                                  className={`arrow-button ${index === sections.length - 1 ? 'disabled-arrow' : ''}`}
+                                  disabled={index === sections.length - 1}
+                                  onClick={() => moveSection(index, index + 1)}
+                                >
+                                  <FontAwesomeIcon icon={faArrowDown} />
+                                </button>
+                              </div>
+                            </div>
+                            <button
+                              style={{
+                                backgroundColor: section.color,
+                                width: '20px',
+                                height: '20px',
+                              }}
+                              onClick={() => togglePicker(index)}
+                            >
+                              {pickerIsOpen === index ? '▼' : '▶'}
+                            </button>
+                            {pickerIsOpen === index && (
+                              <>
+                                <button onClick={() => setPickerIsOpen(null)}>Close</button>
+                                <ChromePicker
+                                  color={section.color}
+                                  onChangeComplete={(color) => handleColorChange(color, index)}
+                                />
+                              </>
+                            )}
+
+                            <input
+                              type="text"
+                              placeholder="Enter section title..."
+                              value={section.title || ''}
+                              onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
+                            />
+
+                            <input
+                              type="text"
+                              placeholder="Enter custom content..."
+                              value={section.content || ''}
+                              onChange={(e) => updateSectionInfoInDB(index, undefined, e.target.value)}
+                            />
+
+                            <div className="button-container">
+                              <button className="remove-button" onClick={() => removeSection(index)}>
+                                <FontAwesomeIcon icon={faTimes} />
                               </button>
                             </div>
+
                           </div>
-                          <button
-                            style={{
-                              backgroundColor: section.color,
-                              width: '20px',
-                              height: '20px',
-                            }}
-                            onClick={() => togglePicker(index)}
-                          >
-                            {pickerIsOpen === index ? '▼' : '▶'}
-                          </button>
-                          {pickerIsOpen === index && (
-                            <>
-                              <button onClick={() => setPickerIsOpen(null)}>Close</button>
-                              <ChromePicker
-                                color={section.color}
-                                onChangeComplete={(color) => handleColorChange(color, index)}
-                              />
-                            </>
-                          )}
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
 
-                          <input
-                            type="text"
-                            placeholder="Enter section title..."
-                            value={section.title || ''}
-                            onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
-                          />
+          </div>
+        )}
 
-                          <input
-                            type="text"
-                            placeholder="Enter custom content..."
-                            value={section.content || ''}
-                            onChange={(e) => updateSectionInfoInDB(index, undefined, e.target.value)}
-                          />
+        {activeTab === 'look and feel' && (
+          <div>
+            <div className="layout-selector">
+              <p>Select a layout for your dashboard:</p>
+              <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
+            </div>
 
-                          <div className="button-container">
-                            <button className="remove-button" onClick={() => removeSection(index)}>
-                              <FontAwesomeIcon icon={faTimes} />
-                            </button>
-                          </div>
+            <div>
+              <label>Background Style: </label>
+              <select value={backgroundStyle} onChange={handleBackgroundChange}>
+                <option value="style1">Style 1</option>
+                <option value="style2">Style 2</option>
+                <option value="style3">Style 3</option>
+              </select>
+            </div>
+          </div>
+        )}
 
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-
-          <button className="button" onClick={addSection}>+</button>
-        </div>
-
-        {/* Beta Features Section */}
-        <div>
-          <button className="button" onClick={() => setIsBetaFeaturesExpanded(!isBetaFeaturesExpanded)}>
-            {isBetaFeaturesExpanded ? 'Collapse Beta Features' : 'Expand Beta Features'}
-          </button>
-
-          {isBetaFeaturesExpanded && (
+        {activeTab === 'beta features' && (
+          <div>
             <div className="beta-features-section">
               <h2>Beta Features</h2>
 
@@ -497,11 +520,10 @@ function DashboardEditor() {
                 />
               </div>
             </div>
-          )}
-        </div>
-
+          </div>
+        )}
+        
       </div>
-
     </div>
   );
 }

@@ -15,6 +15,10 @@
 
   .preview-mode {
     height: 100vh;
+
+    ul {
+      padding: 15px 24px 15px 15px;
+    }
 }
 
   .preview-background-container {
@@ -41,6 +45,39 @@
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 1em;
+}
+
+// Basic styling for tab buttons
+.tabs {
+  display: flex;
+  margin: 20px 0;
+
+  button {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+
+    // Remove border between adjacent buttons
+    &:not(:first-child) {
+      border-left: none;
+    }
+
+    // Hover effect
+    &:hover {
+      background-color: #e0e0e0;
+    }
+  }
+}
+
+// Styling for the active tab
+.active-tab {
+  background-color: #ddd;
+  color: #333;
+  font-weight: bold;
+  border-bottom: 2px solid #333;
 }
 
 /* Layout selector styles */

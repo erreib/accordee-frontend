@@ -3,8 +3,13 @@
     flex-direction: column;
     height: 100vh;
     align-items: center;
-    margin: 0 20px;
-    margin-right: 27px;
+    margin: 0px 10px;
+  }
+
+  .preview-mode {
+    .accordion {
+      margin-right: 20px;
+    }
   }
   
 .contentArea {
@@ -33,7 +38,7 @@
     cursor: pointer;
     transition: all 0.5s ease-in-out;
     font-size: 24px; /* Default font size */
-    margin: 10px;
+    margin: 5px;
     border-radius: 20px;
     width:100%;
     max-width:1080px;
