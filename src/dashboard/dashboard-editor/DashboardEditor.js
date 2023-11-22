@@ -348,7 +348,7 @@ function DashboardEditor() {
         </button>
       </div>
 
-      <div className={`mini-dashboard-preview ${backgroundStyle}`}>
+      <div className={`mini-dashboard-preview`}>
         <Dashboard
           sections={sections}
           layout={dashboardLayout}

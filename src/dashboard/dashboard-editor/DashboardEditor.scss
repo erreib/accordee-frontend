@@ -6,16 +6,22 @@
 
 
 .mini-dashboard-preview {
-  border-right: 1px solid #aeaeae;
   position: sticky;
-  height: 100vh;
   width: 40%; // Use the variable here
+  height:100%;
   top: 0;
   left: 0;
   overflow-y: auto;
 
+  .preview-mode {
+    height: 100vh;
+}
+
   .preview-background-container {
-    position: absolute;
+    position: fixed;
+    height:100vh;
+    width: calc(40% - 29px);
+    border-right: 1px solid #aeaeae;
   }
 
   h3 {
