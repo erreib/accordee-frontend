@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { HelmetProvider } from "react-helmet-async";
 
@@ -8,8 +7,8 @@ import { DashboardProvider } from './dashboard/DashboardContext';
 
 import Signup from './auth/Signup';
 import Login from './auth/Login';
-import LoginForm from './auth/LoginForm';  // <-- Import LoginForm
 import LandingPage from './landing/LandingPage';
+import UserManager from './auth/UserManager';
 
 import { UserProvider, useUser } from './auth/UserContext';
 import { AxiosInterceptor } from './auth/AxiosInterceptor'; // Adjust the path as needed
@@ -29,33 +28,6 @@ function SignupButton() {
   );
 }
 
-function UserStatus() {
-  const { user, logout } = useUser(); // Use logout from useUser hook
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
-  return (
-    <div className="login-status">
-      {user && user.username ? (
-        <>
-          Logged in as <Link className="username-link" to={`/${user.username}`}>{user.username}</Link> 
-          <button className="logout-button" onClick={logout}>Logout</button>
-        </>
-      ) : (
-        <>
-          Not logged in
-          {!showLoginModal && <button onClick={() => setShowLoginModal(true)}>Login</button>}
-          
-          {showLoginModal && (
-            <>
-              <button onClick={() => setShowLoginModal(false)}>Close</button>
-              <LoginForm />
-            </>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
 
 function DashboardWithProvider(props) {
   return (
@@ -80,13 +52,13 @@ function App() {
         <Router>
           <AxiosInterceptor />
           <SignupButton />
-          <UserStatus />
+          <UserManager />
           <Routes>
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<LandingPage />} />
-            <Route path=":username/edit" element={<DashboardEditorWithProvider />} />
-            <Route path=":username" element={<DashboardWithProvider />} />
+            <Route path=":dashboardUrl/edit" element={<DashboardEditorWithProvider />} />
+            <Route path=":dashboardUrl" element={<DashboardWithProvider />} />
           </Routes>
         </Router>
       </UserProvider>

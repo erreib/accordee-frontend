@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const LoginForm = ({ onClose }) => {
-  const [username, setUsername] = useState("");
+  const [login, setLogin] = useState(""); // Generalized to 'login' instead of 'username'
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const { setUser, setToken } = useUser();
@@ -15,26 +15,24 @@ const LoginForm = ({ onClose }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
   
-    // Check if the username and password fields are empty
-    if (!username || !password) {
+    if (!login || !password) {
       setError("Both fields are required");
       return;
     }
     
     try {
       const response = await axios.post(`${backendUrl}/api/auth/login`, {
-        username,
+        login, // Changed to 'login'
         password,
       });
   
-      // Assume the server sends a token and userId upon successful login
-      const { userId, token } = response.data;  // Corrected this line
+      const { userId, token } = response.data;
   
-      setUser({
-        id: userId,
-        username: username
-      });
-  
+      // Assuming the backend sends the username as part of the response
+      // Otherwise, you can derive it from 'login' if it's an email
+      const username = response.data.username || (login.includes('@') ? login.split('@')[0] : login);
+
+      setUser({ id: userId, username });
       setToken(token);
   
       localStorage.setItem('userId', userId);
@@ -43,24 +41,24 @@ const LoginForm = ({ onClose }) => {
   
       setError(null);
 
-      onClose && onClose();  // Close the modal if the onClose prop is provided
+      onClose && onClose();
   
-      // Navigate to the user's dashboard (replace 'username' with the actual username)
       navigate(`/${username}`);
     } catch (error) {
-      console.error('Login error:', error);
-      setError('Invalid username or password');
+      console.error('Login error:', error.response?.data?.message || error.message);
+      setError('Invalid username/email or password');
     }
   };
 
   return (
     <form onSubmit={handleLogin}>
       <div>
-        <label>Username</label>
+        <label>Username/Email</label>
         <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="text" // Can stay as type "text" to accept both username and email
+          placeholder="Username or Email" // Updated placeholder
+          value={login}
+          onChange={(e) => setLogin(e.target.value)}
         />
       </div>
       <div>
@@ -72,7 +70,7 @@ const LoginForm = ({ onClose }) => {
         />
       </div>
       {error && <div>{error}</div>}
-      <button type="submit">Submit</button>
+      <button type="submit">Login</button>
     </form>
   );
 };

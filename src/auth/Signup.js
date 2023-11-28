@@ -7,7 +7,7 @@ import { Helmet } from 'react-helmet-async';
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const Signup = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState(''); // Changed from username to email
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
@@ -18,17 +18,20 @@ const Signup = () => {
     e.preventDefault();
     try {
       const response = await axios.post(`${backendUrl}/api/auth/signup`, {
-        username,
+        email, // Send email instead of username
         password,
       });
 
-      // Assume the server sends a token upon successful signup
+      // Assume the server sends a token and userId upon successful signup
       const { userId, token } = response.data;
+
+      // Derive username from email for the frontend
+      const username = email.split('@')[0];
 
       // Update user state
       setUser({
         id: userId,
-        username: username,
+        username, // Derived username
       });
 
       // Update token state
@@ -42,48 +45,46 @@ const Signup = () => {
       // Clear any errors
       setError(null);
 
-      // Navigate to the user's dashboard (replace 'username' with the actual username)
+      // Navigate to the user's dashboard
       navigate(`/${username}`);
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Signup error:', error.response?.data?.message || error.message);
       setError('Could not sign up, please try again');
     }
   };
 
-    return (
-      <div className="portal-container">
+  return (
+    <div className="portal-container">
+      
+      <Helmet>
+        <title>Log in or Sign Up | Accordee</title>
+      </Helmet>
 
-        <Helmet>
-          <title>Log in or Sign Up | Accordee</title>
-        </Helmet>
-
-        <h1>Signup</h1>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <input 
-              className="form-input"
-              type="text" 
-              placeholder="Username" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <div>
-            <input 
-              className="form-input"
-              type="password" 
-              placeholder="Password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button className="form-submit-button" type="submit">Signup</button>
-
-          </div>
-    
-        </form>
-        {error && <p className="form-error">{error}</p>}
-      </div>
-    );
-  };
+      <h1>Signup</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <input 
+            className="form-input"
+            type="email" // Changed type to email for validation
+            placeholder="Email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div>
+          <input 
+            className="form-input"
+            type="password" 
+            placeholder="Password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button className="form-submit-button" type="submit">Signup</button>
+        </div>
+      </form>
+      {error && <p className="form-error">{error}</p>}
+    </div>
+  );
+};
 
 export default Signup;

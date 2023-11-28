@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 
-const DomainVerification = ({ username, backendUrl, userId }) => {
+const DomainVerification = ({ dashboardUrl, backendUrl, userId }) => {
   // State variables
   const [verificationToken, setVerificationToken] = useState('');
   const [customDomain, setCustomDomain] = useState('');
@@ -11,14 +11,14 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
   // function to fetch verification details from the backend
   const fetchVerificationDetails = useCallback(async () => {
     try {
-      const response = await axios.get(`${backendUrl}/${username}/get-verification-details`);
+      const response = await axios.get(`${backendUrl}/${dashboardUrl}/get-verification-details`);
       setVerificationToken(response.data.verificationToken);
       setCustomDomain(response.data.customDomain);
       setIsVerified(response.data.isVerified);  // No change needed here
     } catch (error) {
       console.error('Failed to fetch verification details:', error);
     }
-  }, [backendUrl, username]);  // Dependencies  
+  }, [backendUrl, dashboardUrl]);  // Dependencies  
 
   useEffect(() => {
     fetchVerificationDetails();
@@ -32,7 +32,7 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
     const token = localStorage.getItem('token'); // Assuming the token is stored in local storage
 
   try {
-    const response = await axios.post(`${backendUrl}/${username}/generate-verification-token`, {
+    const response = await axios.post(`${backendUrl}/${dashboardUrl}/generate-verification-token`, {
       verificationToken: domainToken,
       customDomain
     }, {
@@ -60,7 +60,7 @@ const DomainVerification = ({ username, backendUrl, userId }) => {
   
     try {
       // Send the request with the Authorization header
-      const response = await axios.post(`${backendUrl}/${username}/verify-dns`, {}, {
+      const response = await axios.post(`${backendUrl}/${dashboardUrl}/verify-dns`, {}, {
         headers: {
           'Authorization': `Bearer ${token}` // Set Authorization header
         }

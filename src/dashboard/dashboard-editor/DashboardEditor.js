@@ -43,7 +43,8 @@ const useDebounce = (callback, delay) => {
 
 function DashboardEditor() {
   const { user } = useUser();
-  const { username, username: usernameFromURL } = useParams();
+  const { username, username: usernameFromURL,dashboardUrl } = useParams();
+  const [error, setError] = useState(null);
 
   const {
     dashboard, setDashboard,
@@ -52,6 +53,8 @@ function DashboardEditor() {
     backgroundStyle, setBackgroundStyle,
     setUpdateTrigger
   } = useDashboard(); // Getting values from DashboardContext
+
+  const [dashboardUserId, setDashboardUserId] = useState(null); // Or however you initialize it
 
   const [activeTab, setActiveTab] = useState(() => {
     const savedTab = localStorage.getItem('activeTab');
@@ -69,49 +72,68 @@ function DashboardEditor() {
     axiosConfig.headers['Authorization'] = `Bearer ${user.token}`;
   }
 
-  if (user && user.token) {
-    axiosConfig.headers['Authorization'] = `Bearer ${user.token}`;
-  }
-
   const handleBackToDashboard = () => {
-    navigate(`/${username}`);  // Replace this with the actual path to the user's dashboard
+    navigate(`/${dashboardUrl}`);  // Replace this with the actual path to the user's dashboard
   };
 
   useEffect(() => {
-    // Fetch initial data
-    axios.get(`${backendUrl}/${username}`)
-      .then((response) => {
+    const fetchData = async () => {
+      if (!dashboardUrl) {
+        return;
+      }
+  
+      try {
+        const response = await axios.get(`${backendUrl}/${dashboardUrl}`);
         setDashboard(response.data.dashboard);
         setSections(response.data.dashboard.sections);
-      })
-      .catch((error) => {
-        console.error('An error occurred while fetching data:', error);
-      });
-  }, [username, setDashboard, setSections]);
-
+        // Set additional states as required
+        setDashboardLayout(response.data.dashboard.layout);
+        setBackgroundStyle(response.data.dashboard.backgroundStyle);
+        // Include this line if you are managing dashboardUserId in the state
+        setDashboardUserId(response.data.dashboard.dashboardUserId);
+      } catch (err) {
+        console.error("API error:", err);
+        setError("An error occurred while fetching data");
+      }
+    };
+  
+    fetchData();
+  }, [dashboardUrl, setDashboard, setSections, setDashboardLayout, setBackgroundStyle, setDashboardUserId]); // Update the dependencies array as needed
+  
   useEffect(() => {
     if (user === null) {
-      navigate(`/${username}`);  // Navigate to the user's dashboard if not logged in
+      navigate(`/${dashboardUrl}`);  // Navigate to the user's dashboard if not logged in
     }
   }, [user, username, navigate]);
-
+  
   // Redirect if the username from the URL does not match the logged-in user's username
   useEffect(() => {
-    if (user && user.username !== usernameFromURL) {
-      navigate(`/${username}`);
+    if (user && dashboardUserId !== null) {
+      console.log("User ID:", user.id, "Dashboard User ID:", dashboardUserId);
+  
+      // Convert both to numbers and then compare
+      if (Number(user.id) !== Number(dashboardUserId)) {
+        console.log("Redirecting because user IDs don't match.");
+        navigate(`/${dashboardUrl}`);
+      } else {
+        console.log("No redirection - user IDs match.");
+      }
+    } else {
+      console.log("Waiting for user and dashboardUserId to be set.");
     }
-  }, [user, usernameFromURL, navigate, username]);
-
-  useEffect(() => {
-    // Fetch the user's dashboard layout choice from the backend
-    axios.get(`${backendUrl}/${username}/layout`)
-      .then((response) => {
-        setDashboardLayout(response.data.layout);
-      })
-      .catch((error) => {
-        console.error('An error occurred while fetching layout data:', error);
-      });
-  }, [username, setDashboardLayout]);
+  }, [user, dashboardUserId, navigate, dashboardUrl]);
+        
+    
+  // useEffect(() => {
+  //   // Fetch the user's dashboard layout choice from the backend
+  //   axios.get(`${backendUrl}/${username}/layout`)
+  //     .then((response) => {
+  //       setDashboardLayout(response.data.layout);
+  //     })
+  //     .catch((error) => {
+  //       console.error('An error occurred while fetching layout data:', error);
+  //     });
+  // }, [username, setDashboardLayout]);
 
   // Function to switch tabs
   const handleTabChange = (tabName) => {
@@ -123,7 +145,7 @@ function DashboardEditor() {
   const handleLayoutChange = (newLayout) => {
     const token = localStorage.getItem('token'); // Assuming the token is stored in local storage
 
-    axios.post(`${backendUrl}/${username}/layout`, { layout: newLayout }, {
+    axios.post(`${backendUrl}/${dashboardUrl}/layout`, { layout: newLayout }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -144,7 +166,7 @@ function DashboardEditor() {
     const token = localStorage.getItem('token');
 
     // Call API to update background style in backend
-    axios.post(`${backendUrl}/${username}/background-style`, { backgroundStyle: newBackgroundStyle }, {
+    axios.post(`${backendUrl}/${dashboardUrl}/background-style`, { backgroundStyle: newBackgroundStyle }, {
       headers: {
         'Authorization': `Bearer ${token}` // Include the token in the request header
       }
@@ -157,16 +179,16 @@ function DashboardEditor() {
       });
   };
 
-  useEffect(() => {
-    // Fetch the user's background style choice from the backend
-    axios.get(`${backendUrl}/${username}/background-style`)
-      .then((response) => {
-        setBackgroundStyle(response.data.backgroundStyle);
-      })
-      .catch((error) => {
-        console.error('An error occurred while fetching background style data:', error);
-      });
-  }, [username, setBackgroundStyle]);
+  // useEffect(() => {
+  //   // Fetch the user's background style choice from the backend
+  //   axios.get(`${backendUrl}/${username}/background-style`)
+  //     .then((response) => {
+  //       setBackgroundStyle(response.data.backgroundStyle);
+  //     })
+  //     .catch((error) => {
+  //       console.error('An error occurred while fetching background style data:', error);
+  //     });
+  // }, [username, setBackgroundStyle]);
 
 
   const debouncedUpdateTitle = useDebounce((newTitle) => {
@@ -193,7 +215,7 @@ function DashboardEditor() {
   const debouncedUpdateSections = useDebounce((newSections) => {
     const token = localStorage.getItem('token'); // Retrieve the token
 
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+    axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -214,7 +236,7 @@ function DashboardEditor() {
 
     const token = localStorage.getItem('token'); // Retrieve the token
 
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+    axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -280,7 +302,7 @@ function DashboardEditor() {
     setSections(newSections);
 
     // Then update the backend
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+    axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -307,7 +329,7 @@ function DashboardEditor() {
     const token = localStorage.getItem('token'); // Retrieve the token
 
     // Then update the backend
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+    axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -330,7 +352,7 @@ function DashboardEditor() {
     const token = localStorage.getItem('token'); // Retrieve the token
 
     // Then update the backend
-    axios.post(`${backendUrl}/${username}/sections`, { sections: newSections }, {
+    axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -348,7 +370,11 @@ function DashboardEditor() {
     <div id="main-container" className="editor-container">
 
       <Helmet>
-        <title>{username} | Edit | Accordee Dashboard </title>
+      <title>
+            {dashboard
+              ? `${dashboard.title} | Edit | Accordee Dashboard`
+              : "Loading Dashboard..."}
+          </title>
       </Helmet>
 
       <div className="floating-button-container">
@@ -371,7 +397,7 @@ function DashboardEditor() {
         <h1>Edit Dashboard for {username}</h1>
 
         <div><label htmlFor="title">Title: </label>
-          <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} />
+          {/* <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} /> */}
         </div>
 
         <div className="tabs">
@@ -500,7 +526,7 @@ function DashboardEditor() {
             <div className="beta-features-section">
               <h2>Beta Features</h2>
 
-              <div className="file-uploader-section">
+              {/* <div className="file-uploader-section">
                 <h3>File Uploader</h3>
                 <FileUploader
                   username={username}
@@ -509,12 +535,12 @@ function DashboardEditor() {
                 />
               </div>
 
-              <hr className="section-divider" />
+              <hr className="section-divider" /> */}
 
               <div className="domain-verification-section">
                 <h3>Domain Verification</h3>
                 <DomainVerification
-                  username={username}
+                  dashboardUrl={dashboardUrl}
                   backendUrl={backendUrl}
                   userId={user ? user.id : null}
                 />

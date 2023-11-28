@@ -19,7 +19,7 @@ const BasicLayout = lazy(() => import('./layouts/basic/BasicLayout'));
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 function UserDashboard({ isPreview }) {
-  const { username } = useParams();
+  const { dashboardUrl } = useParams();
   const { user } = useUser();
   const [error, setError] = useState(null);
 
@@ -33,35 +33,33 @@ function UserDashboard({ isPreview }) {
     updateTrigger
   } = useDashboard();
 
+  const [dashboardUserId, setDashboardUserId] = useState(null); // Or however you initialize it
+
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
-      if (!username) {
+      if (!dashboardUrl) {
         return;
       }
 
       try {
-        const [dashboardResponse, layoutResponse, backgroundResponse] = await Promise.all([
-          axios.get(`${backendUrl}/${username}`),
-          axios.get(`${backendUrl}/${username}/layout`),
-          axios.get(`${backendUrl}/${username}/background-style`)
-        ]);
-
-        setDashboard(dashboardResponse.data.dashboard);
-        setDashboardLayout(layoutResponse.data.layout);
-        setBackgroundStyle(backgroundResponse.data.backgroundStyle);
+        const response = await axios.get(`${backendUrl}/${dashboardUrl}`);
+        setDashboard(response.data.dashboard);
+        setDashboardLayout(response.data.dashboard.layout);
+        setBackgroundStyle(response.data.dashboard.backgroundStyle);
+        setDashboardUserId(response.data.dashboard.dashboardUserId);
       } catch (err) {
-        console.error('API error:', err);
-        setError('An error occurred while fetching data'); // Consider more specific error messages
+        console.error("API error:", err);
+        setError("An error occurred while fetching data");
       }
     }
 
     fetchData();
-  }, [username, updateTrigger, setDashboard, setDashboardLayout, setBackgroundStyle]); // Removed the set functions from dependencies
+  }, [updateTrigger, dashboardUrl, setDashboard, setDashboardLayout, setBackgroundStyle,setDashboardUserId]);
 
   const handleEdit = () => {
-    navigate(`/${username}/edit`);
+    navigate(`/${dashboardUrl}/edit`);
   };
 
   const renderBackground = () => {
@@ -81,22 +79,33 @@ function UserDashboard({ isPreview }) {
   };
 
   return (
-    <div id="main-container" className={`user-dashboard-container ${isPreview ? 'preview-mode' : ''}`}>
-
+    <div
+      id="main-container"
+      className={`user-dashboard-container ${isPreview ? "preview-mode" : ""}`}
+    >
       {!isPreview && (
         <Helmet>
-          <title>{username} | Accordee Dashboard</title>
+          <title>
+            {dashboard
+              ? `${dashboard.title} | Accordee Dashboard`
+              : "Loading Dashboard..."}
+          </title>
         </Helmet>
       )}
 
-      {!isPreview && user && user.username === username && (
+      {!isPreview && user && dashboardUserId !== null && Number(user.id) === Number(dashboardUserId) && (
         <div className="floating-button-container">
-          <span>User Dashboard for {username}</span>
+          <span>User Dashboard for {user.username}</span>
+          <span>Dashboard url: accord.ee/{dashboardUrl}</span>
           <button onClick={handleEdit}>Edit</button>
         </div>
       )}
 
-      <div className={`dashboard-bg-element ${backgroundStyle} ${isPreview ? 'preview-background-container' : ''}`}>
+      <div
+        className={`dashboard-bg-element ${backgroundStyle} ${
+          isPreview ? "preview-background-container" : ""
+        }`}
+      >
         {renderBackground()}
       </div>
 
@@ -104,24 +113,31 @@ function UserDashboard({ isPreview }) {
 
       {!error && dashboard && (
         <div>
-
           <Suspense fallback={<SpinnerLoader />}>
-            {dashboardLayout === 'accordion' && (
-              <AccordionLayout dashboard={dashboard} selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
+            {dashboardLayout === "accordion" && (
+              <AccordionLayout
+                dashboard={dashboard}
+                selectedSection={selectedSection}
+                setSelectedSection={setSelectedSection}
+              />
             )}
           </Suspense>
 
           <Suspense fallback={<SpinnerLoader />}>
-            {dashboardLayout === 'tabbed' && (
-              <TabbedLayout dashboard={dashboard} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+            {dashboardLayout === "tabbed" && (
+              <TabbedLayout
+                dashboard={dashboard}
+                selectedTab={selectedTab}
+                setSelectedTab={setSelectedTab}
+              />
             )}
           </Suspense>
 
           <Suspense fallback={<SpinnerLoader />}>
-            {dashboardLayout === 'basic' &&
-              <BasicLayout sections={dashboard.sections} />}
+            {dashboardLayout === "basic" && (
+              <BasicLayout sections={dashboard.sections} />
+            )}
           </Suspense>
-
         </div>
       )}
     </div>
