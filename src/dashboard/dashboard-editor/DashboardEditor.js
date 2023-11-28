@@ -5,7 +5,6 @@ import axios from 'axios';
 import Dashboard from '../../dashboard/Dashboard'; // Import Dashboard component
 import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
 import DomainVerification from './DomainVerification';  // Import the new component
-import FileUploader from './FileUploader'; // Import the new component
 
 import { useDashboard } from '../DashboardContext';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -20,7 +19,6 @@ import '../../App.scss';
 import './DashboardEditor.scss';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
-const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
 
 // Debounce timer to handle input changes on the user's dashboard settings
 const useDebounce = (callback, delay) => {
@@ -43,8 +41,8 @@ const useDebounce = (callback, delay) => {
 
 function DashboardEditor() {
   const { user } = useUser();
-  const { username, username: usernameFromURL,dashboardUrl } = useParams();
-  const [error, setError] = useState(null);
+  const { username, username: dashboardUrl } = useParams();
+  const [ setError ] = useState(null);
 
   const {
     dashboard, setDashboard,
@@ -98,13 +96,13 @@ function DashboardEditor() {
     };
   
     fetchData();
-  }, [dashboardUrl, setDashboard, setSections, setDashboardLayout, setBackgroundStyle, setDashboardUserId]); // Update the dependencies array as needed
+  }, [dashboardUrl, setDashboard, setSections, setDashboardLayout, setBackgroundStyle, setDashboardUserId, setError]); // Update the dependencies array as needed
   
   useEffect(() => {
     if (user === null) {
       navigate(`/${dashboardUrl}`);  // Navigate to the user's dashboard if not logged in
     }
-  }, [user, username, navigate]);
+  }, [user, username, navigate, dashboardUrl]);
   
   // Redirect if the username from the URL does not match the logged-in user's username
   useEffect(() => {
@@ -122,18 +120,6 @@ function DashboardEditor() {
       console.log("Waiting for user and dashboardUserId to be set.");
     }
   }, [user, dashboardUserId, navigate, dashboardUrl]);
-        
-    
-  // useEffect(() => {
-  //   // Fetch the user's dashboard layout choice from the backend
-  //   axios.get(`${backendUrl}/${username}/layout`)
-  //     .then((response) => {
-  //       setDashboardLayout(response.data.layout);
-  //     })
-  //     .catch((error) => {
-  //       console.error('An error occurred while fetching layout data:', error);
-  //     });
-  // }, [username, setDashboardLayout]);
 
   // Function to switch tabs
   const handleTabChange = (tabName) => {
@@ -179,22 +165,10 @@ function DashboardEditor() {
       });
   };
 
-  // useEffect(() => {
-  //   // Fetch the user's background style choice from the backend
-  //   axios.get(`${backendUrl}/${username}/background-style`)
-  //     .then((response) => {
-  //       setBackgroundStyle(response.data.backgroundStyle);
-  //     })
-  //     .catch((error) => {
-  //       console.error('An error occurred while fetching background style data:', error);
-  //     });
-  // }, [username, setBackgroundStyle]);
-
-
   const debouncedUpdateTitle = useDebounce((newTitle) => {
     const token = localStorage.getItem('token'); // Retrieve the token
-
-    axios.post(`${backendUrl}/${username}/update`, { title: newTitle }, {
+  
+    axios.post(`${backendUrl}/${dashboardUrl}/title`, { title: newTitle }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -203,7 +177,7 @@ function DashboardEditor() {
         console.error('Error:', error);
       });
   }, 300);
-
+  
   const handleDashboardTitleChange = (event) => {
     const newDashboardTitle = event.target.value;
     if (dashboard) {
@@ -211,7 +185,7 @@ function DashboardEditor() {
       debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
     }
   };
-
+  
   const debouncedUpdateSections = useDebounce((newSections) => {
     const token = localStorage.getItem('token'); // Retrieve the token
 
@@ -397,7 +371,7 @@ function DashboardEditor() {
         <h1>Edit Dashboard for {username}</h1>
 
         <div><label htmlFor="title">Title: </label>
-          {/* <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} /> */}
+          <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} />
         </div>
 
         <div className="tabs">
@@ -526,16 +500,7 @@ function DashboardEditor() {
             <div className="beta-features-section">
               <h2>Beta Features</h2>
 
-              {/* <div className="file-uploader-section">
-                <h3>File Uploader</h3>
-                <FileUploader
-                  username={username}
-                  backendUrl={backendUrl}
-                  bucketUrl={bucketUrl}
-                />
-              </div>
-
-              <hr className="section-divider" /> */}
+              <hr className="section-divider" />
 
               <div className="domain-verification-section">
                 <h3>Domain Verification</h3>

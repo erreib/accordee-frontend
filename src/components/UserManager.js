@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useUser } from "./UserContext"; // Adjust the import path as needed
-import LoginForm from "./LoginForm"; // <-- Import LoginForm
+import { useUser } from "../auth/UserContext"; // Adjust the import path as needed
+import LoginForm from "../auth/LoginForm"; // <-- Import LoginForm
+import FileUploader from './FileUploader'; // Import the new component
 import axios from "axios";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
 
 const UserManager = () => {
   const { user, logout } = useUser();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [dashboards, setDashboards] = useState([]);
   const [isDashboardsVisible, setIsDashboardsVisible] = useState(false);
+  const [isUploadVisible, setIsUploadVisible] = useState(false);
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -63,6 +66,10 @@ const UserManager = () => {
           <button onClick={() => setIsDashboardsVisible(!isDashboardsVisible)}>
             Manage Dashboards
           </button>
+          <button onClick={() => setIsUploadVisible(!isUploadVisible)}>
+            Manage Uploads
+          </button>
+
           {isDashboardsVisible && (
             <div className="dashboard-management">
               {dashboards.map((dashboard) => {
@@ -93,6 +100,18 @@ const UserManager = () => {
               {/* Placeholder for Add Dashboard logic */}
             </div>
           )}
+
+          {isUploadVisible && (
+            <div className="file-uploader-section">
+              <h3>File Uploader</h3>
+              <FileUploader
+                username={user.username}
+                backendUrl={backendUrl}
+                bucketUrl={bucketUrl}
+              />
+            </div>
+          )}
+
         </>
       ) : (
         <>
