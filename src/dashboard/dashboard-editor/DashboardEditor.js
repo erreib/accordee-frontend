@@ -41,7 +41,7 @@ const useDebounce = (callback, delay) => {
 
 function DashboardEditor() {
   const { user } = useUser();
-  const { username, username: dashboardUrl } = useParams();
+  const { username, dashboardUrl } = useParams();
   const [ setError ] = useState(null);
 
   const {
