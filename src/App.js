@@ -5,13 +5,13 @@ import Dashboard from './dashboard/Dashboard';
 import DashboardEditor from './dashboard/dashboard-editor/DashboardEditor';
 import { DashboardProvider } from './dashboard/DashboardContext';
 
+import LandingPage from './landing/LandingPage';
 import Signup from './auth/Signup';
 import Login from './auth/Login';
-import LandingPage from './landing/LandingPage';
-import UserManager from './auth/UserManager';
-
 import { UserProvider, useUser } from './auth/UserContext';
 import { AxiosInterceptor } from './auth/AxiosInterceptor'; // Adjust the path as needed
+import UserManager from './components/UserManager';
+
 
 import './App.scss';
 

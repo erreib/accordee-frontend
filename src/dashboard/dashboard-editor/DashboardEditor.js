@@ -5,7 +5,6 @@ import axios from 'axios';
 import Dashboard from '../../dashboard/Dashboard'; // Import Dashboard component
 import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
 import DomainVerification from './DomainVerification';  // Import the new component
-import FileUploader from './FileUploader'; // Import the new component
 
 import { useDashboard } from '../DashboardContext';
 import { useParams, useNavigate } from 'react-router-dom';

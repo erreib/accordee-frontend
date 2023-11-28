@@ -6,7 +6,7 @@ const FileUploader = ({ username, backendUrl, bucketUrl }) => {
   const [uploadedMedia, setUploadedMedia] = useState([]);
 
   useEffect(() => {
-    axios.get(`${backendUrl}/${username}/uploaded-media`)
+    axios.get(`${backendUrl}/users/${username}/uploaded-media`)
       .then((response) => {
         setUploadedMedia(response.data.uploadedMedia || []);
       })
@@ -24,7 +24,7 @@ const FileUploader = ({ username, backendUrl, bucketUrl }) => {
       data: { url } // Axios requires data to be in this format for delete requests
     };
   
-    axios.delete(`${backendUrl}/${username}/delete-media`, config)
+    axios.delete(`${backendUrl}/users/${username}/delete-media`, config)
       .then(() => {
         const newUploadedMedia = uploadedMedia.filter(item => item !== url);
         setUploadedMedia(newUploadedMedia);
@@ -46,7 +46,7 @@ const FileUploader = ({ username, backendUrl, bucketUrl }) => {
         }
       };
   
-      await axios.post(`${backendUrl}/${username}/upload-media`, formData, config);
+      await axios.post(`${backendUrl}/users/${username}/upload-media`, formData, config);
       const newMediaUrl = `${bucketUrl}/${username}/${selectedFile.name}`;
       setUploadedMedia(prevState => {
         if (!prevState.includes(newMediaUrl)) {
