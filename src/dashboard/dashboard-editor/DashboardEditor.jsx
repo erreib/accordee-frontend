@@ -106,9 +106,7 @@ function DashboardEditor() {
   
   // Redirect if the username from the URL does not match the logged-in user's username
   useEffect(() => {
-    if (user && dashboardUserId !== null) {
-      console.log("User ID:", user.id, "Dashboard User ID:", dashboardUserId);
-  
+    if (user && dashboardUserId !== null) {  
       // Convert both to numbers and then compare
       if (Number(user.id) !== Number(dashboardUserId)) {
         console.log("Redirecting because user IDs don't match.");
@@ -346,7 +344,7 @@ function DashboardEditor() {
       <Helmet>
       <title>
             {dashboard
-              ? `${dashboard.title} | Edit | Accordee Dashboard`
+              ? `${dashboardUrl} | Edit | Accordee Dashboard`
               : "Loading Dashboard..."}
           </title>
       </Helmet>
@@ -368,9 +366,9 @@ function DashboardEditor() {
 
       <div className="editor-wrapper">
 
-        <h1>Edit Dashboard for {username}</h1>
+        <h1>Editing dashboard: {dashboardUrl}</h1>
 
-        <div><label htmlFor="title">Title: </label>
+        <div><label htmlFor="title">Display title: </label>
           <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} />
         </div>
 
