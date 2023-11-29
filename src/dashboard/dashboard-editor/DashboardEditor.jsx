@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import Dashboard from '../../dashboard/Dashboard'; // Import Dashboard component
+import Dashboard from '../Dashboard'; // Import Dashboard component
 import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
 import DomainVerification from './DomainVerification';  // Import the new component
 
@@ -18,7 +18,7 @@ import { Helmet } from 'react-helmet-async';
 import '../../App.scss';
 import './DashboardEditor.scss';
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 // Debounce timer to handle input changes on the user's dashboard settings
 const useDebounce = (callback, delay) => {

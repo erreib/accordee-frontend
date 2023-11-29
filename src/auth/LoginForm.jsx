@@ -3,7 +3,7 @@ import axios from "axios";
 import { useUser } from './UserContext';
 import { useNavigate } from "react-router-dom";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const LoginForm = ({ onClose }) => {
   const [login, setLogin] = useState(""); // Generalized to 'login' instead of 'username'

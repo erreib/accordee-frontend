@@ -5,8 +5,8 @@ import LoginForm from "../auth/LoginForm"; // <-- Import LoginForm
 import FileUploader from './FileUploader'; // Import the new component
 import axios from "axios";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
-const bucketUrl = process.env.REACT_APP_GCP_BUCKET_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const bucketUrl = import.meta.env.VITE_GCP_BUCKET_URL;
 
 const UserManager = () => {
   const { user, logout } = useUser();

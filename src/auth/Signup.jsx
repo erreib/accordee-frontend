@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext';
 import { Helmet } from 'react-helmet-async';
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Signup = () => {
   const [email, setEmail] = useState(''); // Changed from username to email
