@@ -4,6 +4,7 @@ import { useUser } from "../auth/UserContext"; // Adjust the import path as need
 import LoginForm from "../auth/LoginForm"; // <-- Import LoginForm
 import FileUploader from './FileUploader'; // Import the new component
 import axios from "axios";
+import "./UserManager.scss";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 const bucketUrl = import.meta.env.VITE_GCP_BUCKET_URL;
@@ -20,54 +21,130 @@ const UserManager = () => {
   const currentPath = location.pathname;
   const isEditScreen = currentPath.includes("/edit");
 
+  // Function to fetch dashboards
+  const fetchDashboards = () => {
+    return new Promise((resolve, reject) => {
+      if (user && user.username) {
+        axios
+          .get(`${backendUrl}/users/${user.username}/dashboards`)
+          .then((response) => {
+            const sortedDashboards = response.data.sort((a, b) => a.dashboardid - b.dashboardid);
+            setDashboards(sortedDashboards);
+            resolve(sortedDashboards); // Resolve the promise with the fetched dashboards
+          })
+          .catch((error) => {
+            console.error("Error fetching dashboards", error);
+            reject(error); // Reject the promise on error
+          });
+      } else {
+        resolve([]); // Resolve with an empty array if no user
+      }
+    });
+  };
+
+  // Fetch dashboards on component mount or when 'user' changes
   useEffect(() => {
-    if (user && user.username) {
-      axios
-        .get(`${backendUrl}/users/${user.username}/dashboards`)
-        .then((response) => {
-          const sortedDashboards = response.data.sort((a, b) => a.dashboardid - b.dashboardid);
-          setDashboards(sortedDashboards);
-        })
-        .catch((error) => console.error("Error fetching dashboards", error));
-    }
+    fetchDashboards();
   }, [user]);
 
   const handleCreateDashboard = () => {
+    const token = localStorage.getItem('token'); // Assuming the token is stored in local storage
     const newDashboardUrl = prompt("Enter a new Dashboard URL:");
     if (newDashboardUrl) {
-      // API call to create new dashboard
-      // Replace 'createDashboardUrl' with the actual URL to create the dashboard
+      // Construct the URL
+      const createDashboardUrl = `${backendUrl}/users/${user.username}/dashboards/new-dashboard`;
+
+      // API call to create a new dashboard
       axios
-        .post(`createDashboardUrl`, { newDashboardUrl, userId: user.id })
+        .post(createDashboardUrl, { dashboardUrl: newDashboardUrl, title: "New Dashboard", layout: "basic" }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }) // Add other required fields as necessary
         .then((response) => {
-          // Fetch and update dashboards list
+          console.log("Dashboard created successfully", response.data);
+          fetchDashboards(); // Re-fetch dashboards
         })
         .catch((error) => console.error("Error creating dashboard", error));
     }
   };
 
+  const handleEditDashboard = (dashboardId, currentUrl) => {
+    const token = localStorage.getItem('token'); // Assuming the token is stored in local storage
+    const newDashboardUrl = prompt("Enter a new Dashboard URL:", currentUrl);
+
+    // Check if the user actually entered a new URL
+    if (newDashboardUrl && newDashboardUrl !== currentUrl) {
+      const editDashboardUrl = `${backendUrl}/users/${user.username}/dashboards/edit/${dashboardId}`;
+
+      // API call to edit the dashboard
+      axios
+        .put(editDashboardUrl, { newUrl: newDashboardUrl }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        .then((response) => {
+          console.log("Dashboard updated successfully", response.data);
+          fetchDashboards(); // Re-fetch dashboards
+          if (currentPath === `/${currentUrl}` || currentPath === `/${currentUrl}/edit`) {
+            navigate(`/${newDashboardUrl}`); // Redirect to the new URL
+          }
+          // You might want to update your local state or re-fetch the list
+        })
+        .catch((error) => console.error("Error updating dashboard", error));
+    }
+  };
+
   const handleDeleteDashboard = (dashboardId) => {
+    const token = localStorage.getItem('token'); // Assuming the token is stored in local storage
+    const deleteDashboardUrl = `${backendUrl}/users/${user.username}/dashboards/delete/${dashboardId}`;
+
+    // Confirmation dialog to prevent accidental deletion
+    if (!window.confirm("Are you sure you want to delete this dashboard?")) {
+      return;
+    }
+
     // API call to delete the dashboard
-    // Replace 'deleteDashboardUrl' with the actual URL to delete the dashboard
     axios
-      .delete(`deleteDashboardUrl/${dashboardId}`)
+      .delete(deleteDashboardUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       .then((response) => {
-        // Fetch and update dashboards list
+        console.log("Dashboard deleted successfully", response.data);
+        fetchDashboards().then((updatedDashboards) => {
+          // Correctly determine the URL to compare
+          const currentDashboardUrl = currentPath.split("/")[1]; // Assuming the path structure is like '/dashboard-url'
+          const deletedDashboard = dashboards.find(d => d.dashboardid === dashboardId);
+
+          if (deletedDashboard && currentDashboardUrl === deletedDashboard.dashboardurl) {
+            if (updatedDashboards.length > 0) {
+              navigate(`/${updatedDashboards[0].dashboardurl}`);
+            } else {
+              navigate(/* another appropriate path */);
+            }
+          }
+        });
       })
       .catch((error) => console.error("Error deleting dashboard", error));
   };
 
+
+
   return (
-    <div className="login-status">
+    <div className="user-manager">
       {user && user.username ? (
         <>
           Logged in as {user.username}
           <button onClick={logout}>Logout</button>
+
           <button onClick={() => setIsDashboardsVisible(!isDashboardsVisible)}>
-            Manage Dashboards
+            {isDashboardsVisible ? '▼ ' : '► '} Manage Dashboards
           </button>
           <button onClick={() => setIsUploadVisible(!isUploadVisible)}>
-            Manage Uploads
+            {isUploadVisible ? '▼ ' : '► '} Manage Uploads
           </button>
 
           {isDashboardsVisible && (
@@ -91,13 +168,12 @@ const UserManager = () => {
                         {dashboard.dashboardurl}
                       </Link>
                     )}
-                    {/* Uncomment and complete these buttons as needed */}
-                    {/* <button onClick={() => handleEditDashboard(dashboard.dashboardurl)}>Edit</button> */}
-                    {/* <button onClick={() => handleDeleteDashboard(dashboard.dashboardid)}>Delete</button> */}
+                    <button onClick={() => handleEditDashboard(dashboard.dashboardid, dashboard.dashboardurl)}>Edit</button>
+                    <button onClick={() => handleDeleteDashboard(dashboard.dashboardid)}>Delete</button>
                   </div>
                 );
               })}
-              {/* Placeholder for Add Dashboard logic */}
+              <button onClick={handleCreateDashboard}>Add Dashboard</button>
             </div>
           )}
 

@@ -1,0 +1,87 @@
+/* Styles for the user management module */
+.user-manager {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.chevron {
+    display: inline-block;
+    margin-left: 5px;
+    transition: transform 0.3s ease;
+}
+
+.chevron.open {
+    transform: rotate(90deg); /* Rotates the chevron when the section is open */
+}
+
+/* General button styles */
+.user-manager button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.user-manager button:hover {
+    background-color: #45a049;
+}
+
+/* Styles for the dashboard management section */
+.dashboard-management {
+    margin-top: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.dashboard-management div {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.dashboard-management div:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Styles for links in the dashboard list */
+.dashboard-management a {
+    color: #FFD700;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.dashboard-management a:hover {
+    color: #FFA500;
+}
+
+/* Styles for the current dashboard item */
+.dashboard-management span {
+    color: #FFF;
+    margin-right: 10px;
+}
+
+/* Styles for the file uploader section */
+.file-uploader-section {
+    margin-top: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.file-uploader-section h3 {
+    margin-bottom: 15px;
+}

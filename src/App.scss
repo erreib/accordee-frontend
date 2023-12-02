@@ -22,16 +22,6 @@
   z-index: 10; 
 }
 
-.login-status {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  padding: 10px;
-  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
-  color: white;
-  z-index: 1000; /* To ensure it appears above other elements */
-}
-
 .floating-button-container {
   position: fixed;  /* Absolute positioning */
   top: 0;
