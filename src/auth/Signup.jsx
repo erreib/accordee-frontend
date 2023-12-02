@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
 import { useUser } from './UserContext';
 import { Helmet } from 'react-helmet-async';
 
@@ -55,7 +55,7 @@ const Signup = () => {
 
   return (
     <div className="portal-container">
-      
+
       <Helmet>
         <title>Log in or Sign Up | Accordee</title>
       </Helmet>
@@ -63,23 +63,24 @@ const Signup = () => {
       <h1>Signup</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <input 
+          <input
             className="form-input"
             type="email" // Changed type to email for validation
-            placeholder="Email" 
-            value={email} 
+            placeholder="Email"
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div>
-          <input 
+          <input
             className="form-input"
-            type="password" 
-            placeholder="Password" 
-            value={password} 
+            type="password"
+            placeholder="Password"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
           <button className="form-submit-button" type="submit">Signup</button>
+          <p>By signing up, you agree to the <Link to="/terms-of-service">Terms of Service</Link>.</p>
         </div>
       </form>
       {error && <p className="form-error">{error}</p>}
