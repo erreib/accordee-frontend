@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import Dashboard from '../Dashboard'; // Import Dashboard component
-import DashboardLayoutSelector from './DashboardLayoutSelector'; // Import the new component
+import DashboardLayoutSelector from './selectors/DashboardLayoutSelector'; // Import the new component
+import BackgroundStyleSelector from './selectors/BackgroundStyleSelector';
 import DomainVerification from './DomainVerification';  // Import the new component
 
 import { useDashboard } from '../DashboardContext';
@@ -42,7 +43,7 @@ const useDebounce = (callback, delay) => {
 function DashboardEditor() {
   const { user } = useUser();
   const { username, dashboardUrl } = useParams();
-  const [ setError ] = useState(null);
+  const [setError] = useState(null);
 
   const {
     dashboard, setDashboard,
@@ -79,7 +80,7 @@ function DashboardEditor() {
       if (!dashboardUrl) {
         return;
       }
-  
+
       try {
         const response = await axios.get(`${backendUrl}/${dashboardUrl}`);
         setDashboard(response.data.dashboard);
@@ -94,19 +95,19 @@ function DashboardEditor() {
         setError("An error occurred while fetching data");
       }
     };
-  
+
     fetchData();
   }, [dashboardUrl, setDashboard, setSections, setDashboardLayout, setBackgroundStyle, setDashboardUserId, setError]); // Update the dependencies array as needed
-  
+
   useEffect(() => {
     if (user === null) {
       navigate(`/${dashboardUrl}`);  // Navigate to the user's dashboard if not logged in
     }
   }, [user, username, navigate, dashboardUrl]);
-  
+
   // Redirect if the username from the URL does not match the logged-in user's username
   useEffect(() => {
-    if (user && dashboardUserId !== null) {  
+    if (user && dashboardUserId !== null) {
       // Convert both to numbers and then compare
       if (Number(user.id) !== Number(dashboardUserId)) {
         console.log("Redirecting because user IDs don't match.");
@@ -142,13 +143,12 @@ function DashboardEditor() {
       });
   };
 
-  const handleBackgroundChange = (e) => {
-    const newBackgroundStyle = e.target.value;
+  const handleBackgroundChange = (newBackgroundStyle) => {
     setBackgroundStyle(newBackgroundStyle);
-
+  
     // Retrieve the token from local storage
     const token = localStorage.getItem('token');
-
+  
     // Call API to update background style in backend
     axios.post(`${backendUrl}/${dashboardUrl}/background-style`, { backgroundStyle: newBackgroundStyle }, {
       headers: {
@@ -162,10 +162,10 @@ function DashboardEditor() {
         console.error('Error updating background style:', error);
       });
   };
-
+  
   const debouncedUpdateTitle = useDebounce((newTitle) => {
     const token = localStorage.getItem('token'); // Retrieve the token
-  
+
     axios.post(`${backendUrl}/${dashboardUrl}/title`, { title: newTitle }, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -175,7 +175,7 @@ function DashboardEditor() {
         console.error('Error:', error);
       });
   }, 300);
-  
+
   const handleDashboardTitleChange = (event) => {
     const newDashboardTitle = event.target.value;
     if (dashboard) {
@@ -183,7 +183,7 @@ function DashboardEditor() {
       debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
     }
   };
-  
+
   const debouncedUpdateSections = useDebounce((newSections) => {
     const token = localStorage.getItem('token'); // Retrieve the token
 
@@ -342,11 +342,11 @@ function DashboardEditor() {
     <div id="main-container" className="editor-container">
 
       <Helmet>
-      <title>
-            {dashboard
-              ? `${dashboardUrl} | Edit | Accordee Dashboard`
-              : "Loading Dashboard..."}
-          </title>
+        <title>
+          {dashboard
+            ? `${dashboardUrl} | Edit | Accordee Dashboard`
+            : "Loading Dashboard..."}
+        </title>
       </Helmet>
 
       <div className="floating-button-container">
@@ -368,10 +368,6 @@ function DashboardEditor() {
 
         <h1>Editing dashboard: {dashboardUrl}</h1>
 
-        <div><label htmlFor="title">Display title: </label>
-          <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} />
-        </div>
-
         <div className="tabs">
           <button className={activeTab === 'sections' ? 'active-tab' : ''} onClick={() => handleTabChange('sections')}>
             Sections
@@ -379,8 +375,8 @@ function DashboardEditor() {
           <button className={activeTab === 'look and feel' ? 'active-tab' : ''} onClick={() => handleTabChange('look and feel')}>
             Look and Feel
           </button>
-          <button className={activeTab === 'beta features' ? 'active-tab' : ''} onClick={() => handleTabChange('beta features')}>
-            Beta Features
+          <button className={activeTab === 'link options' ? 'active-tab' : ''} onClick={() => handleTabChange('link options')}>
+            Link Options (BETA)
           </button>
         </div>
 
@@ -476,27 +472,24 @@ function DashboardEditor() {
         )}
 
         {activeTab === 'look and feel' && (
-          <div>
+          <div className="look-and-feel-tab">
+            <div><label htmlFor="title">Display title: </label>
+              <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} />
+            </div>
+
             <div className="layout-selector">
-              <p>Select a layout for your dashboard:</p>
               <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
             </div>
 
-            <div>
-              <label>Background Style: </label>
-              <select value={backgroundStyle} onChange={handleBackgroundChange}>
-                <option value="style1">Style 1</option>
-                <option value="style2">Style 2</option>
-                <option value="style3">Style 3</option>
-              </select>
-            </div>
+            <BackgroundStyleSelector currentStyle={backgroundStyle} onChange={handleBackgroundChange} />
+            
           </div>
         )}
 
-        {activeTab === 'beta features' && (
+        {activeTab === 'link options' && (
           <div>
-            <div className="beta-features-section">
-              <h2>Beta Features</h2>
+            <div className="link-options-section">
+              <h2>Link options (BETA)</h2>
 
               <hr className="section-divider" />
 
@@ -511,7 +504,7 @@ function DashboardEditor() {
             </div>
           </div>
         )}
-        
+
       </div>
     </div>
   );

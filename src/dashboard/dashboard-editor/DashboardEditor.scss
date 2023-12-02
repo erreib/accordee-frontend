@@ -4,7 +4,6 @@
   display: flex;
 }
 
-
 .mini-dashboard-preview {
   position: sticky;
   width: 40%; // Use the variable here
@@ -197,9 +196,122 @@ margin-bottom: 1em;
   color: #0056b3;
 }
 
+/* Styles for the Look and Feel Tab */
+.look-and-feel-tab {
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-/* Beta Features Section */
-.beta-features-section {
+.look-and-feel-tab div {
+  margin-bottom: 15px;
+}
+
+.look-and-feel-tab label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.look-and-feel-tab input[type="text"],
+.look-and-feel-tab select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box; /* Makes sure padding doesn't affect the total width */
+}
+
+.look-and-feel-tab .layout-selector p {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.look-and-feel-tab button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.look-and-feel-tab button:hover {
+  background-color: #45a049;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Adjust number of columns as needed */
+  gap: 10px;
+}
+
+.layout-item {
+  cursor: pointer;
+  border: 2px solid transparent;
+  padding: 10px;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.layout-item:hover {
+  border-color: #4CAF50; /* Highlight color on hover */
+}
+
+.layout-item.active {
+  border-color: #4CAF50; /* Highlight color for the active item */
+}
+
+.layout-item img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.layout-item span {
+  display: block; /* Ensure label is on a new line */
+  margin-top: 8px;
+}
+
+.style-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Adjust number of columns as needed */
+  gap: 10px;
+}
+
+.style-item {
+  cursor: pointer;
+  border: 2px solid transparent;
+  padding: 10px;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.style-item:hover {
+  border-color: #4CAF50; /* Highlight color on hover */
+}
+
+.style-item.active {
+  border-color: #4CAF50; /* Highlight color for the active item */
+}
+
+.style-item img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.style-item span {
+  display: block; /* Ensure label is on a new line */
+  margin-top: 8px;
+}
+
+
+/* Link options section */
+.link-options-section {
   background-color: #f4f4f4;
   padding: 1em;
   border-radius: 4px;
