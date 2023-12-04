@@ -15,24 +15,22 @@
     height: 100vh;
   }
 
+  .preview-background-container {
+    position: sticky;
+    top: 0;
+    margin-bottom: -100vh;
+    height:100vh;
+    z-index:-1;
+  }
+  
+  .preview-background-inner-container {
+    height: 100%;
+  }
+
   h3 {
     margin-bottom: 10px;
   }
 }
-
-.preview-background-container {
-  position: sticky;
-  top: 0;
-  margin-bottom: -100vh;
-  height:100vh;
-  z-index:-1;
-}
-
-.preview-background-inner-container {
-  height: 100%;
-}
-
-
 
 .editor-wrapper {
   overflow-y: auto;
