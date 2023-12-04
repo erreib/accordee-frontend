@@ -357,10 +357,7 @@ function DashboardEditor() {
 
       <div className={`mini-dashboard-preview`}>
         <Dashboard
-          sections={sections}
-          layout={dashboardLayout}
           isPreview={true}
-          backgroundStyle={backgroundStyle}
         />
       </div>
 

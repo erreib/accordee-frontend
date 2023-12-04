@@ -8,6 +8,7 @@ import { Helmet } from 'react-helmet-async';
 
 import FloatingSpheres from './backgrounds/scenes/FloatingSpheres';
 import DynamicWave from './backgrounds/scenes/DynamicWave';
+import ParticleAnimation from './backgrounds/scenes/ParticleAnimation'; // Adjust the path as needed
 
 import '../App.scss'
 import './backgrounds/backgroundStyles.scss'
@@ -69,6 +70,8 @@ function UserDashboard({ isPreview }) {
           return <FloatingSpheres />;
         case 'style3':
           return <DynamicWave />;
+        case 'style4': // New case for the particle animation
+          return <ParticleAnimation />;
         // ... other cases
         default:
           return null;
