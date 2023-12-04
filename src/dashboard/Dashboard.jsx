@@ -79,73 +79,76 @@ function UserDashboard({ isPreview }) {
   };
 
   return (
-    <div
-      id="user-dashboard-container"
-      className={`user-dashboard-container ${isPreview ? "preview-mode" : ""}`}
-    >
-      {!isPreview && (
-        <Helmet>
-          <title>
-            {dashboard
-              ? `${dashboard.title} | Accordee Dashboard`
-              : "Loading Dashboard..."}
-          </title>
-        </Helmet>
-      )}
-
-      {!isPreview && user && dashboardUserId !== null && Number(user.id) === Number(dashboardUserId) && (
-        <div className="floating-button-container">
-          <span>User Dashboard for {user.username}</span>
-          <span>Dashboard url: accord.ee/{dashboardUrl}</span>
-          <button onClick={handleEdit}>Edit</button>
+    <>
+      {isPreview && (
+        <div className={`preview-background-container ${backgroundStyle}`}>
+          <div className="preview-background-inner-container">
+            {renderBackground()}
+          </div>
         </div>
       )}
 
       <div
-        className={`dashboard-bg-element ${backgroundStyle} ${isPreview ? "preview-background-container" : ""
-          }`}
+        id="user-dashboard-container"
+        className={`user-dashboard-container ${isPreview ? "preview-mode" : ""}`}
       >
-        {isPreview ? (
-          <div className="preview-background-inner-container">
+        {!isPreview && (
+          <Helmet>
+            <title>
+              {dashboard
+                ? `${dashboard.title} | Accordee Dashboard`
+                : "Loading Dashboard..."}
+            </title>
+          </Helmet>
+        )}
+
+        {!isPreview && user && dashboardUserId !== null && Number(user.id) === Number(dashboardUserId) && (
+          <div className="floating-button-container">
+            <span>User Dashboard for {user.username}</span>
+            <span>Dashboard url: accord.ee/{dashboardUrl}</span>
+            <button onClick={handleEdit}>Edit</button>
+          </div>
+        )}
+
+        {!isPreview && (
+          <div className={`dashboard-bg-element ${backgroundStyle}`}>
             {renderBackground()}
           </div>
-        ) : (
-          renderBackground()
+        )}
+
+        {error && <div>{error}</div>}
+
+        {!error && dashboard && (
+          <div>
+            <Suspense fallback={<SpinnerLoader />}>
+              {dashboardLayout === "accordion" && (
+                <AccordionLayout
+                  dashboard={dashboard}
+                  selectedSection={selectedSection}
+                  setSelectedSection={setSelectedSection}
+                />
+              )}
+            </Suspense>
+
+            <Suspense fallback={<SpinnerLoader />}>
+              {dashboardLayout === "tabbed" && (
+                <TabbedLayout
+                  dashboard={dashboard}
+                  selectedTab={selectedTab}
+                  setSelectedTab={setSelectedTab}
+                />
+              )}
+            </Suspense>
+
+            <Suspense fallback={<SpinnerLoader />}>
+              {dashboardLayout === "basic" && (
+                <BasicLayout sections={dashboard.sections} />
+              )}
+            </Suspense>
+          </div>
         )}
       </div>
-
-      {error && <div>{error}</div>}
-
-      {!error && dashboard && (
-        <div>
-          <Suspense fallback={<SpinnerLoader />}>
-            {dashboardLayout === "accordion" && (
-              <AccordionLayout
-                dashboard={dashboard}
-                selectedSection={selectedSection}
-                setSelectedSection={setSelectedSection}
-              />
-            )}
-          </Suspense>
-
-          <Suspense fallback={<SpinnerLoader />}>
-            {dashboardLayout === "tabbed" && (
-              <TabbedLayout
-                dashboard={dashboard}
-                selectedTab={selectedTab}
-                setSelectedTab={setSelectedTab}
-              />
-            )}
-          </Suspense>
-
-          <Suspense fallback={<SpinnerLoader />}>
-            {dashboardLayout === "basic" && (
-              <BasicLayout sections={dashboard.sections} />
-            )}
-          </Suspense>
-        </div>
-      )}
-    </div>
+    </>
   );
 
 }

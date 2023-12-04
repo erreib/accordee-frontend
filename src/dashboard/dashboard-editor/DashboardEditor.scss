@@ -24,6 +24,8 @@
   position: sticky;
   top: 0;
   margin-bottom: -100vh;
+  height:100vh;
+  z-index:-1;
 }
 
 .preview-background-inner-container {
