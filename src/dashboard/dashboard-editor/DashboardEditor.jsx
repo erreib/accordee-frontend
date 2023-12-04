@@ -339,7 +339,7 @@ function DashboardEditor() {
   };
 
   return (
-    <div id="main-container" className="editor-container">
+    <div id="outer-editscreen-container" className="outer-editscreen-container">
 
       <Helmet>
         <title>

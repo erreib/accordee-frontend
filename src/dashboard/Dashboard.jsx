@@ -56,7 +56,7 @@ function UserDashboard({ isPreview }) {
     }
 
     fetchData();
-  }, [updateTrigger, dashboardUrl, setDashboard, setDashboardLayout, setBackgroundStyle,setDashboardUserId]);
+  }, [updateTrigger, dashboardUrl, setDashboard, setDashboardLayout, setBackgroundStyle, setDashboardUserId]);
 
   const handleEdit = () => {
     navigate(`/${dashboardUrl}/edit`);
@@ -80,7 +80,7 @@ function UserDashboard({ isPreview }) {
 
   return (
     <div
-      id="main-container"
+      id="user-dashboard-container"
       className={`user-dashboard-container ${isPreview ? "preview-mode" : ""}`}
     >
       {!isPreview && (
@@ -102,11 +102,16 @@ function UserDashboard({ isPreview }) {
       )}
 
       <div
-        className={`dashboard-bg-element ${backgroundStyle} ${
-          isPreview ? "preview-background-container" : ""
-        }`}
+        className={`dashboard-bg-element ${backgroundStyle} ${isPreview ? "preview-background-container" : ""
+          }`}
       >
-        {renderBackground()}
+        {isPreview ? (
+          <div className="preview-background-inner-container">
+            {renderBackground()}
+          </div>
+        ) : (
+          renderBackground()
+        )}
       </div>
 
       {error && <div>{error}</div>}
