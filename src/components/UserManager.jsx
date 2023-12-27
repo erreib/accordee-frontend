@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../auth/UserContext"; // Adjust the import path as needed
 import LoginForm from "../auth/LoginForm"; // <-- Import LoginForm
@@ -15,6 +15,7 @@ const UserManager = () => {
   const [dashboards, setDashboards] = useState([]);
   const [isDashboardsVisible, setIsDashboardsVisible] = useState(false);
   const [isUploadVisible, setIsUploadVisible] = useState(false);
+  const userManagerRef = useRef(null);
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -131,10 +132,23 @@ const UserManager = () => {
       .catch((error) => console.error("Error deleting dashboard", error));
   };
 
-
+  //Close expanded rows when clicking outside the usermanager area
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userManagerRef.current && !userManagerRef.current.contains(event.target)) {
+        setIsDashboardsVisible(false);
+        setIsUploadVisible(false);
+      }
+    };
+  
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);  
 
   return (
-    <div className="user-manager">
+    <div ref={userManagerRef} className="user-manager">
       {user && user.username ? (
         <>
           Logged in as {user.username}
