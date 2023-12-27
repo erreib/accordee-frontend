@@ -166,7 +166,9 @@ function UserDashboard({ isPreview }) {
 
             <Suspense fallback={<SpinnerLoader />}>
               {dashboardLayout === "basic" && (
-                <BasicLayout sections={dashboard.sections} />
+                <BasicLayout
+                  dashboard={dashboard} 
+                  sections={dashboard.sections} />
               )}
             </Suspense>
           </div>

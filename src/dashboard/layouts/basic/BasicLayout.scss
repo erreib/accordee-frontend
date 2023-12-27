@@ -1,17 +1,18 @@
 // Container for the whole dashboard
 .dashboard-container {
-  margin: auto;
+  display:flex;
+  justify-content: center;
   height:100vh;
   font-family: 'Arial', sans-serif;
   .dashboard-inner-container {
     display:flex;
-    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    max-width: 680px;
   }
   // Modify default list styling
   ul {
     margin:0;
-    width:100%;
-    max-width: 680px;
     list-style: none;
     padding: 15px;
     li {
@@ -23,4 +24,10 @@
       text-align: center;
     }
   }
+}
+
+.basicdashboard-header {
+  display: flex;
+  justify-content: center;
+  margin-top:10px;
 }
