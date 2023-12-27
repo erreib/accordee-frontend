@@ -21,7 +21,7 @@ const LoginForm = ({ onClose }) => {
     }
     
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/login`, {
+      const response = await axios.post(`${backendUrl}/auth/login`, {
         login, // Changed to 'login'
         password,
       });

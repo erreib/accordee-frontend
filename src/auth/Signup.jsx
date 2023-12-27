@@ -17,7 +17,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/signup`, {
+      const response = await axios.post(`${backendUrl}/auth/signup`, {
         email, // Send email instead of username
         password,
       });
