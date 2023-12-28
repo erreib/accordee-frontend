@@ -33,30 +33,14 @@ function UserDashboard({ isPreview }) {
     dashboardLayout, setDashboardLayout,
     backgroundStyle, setBackgroundStyle,
     dashboardUserId, setDashboardUserId,
-    updateTrigger
+    updateTrigger, fetchData
   } = useDashboard();
 
-  
-  useEffect(() => {
-    async function fetchData() {
-      if (!dashboardUrl) {
-        return;
-      }
-
-      try {
-        const response = await axios.get(`${backendUrl}/${dashboardUrl}`);
-        setDashboard(response.data.dashboard);
-        setDashboardLayout(response.data.dashboard.layout);
-        setBackgroundStyle(response.data.dashboard.backgroundStyle);
-        setDashboardUserId(response.data.dashboard.dashboardUserId);
-      } catch (err) {
-        console.error("API error:", err);
-        setError("An error occurred while fetching data");
-      }
-    }
-
-    fetchData();
-  }, [updateTrigger, dashboardUrl, setDashboard, setDashboardLayout, setBackgroundStyle, setDashboardUserId]);
+useEffect(() => {
+  if (dashboardUrl) {
+    fetchData(dashboardUrl, backendUrl);
+  }
+}, [dashboardUrl, fetchData, updateTrigger]);
 
   const handleEdit = () => {
     // Retrieve the token from local storage

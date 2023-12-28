@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import axios from 'axios'; // Ensure axios is imported if not already
 
 const DashboardContext = createContext();
@@ -21,7 +21,7 @@ export const DashboardProvider = ({ children }) => {
   const [error, setError] = useState(null); // To handle errors
 
   // Function to fetch dashboard data
-  const fetchData = async (dashboardUrl, backendUrl) => {
+  const fetchData = useCallback(async (dashboardUrl, backendUrl) => {
     if (!dashboardUrl) {
       return;
     }
@@ -32,13 +32,12 @@ export const DashboardProvider = ({ children }) => {
       setSections(response.data.dashboard.sections); // Assuming 'sections' is part of the response
       setDashboardLayout(response.data.dashboard.layout);
       setBackgroundStyle(response.data.dashboard.backgroundStyle);
-      setDashboardUserId(response.data.dashboard.dashboardUserId); // Set the dashboardUserId
-      // Any other state updates needed
+      setDashboardUserId(response.data.dashboard.dashboardUserId);
     } catch (err) {
       console.error("API error:", err);
       setError("An error occurred while fetching data");
     }
-  };
+  }, []); // Empty dependency array if no dependencies
 
   const value = {
     dashboardLayout, setDashboardLayout,
