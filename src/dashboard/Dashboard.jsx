@@ -22,42 +22,24 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 function UserDashboard({ isPreview }) {
   const { dashboardUrl } = useParams();
   const { user } = useUser();
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
 
   const {
-    dashboard, setDashboard,
-    dashboardLayout, setDashboardLayout,
-    backgroundStyle, setBackgroundStyle,
-    updateTrigger
+    dashboard,
+    dashboardLayout,
+    backgroundStyle,
+    dashboardUserId,
+    updateTrigger,
+    fetchData, // Using fetchData from context
+    error, // Using error from context
   } = useDashboard();
 
-  const [dashboardUserId, setDashboardUserId] = useState(null); // Or however you initialize it
-
-  const navigate = useNavigate();
-
   useEffect(() => {
-    async function fetchData() {
-      if (!dashboardUrl) {
-        return;
-      }
-
-      try {
-        const response = await axios.get(`${backendUrl}/${dashboardUrl}`);
-        setDashboard(response.data.dashboard);
-        setDashboardLayout(response.data.dashboard.layout);
-        setBackgroundStyle(response.data.dashboard.backgroundStyle);
-        setDashboardUserId(response.data.dashboard.dashboardUserId);
-      } catch (err) {
-        console.error("API error:", err);
-        setError("An error occurred while fetching data");
-      }
-    }
-
-    fetchData();
-  }, [updateTrigger, dashboardUrl, setDashboard, setDashboardLayout, setBackgroundStyle, setDashboardUserId]);
+    fetchData(dashboardUrl, backendUrl);
+  }, [updateTrigger, dashboardUrl, fetchData]);
 
   const handleEdit = () => {
     // Retrieve the token from local storage

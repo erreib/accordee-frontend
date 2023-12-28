@@ -50,10 +50,18 @@ function DashboardEditor() {
     sections, setSections,
     dashboardLayout, setDashboardLayout,
     backgroundStyle, setBackgroundStyle,
+    dashboardUserId, setDashboardUserId,
+    fetchData, // Added fetchData from context
     setUpdateTrigger
-  } = useDashboard(); // Getting values from DashboardContext
+  } = useDashboard();
 
-  const [dashboardUserId, setDashboardUserId] = useState(null); // Or however you initialize it
+  useEffect(() => {
+    // Using fetchData from DashboardContext
+    fetchData(dashboardUrl, backendUrl).catch(err => {
+      console.error("API error:", err);
+      setError("An error occurred while fetching data"); // Handling error
+    });
+  }, [dashboardUrl, setDashboard, setSections, setDashboardLayout, setBackgroundStyle, setDashboardUserId, setError]); // Update the dependencies array as needed
 
   const [activeTab, setActiveTab] = useState(() => {
     const savedTab = localStorage.getItem('activeTab');
@@ -74,30 +82,6 @@ function DashboardEditor() {
   const handleBackToDashboard = () => {
     navigate(`/${dashboardUrl}`);  // Replace this with the actual path to the user's dashboard
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!dashboardUrl) {
-        return;
-      }
-
-      try {
-        const response = await axios.get(`${backendUrl}/${dashboardUrl}`);
-        setDashboard(response.data.dashboard);
-        setSections(response.data.dashboard.sections);
-        // Set additional states as required
-        setDashboardLayout(response.data.dashboard.layout);
-        setBackgroundStyle(response.data.dashboard.backgroundStyle);
-        // Include this line if you are managing dashboardUserId in the state
-        setDashboardUserId(response.data.dashboard.dashboardUserId);
-      } catch (err) {
-        console.error("API error:", err);
-        setError("An error occurred while fetching data");
-      }
-    };
-
-    fetchData();
-  }, [dashboardUrl, setDashboard, setSections, setDashboardLayout, setBackgroundStyle, setDashboardUserId, setError]); // Update the dependencies array as needed
 
   useEffect(() => {
     if (user === null) {
