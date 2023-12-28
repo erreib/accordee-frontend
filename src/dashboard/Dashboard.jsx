@@ -24,22 +24,39 @@ function UserDashboard({ isPreview }) {
   const { user } = useUser();
   const navigate = useNavigate();
 
+  const [error, setError] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
 
   const {
-    dashboard,
-    dashboardLayout,
-    backgroundStyle,
-    dashboardUserId,
-    updateTrigger,
-    fetchData, // Using fetchData from context
-    error, // Using error from context
+    dashboard, setDashboard,
+    dashboardLayout, setDashboardLayout,
+    backgroundStyle, setBackgroundStyle,
+    dashboardUserId, setDashboardUserId,
+    updateTrigger
   } = useDashboard();
 
+  
   useEffect(() => {
-    fetchData(dashboardUrl, backendUrl);
-  }, [updateTrigger, dashboardUrl, fetchData]);
+    async function fetchData() {
+      if (!dashboardUrl) {
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${backendUrl}/${dashboardUrl}`);
+        setDashboard(response.data.dashboard);
+        setDashboardLayout(response.data.dashboard.layout);
+        setBackgroundStyle(response.data.dashboard.backgroundStyle);
+        setDashboardUserId(response.data.dashboard.dashboardUserId);
+      } catch (err) {
+        console.error("API error:", err);
+        setError("An error occurred while fetching data");
+      }
+    }
+
+    fetchData();
+  }, [updateTrigger, dashboardUrl, setDashboard, setDashboardLayout, setBackgroundStyle, setDashboardUserId]);
 
   const handleEdit = () => {
     // Retrieve the token from local storage
