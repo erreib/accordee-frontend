@@ -21,6 +21,25 @@ import './DashboardEditor.scss';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+// Debounce timer to handle input changes on the user's dashboard settings
+const useDebounce = (callback, delay) => {
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
+  const debouncedFunction = (...args) => {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    const newTimer = setTimeout(() => {
+      callback(...args);
+    }, delay);
+
+    setDebounceTimer(newTimer);
+  };
+
+  return debouncedFunction;
+};
+
 function DashboardEditor() {
   const { user } = useUser();
   const { username, dashboardUrl } = useParams();
@@ -128,7 +147,7 @@ function DashboardEditor() {
       });
   };
   
-  const updateTitle = ((newTitle) => {
+  const debouncedUpdateTitle = useDebounce((newTitle) => {
     const token = localStorage.getItem('token'); // Retrieve the token
 
     axios.post(`${backendUrl}/${dashboardUrl}/title`, { title: newTitle }, {
@@ -145,11 +164,11 @@ function DashboardEditor() {
     const newDashboardTitle = event.target.value;
     if (dashboard) {
       setDashboard({ ...dashboard, title: newDashboardTitle });
-      updateTitle(newDashboardTitle);  
+      debouncedUpdateTitle(newDashboardTitle);  // Using debounced function here
     }
   };
 
-  const updateSections = ((newSections) => {
+  const debouncedUpdateSections = useDebounce((newSections) => {
     const token = localStorage.getItem('token'); // Retrieve the token
 
     axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
@@ -165,23 +184,6 @@ function DashboardEditor() {
         console.error('Error:', error);
       });
   }, 300);
-
-  const updateSectionInfoInDB = (index, newSectionTitle, newContent) => {
-    // Step 1: Update local state immediately
-    const newSections = [...sections];
-
-    // Update the title and content if they are not undefined
-    if (newSectionTitle !== undefined) {
-      newSections[index].title = newSectionTitle;
-    }
-    if (newContent !== undefined) {
-      newSections[index].content = newContent;
-    }
-
-    setSections(newSections);
-
-    updateSections(newSections); 
-  };
 
   const handleColorChange = (color, index) => {
     const newSections = [...sections];
@@ -209,6 +211,23 @@ function DashboardEditor() {
     } else {
       setPickerIsOpen(index);
     }
+  };
+
+  const updateSectionInfoInDB = (index, newSectionTitle, newContent) => {
+    // Step 1: Update local state immediately
+    const newSections = [...sections];
+
+    // Update the title and content if they are not undefined
+    if (newSectionTitle !== undefined) {
+      newSections[index].title = newSectionTitle;
+    }
+    if (newContent !== undefined) {
+      newSections[index].content = newContent;
+    }
+
+    setSections(newSections);
+
+    debouncedUpdateSections(newSections);  // Using debounced function here
   };
 
   const onDragEnd = (result) => {

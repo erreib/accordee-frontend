@@ -33,14 +33,30 @@ function UserDashboard({ isPreview }) {
     dashboardLayout, setDashboardLayout,
     backgroundStyle, setBackgroundStyle,
     dashboardUserId, setDashboardUserId,
-    updateTrigger, fetchData
+    updateTrigger
   } = useDashboard();
 
-useEffect(() => {
-  if (dashboardUrl) {
-    fetchData(dashboardUrl, backendUrl);
-  }
-}, [dashboardUrl, fetchData, updateTrigger]);
+//Need to figure out how to remove this block and properly sync values from DashboardContext with the fetchData function from that file
+  useEffect(() => {
+    async function fetchData() {
+      if (!dashboardUrl) {
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${backendUrl}/${dashboardUrl}`);
+        setDashboard(response.data.dashboard);
+        setDashboardLayout(response.data.dashboard.layout);
+        setBackgroundStyle(response.data.dashboard.backgroundStyle);
+        setDashboardUserId(response.data.dashboard.dashboardUserId);
+      } catch (err) {
+        console.error("API error:", err);
+        setError("An error occurred while fetching data");
+      }
+    }
+
+    fetchData();
+  }, [updateTrigger, dashboardUrl, setDashboard, setDashboardLayout, setBackgroundStyle, setDashboardUserId]);
 
   const handleEdit = () => {
     // Retrieve the token from local storage
