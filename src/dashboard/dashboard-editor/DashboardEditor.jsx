@@ -6,6 +6,10 @@ import Dashboard from '../Dashboard'; // Import Dashboard component
 import DashboardLayoutSelector from './selectors/DashboardLayoutSelector'; // Import the new component
 import BackgroundStyleSelector from './selectors/BackgroundStyleSelector';
 import DomainVerification from './DomainVerification';  // Import the new component
+
+import { debouncedUpdateSections, handleColorChange, useDebounce,
+  updateSectionInfoInDB, moveSection, removeSection } from './SectionsFunctions'; // Adjust the path as necessary
+
 import FileUploader from '../../components/FileUploader';
 
 import { useDashboard } from '../DashboardContext';
@@ -23,24 +27,6 @@ import './DashboardEditor.scss';
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 const bucketUrl = import.meta.env.VITE_GCP_BUCKET_URL;
 
-// Debounce timer to handle input changes on the user's dashboard settings
-const useDebounce = (callback, delay) => {
-  const [debounceTimer, setDebounceTimer] = useState(null);
-
-  const debouncedFunction = (...args) => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    const newTimer = setTimeout(() => {
-      callback(...args);
-    }, delay);
-
-    setDebounceTimer(newTimer);
-  };
-
-  return debouncedFunction;
-};
 
 function DashboardEditor() {
   const { user } = useUser();
@@ -83,15 +69,11 @@ function DashboardEditor() {
     });
   };
 
-  const toggleFileUploader = () => {
-    setShowFileUploader(!showFileUploader); // Toggle visibility
-  };
-
   useEffect(() => {
     // Fetch dashboard details
     axios.get(`${backendUrl}/${dashboardUrl}`)
       .then(response => {
-        // Assuming the response contains a field 'dashboardThumbnailUrl'
+        // Assuming the response contains a field 'thumbnailUrl'
         const currentThumbnail = response.data.dashboard.thumbnailUrl;
         if (currentThumbnail) {
           setThumbnailUrl(currentThumbnail);
@@ -218,66 +200,32 @@ function DashboardEditor() {
     }
   };
 
-  const debouncedUpdateSections = useDebounce((newSections) => {
-    const token = localStorage.getItem('token'); // Retrieve the token
+  //Start functions related to section management
 
-    axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(() => {
-        // Database successfully updated
-        setUpdateTrigger(prevTrigger => prevTrigger + 1);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  }, 300);
+  function updateSections(newSections) {
+    debouncedUpdateSections(newSections, setUpdateTrigger, backendUrl, dashboardUrl);
+  }
 
-  const handleColorChange = (color, index) => {
-    const newSections = [...sections];
-    newSections[index].color = color.hex;
-    setSections(newSections);
+  const debouncedUpdate = useDebounce(updateSections, 300);
 
-    const token = localStorage.getItem('token'); // Retrieve the token
+  function onColorChange(color, index) {
+    handleColorChange(color, index, sections, setSections, setUpdateTrigger, backendUrl, dashboardUrl);
+  }
 
-    axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(() => {
-        setUpdateTrigger(prevTrigger => prevTrigger + 1);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+  const handleSectionsChange = (newSections) => {
+    debouncedUpdate(newSections);
   };
 
-  const togglePicker = (index) => {
-    if (pickerIsOpen === index) {
-      setPickerIsOpen(null);
-    } else {
-      setPickerIsOpen(index);
-    }
+  const updateSectionInfo = (index, newTitle, newContent) => {
+    updateSectionInfoInDB(index, newTitle, newContent, sections, setSections, handleSectionsChange);
   };
 
-  const updateSectionInfoInDB = (index, newSectionTitle, newContent) => {
-    // Step 1: Update local state immediately
-    const newSections = [...sections];
+  const handleMoveSection = (fromIndex, toIndex) => {
+    moveSection(fromIndex, toIndex, sections, setSections, setUpdateTrigger, backendUrl, dashboardUrl);
+  };
 
-    // Update the title and content if they are not undefined
-    if (newSectionTitle !== undefined) {
-      newSections[index].title = newSectionTitle;
-    }
-    if (newContent !== undefined) {
-      newSections[index].content = newContent;
-    }
-
-    setSections(newSections);
-
-    debouncedUpdateSections(newSections);  // Using debounced function here
+  const handleRemoveSection = (index) => {
+    removeSection(index, sections, setSections, setUpdateTrigger, backendUrl, dashboardUrl);
   };
 
   const onDragEnd = (result) => {
@@ -291,40 +239,12 @@ function DashboardEditor() {
       return;
     }
 
-    moveSection(source.index, destination.index);
-  };
-
-  const moveSection = (fromIndex, toIndex) => {
-    const newSections = [...sections];
-    const [movedItem] = newSections.splice(fromIndex, 1);
-    newSections.splice(toIndex, 0, movedItem);
-
-    // Update the "order" field for each section
-    newSections.forEach((section, index) => {
-      section.order = index;
-    });
-
-    // Update the sections first
-    setSections(newSections);
-
-    // Then update the backend
-    axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-      .then(() => {
-        // Once the backend is updated, then update the trigger
-        setUpdateTrigger(prevTrigger => prevTrigger + 1);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+    handleMoveSection(source.index, destination.index);
   };
 
   const [isCooldownActive, setIsCooldownActive] = useState(false);
   const MAX_SECTIONS_PER_DASHBOARD = 10; // Set your desired limit (should match the backend limit)
-  const COOLDOWN_PERIOD = 1500; // Cooldown period in milliseconds (e.g., 5000ms = 5 seconds)
+  const COOLDOWN_PERIOD = 1000; // Cooldown period in milliseconds (e.g., 5000ms = 5 seconds)
   const cooldownFlag = useRef(true); // Initialize the cooldown flag
   
   const addSection = () => {
@@ -374,7 +294,7 @@ function DashboardEditor() {
         cooldownFlag.current = true; // Reset the flag in case of an error
       });
   };
-    
+  
   // Normal and cooldown styles for the add button
   const addButtonStyles = {
     normal: {
@@ -387,27 +307,18 @@ function DashboardEditor() {
     }
   };
 
-  const removeSection = (index) => {
-    const newSections = sections.filter((_, i) => i !== index);
+  //End sections management
 
-    // Update the sections first
-    setSections(newSections);
+  const toggleFileUploader = () => {
+    setShowFileUploader(!showFileUploader); // Toggle visibility
+  };
 
-    const token = localStorage.getItem('token'); // Retrieve the token
-
-    // Then update the backend
-    axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(() => {
-        // Once the backend is updated, then update the trigger
-        setUpdateTrigger(prevTrigger => prevTrigger + 1);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+  const toggleColorPicker = (index) => {
+    if (pickerIsOpen === index) {
+      setPickerIsOpen(null);
+    } else {
+      setPickerIsOpen(index);
+    }
   };
 
   return (
@@ -480,7 +391,7 @@ function DashboardEditor() {
                                 <button
                                   className={`arrow-button ${index === 0 ? 'disabled-arrow' : ''}`}
                                   disabled={index === 0}
-                                  onClick={() => moveSection(index, index - 1)}
+                                  onClick={() => handleMoveSection(index, index - 1)}
                                 >
                                   <FontAwesomeIcon icon={faArrowUp} />
                                 </button>
@@ -488,7 +399,7 @@ function DashboardEditor() {
                                 <button
                                   className={`arrow-button ${index === sections.length - 1 ? 'disabled-arrow' : ''}`}
                                   disabled={index === sections.length - 1}
-                                  onClick={() => moveSection(index, index + 1)}
+                                  onClick={() => handleMoveSection(index, index + 1)}
                                 >
                                   <FontAwesomeIcon icon={faArrowDown} />
                                 </button>
@@ -500,7 +411,7 @@ function DashboardEditor() {
                                 width: '20px',
                                 height: '20px',
                               }}
-                              onClick={() => togglePicker(index)}
+                              onClick={() => toggleColorPicker(index)}
                             >
                             {pickerIsOpen === index ? '▼' : '▶'}
                             </button>
@@ -509,7 +420,7 @@ function DashboardEditor() {
                                 <button onClick={() => setPickerIsOpen(null)}>Close</button>
                                 <ChromePicker
                                   color={section.color}
-                                  onChangeComplete={(color) => handleColorChange(color, index)}
+                                  onChangeComplete={(color) => onColorChange(color, index)}
                                 />
                               </>
                             )}
@@ -518,18 +429,18 @@ function DashboardEditor() {
                               type="text"
                               placeholder="Enter section title..."
                               value={section.title || ''}
-                              onChange={(e) => updateSectionInfoInDB(index, e.target.value, undefined)}
+                              onChange={(e) => updateSectionInfo(index, e.target.value, undefined)}
                             />
 
                             <input
                               type="text"
                               placeholder="Enter custom content..."
                               value={section.content || ''}
-                              onChange={(e) => updateSectionInfoInDB(index, undefined, e.target.value)}
+                              onChange={(e) => updateSectionInfo(index, undefined, e.target.value)}
                             />
 
                             <div className="button-container">
-                              <button className="remove-button" onClick={() => removeSection(index)}>
+                              <button className="remove-button" onClick={() => handleRemoveSection(index)}>
                                 <FontAwesomeIcon icon={faTimes} />
                               </button>
                             </div>
