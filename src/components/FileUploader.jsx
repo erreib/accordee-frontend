@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const FileUploader = ({ username, backendUrl, bucketUrl }) => {
+const FileUploader = ({ enableThumbnailSelection, onSelectThumbnail, media, username, backendUrl, bucketUrl }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadedMedia, setUploadedMedia] = useState([]);
 
-  useEffect(() => {
+  const fetchUploadedMedia = () => {
     axios.get(`${backendUrl}/users/${username}/uploaded-media`)
       .then((response) => {
         setUploadedMedia(response.data.uploadedMedia || []);
       })
       .catch((error) => {
-        console.error('An error occurred while fetching uploaded media:', error);
+        console.error('An error occurred:', error);
       });
-  }, [username, backendUrl]);
+  };
+
+  // useEffect hook calling the refactored function
+  useEffect(() => {
+    fetchUploadedMedia();
+  }, [username, backendUrl]); // Include dependencies if needed
 
   const handleDelete = (url) => {
     const token = localStorage.getItem('token'); // Retrieve the token
@@ -72,6 +77,11 @@ const FileUploader = ({ username, backendUrl, bucketUrl }) => {
             <img src={url} alt="Uploaded Thumbnail" width="50" height="50" />
             <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
             <button onClick={() => handleDelete(url)}>Delete</button>
+
+            {enableThumbnailSelection && (
+            <button onClick={() => onSelectThumbnail(url)}>Select as Thumbnail</button>
+            )}
+
           </li>
         ))}
       </ul>

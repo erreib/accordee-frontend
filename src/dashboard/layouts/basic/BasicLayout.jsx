@@ -7,7 +7,16 @@ const BasicLayout = ({ sections,dashboard }) => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-inner-container">
-      <div className="basicdashboard-header">{dashboard.title}</div>
+
+      <div className="basicdashboard-header">
+        
+        {dashboard.thumbnailUrl && (
+        <div className="basicdashboard-header-image-container">
+          <img src={dashboard.thumbnailUrl} alt="Dashboard Thumbnail" />
+        </div>
+        )}
+
+        {dashboard.title}</div>
         <ul>
           <Suspense fallback={<SpinnerLoader />}>
             <div className="sections-list">

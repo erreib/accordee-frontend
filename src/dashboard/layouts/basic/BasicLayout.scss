@@ -15,6 +15,7 @@
     margin:0;
     list-style: none;
     padding: 15px;
+    padding-top:0;
     li {
       border-radius: 12px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -27,7 +28,20 @@
 }
 
 .basicdashboard-header {
+  margin: 15px 0;
   display: flex;
-  justify-content: center;
-  margin-top:10px;
+  flex-direction: column;
+  row-gap: 15px;
+  text-align: center;
+
+  .basicdashboard-header-image-container {
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    margin:auto;
+    border-radius: 50%;
+    width: 96px;
+    height: 96px;
+  }
 }
+

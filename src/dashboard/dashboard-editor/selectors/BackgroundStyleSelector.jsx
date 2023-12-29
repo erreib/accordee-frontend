@@ -2,10 +2,10 @@ import React from 'react';
 
 function BackgroundStyleSelector({ currentStyle, onChange }) {
     const styleOptions = [
-        { value: 'style1', label: 'Style 1', imageUrl: 'https://via.placeholder.com/150' },
-        { value: 'style2', label: 'Style 2', imageUrl: 'https://via.placeholder.com/150' },
-        { value: 'style3', label: 'Style 3', imageUrl: 'https://via.placeholder.com/150' },
-        { value: 'style4', label: 'Style 4', imageUrl: 'https://via.placeholder.com/150' },
+        { value: 'style1', label: 'Style 1', imageUrl: 'https://via.placeholder.com/50' },
+        { value: 'style2', label: 'Style 2', imageUrl: 'https://via.placeholder.com/50' },
+        { value: 'style3', label: 'Style 3', imageUrl: 'https://via.placeholder.com/50' },
+        { value: 'style4', label: 'Style 4', imageUrl: 'https://via.placeholder.com/50' },
         // Add more style options as needed
     ];
 

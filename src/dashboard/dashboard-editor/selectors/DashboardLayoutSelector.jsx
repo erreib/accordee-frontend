@@ -2,9 +2,9 @@ import React from 'react';
 
 function DashboardLayoutSelector({ currentLayout, onChange }) {
   const layoutOptions = [
-    { value: 'basic', label: 'Basic', imageUrl: 'https://via.placeholder.com/150' },
-    { value: 'accordion', label: 'Accordion', imageUrl: 'https://via.placeholder.com/150' },
-    { value: 'tabbed', label: 'Tabbed', imageUrl: 'https://via.placeholder.com/150' },
+    { value: 'basic', label: 'Basic', imageUrl: 'https://via.placeholder.com/50' },
+    { value: 'accordion', label: 'Accordion', imageUrl: 'https://via.placeholder.com/50' },
+    { value: 'tabbed', label: 'Tabbed', imageUrl: 'https://via.placeholder.com/50' },
     // Add more layout options as needed
   ];
 

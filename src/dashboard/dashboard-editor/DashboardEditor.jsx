@@ -6,6 +6,7 @@ import Dashboard from '../Dashboard'; // Import Dashboard component
 import DashboardLayoutSelector from './selectors/DashboardLayoutSelector'; // Import the new component
 import BackgroundStyleSelector from './selectors/BackgroundStyleSelector';
 import DomainVerification from './DomainVerification';  // Import the new component
+import FileUploader from '../../components/FileUploader';
 
 import { useDashboard } from '../DashboardContext';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -20,6 +21,7 @@ import '../../App.scss';
 import './DashboardEditor.scss';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const bucketUrl = import.meta.env.VITE_GCP_BUCKET_URL;
 
 // Debounce timer to handle input changes on the user's dashboard settings
 const useDebounce = (callback, delay) => {
@@ -55,13 +57,61 @@ function DashboardEditor() {
     setUpdateTrigger
   } = useDashboard();
 
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [showFileUploader, setShowFileUploader] = useState(false); // State to control visibility
+
+  const handleThumbnailSelection = (url) => {
+    setThumbnailUrl(url);
+    updateDashboardThumbnail(url);
+  };
+
+  const updateDashboardThumbnail = (url) => {
+    const token = localStorage.getItem('token'); // Assuming the token is stored in local storage
+
+    axios.post(`${backendUrl}/${dashboardUrl}/thumbnail`, 
+      { thumbnailUrl: url },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then(response => {
+      setUpdateTrigger(prevTrigger => prevTrigger + 1);
+      // Handle successful thumbnail update
+      console.log('Thumbnail updated successfully', response.data);
+    })
+    .catch(error => {
+      // Handle errors
+      console.error('Error updating thumbnail', error);
+    });
+  };
+
+  const toggleFileUploader = () => {
+    setShowFileUploader(!showFileUploader); // Toggle visibility
+  };
+
+  useEffect(() => {
+    // Fetch dashboard details
+    axios.get(`${backendUrl}/${dashboardUrl}`)
+      .then(response => {
+        // Assuming the response contains a field 'dashboardThumbnailUrl'
+        const currentThumbnail = response.data.dashboard.thumbnailUrl;
+        if (currentThumbnail) {
+          setThumbnailUrl(currentThumbnail);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching dashboard details:', error);
+      });
+  }, [dashboardUrl, backendUrl]); // Add dependencies if needed
+
   useEffect(() => {
     // Using fetchData from DashboardContext
     fetchData(dashboardUrl, backendUrl).catch(err => {
       console.error("API error:", err);
       setError("An error occurred while fetching data"); // Handling error
     });
-  }, [dashboardUrl, setDashboard, setSections, setDashboardLayout, setBackgroundStyle, setDashboardUserId, setError]); // Update the dependencies array as needed
+  }, [dashboardUrl, setDashboard, 
+      setSections, setDashboardLayout, 
+      setBackgroundStyle, setDashboardUserId, 
+      setError]); // Update the dependencies array as needed
 
   const [activeTab, setActiveTab] = useState(() => {
     const savedTab = localStorage.getItem('activeTab');
@@ -272,7 +322,14 @@ function DashboardEditor() {
       });
   };
 
+  const MAX_SECTIONS_PER_DASHBOARD = 10; // Set your desired limit (should match the backend limit)
+
   const addSection = () => {
+    if (sections.length >= MAX_SECTIONS_PER_DASHBOARD) {
+      alert(`You can only add up to ${MAX_SECTIONS_PER_DASHBOARD} sections per dashboard.`);
+      return; // Stop the function if the limit is reached
+    }
+  
     const newSection = {
       title: `Section ${sections.length + 1}`,
       color: '#FFFFFF',
@@ -407,7 +464,7 @@ function DashboardEditor() {
                               }}
                               onClick={() => togglePicker(index)}
                             >
-                              {pickerIsOpen === index ? '▼' : '▶'}
+                            {pickerIsOpen === index ? '▼' : '▶'}
                             </button>
                             {pickerIsOpen === index && (
                               <>
@@ -454,16 +511,48 @@ function DashboardEditor() {
 
         {activeTab === 'look and feel' && (
           <div className="look-and-feel-tab">
-            <div><label htmlFor="title">Display title: </label>
-              <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} />
-            </div>
 
-            <div className="layout-selector">
-              <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
-            </div>
+            <div>
+              
+              <div class="dashboard-thumbnail-section">
+                <label>Dashboard thumbnail:</label>
 
-            <BackgroundStyleSelector currentStyle={backgroundStyle} onChange={handleBackgroundChange} />
+                {thumbnailUrl && (
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <img src={thumbnailUrl} alt="Dashboard Thumbnail" style={{ width: '100px', height: '100px' }} />
+                  <button onClick={() => handleThumbnailSelection(null)} style={{ position: 'absolute', top: 0, right: 0 }}>
+                    X {/* Replace with an icon or style as needed */}
+                  </button>
+                </div>
+                )}
+
+                <button onClick={toggleFileUploader}>
+                  {showFileUploader ? 'Hide Upload Section ▼' : 'Show Upload Section ►'}
+                </button>
+              </div>
+
+              {showFileUploader && (
+                  <FileUploader
+                    enableThumbnailSelection={true} 
+                    username={user.username}
+                    backendUrl={backendUrl}
+                    bucketUrl={bucketUrl}
+                    onSelectThumbnail={handleThumbnailSelection} 
+                  />
+              )}
+        
+              <div><label htmlFor="title">Display title: </label>
+                <input type="text" id="title" value={dashboard ? dashboard.title : ''} onChange={handleDashboardTitleChange} />
+              </div>
+
+              <div className="layout-selector">
+                <DashboardLayoutSelector currentLayout={dashboardLayout} onChange={handleLayoutChange} />
+              </div>
+
+              <BackgroundStyleSelector currentStyle={backgroundStyle} onChange={handleBackgroundChange} />
             
+            </div>
+
           </div>
         )}
 

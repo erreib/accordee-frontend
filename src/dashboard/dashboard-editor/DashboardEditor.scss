@@ -239,6 +239,12 @@ button.close-color-picker {
   background-color: #45a049;
 }
 
+.dashboard-thumbnail-section {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+}
+
 .layout-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
