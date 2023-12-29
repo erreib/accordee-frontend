@@ -1,5 +1,5 @@
 // src/DashboardEditor.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 
 import Dashboard from '../Dashboard'; // Import Dashboard component
@@ -322,25 +322,36 @@ function DashboardEditor() {
       });
   };
 
+  const [isCooldownActive, setIsCooldownActive] = useState(false);
   const MAX_SECTIONS_PER_DASHBOARD = 10; // Set your desired limit (should match the backend limit)
-
+  const COOLDOWN_PERIOD = 1500; // Cooldown period in milliseconds (e.g., 5000ms = 5 seconds)
+  const cooldownFlag = useRef(true); // Initialize the cooldown flag
+  
   const addSection = () => {
+    if (!cooldownFlag.current) {
+      // Do nothing if cooldown is active
+      return;
+    }
+  
     if (sections.length >= MAX_SECTIONS_PER_DASHBOARD) {
       alert(`You can only add up to ${MAX_SECTIONS_PER_DASHBOARD} sections per dashboard.`);
       return; // Stop the function if the limit is reached
     }
+  
+    // Disable further additions until the cooldown is over
+    cooldownFlag.current = false;
   
     const newSection = {
       title: `Section ${sections.length + 1}`,
       color: '#FFFFFF',
     };
     const newSections = [...sections, newSection];
-
+  
     // Update the sections first
     setSections(newSections);
-
+  
     const token = localStorage.getItem('token'); // Retrieve the token
-
+  
     // Then update the backend
     axios.post(`${backendUrl}/${dashboardUrl}/sections`, { sections: newSections }, {
       headers: {
@@ -350,10 +361,30 @@ function DashboardEditor() {
       .then(() => {
         // Once the backend is updated, then update the trigger
         setUpdateTrigger(prevTrigger => prevTrigger + 1);
+        // Start cooldown
+        setIsCooldownActive(true);
+        setTimeout(() => {
+          setIsCooldownActive(false);
+          cooldownFlag.current = true; // Reset the flag after cooldown
+        }, COOLDOWN_PERIOD);
       })
       .catch((error) => {
         console.error('Error:', error);
+        setIsCooldownActive(false);
+        cooldownFlag.current = true; // Reset the flag in case of an error
       });
+  };
+    
+  // Normal and cooldown styles for the add button
+  const addButtonStyles = {
+    normal: {
+      // your normal button styles
+    },
+    cooldown: {
+      opacity: 0.5,
+      cursor: 'not-allowed'
+      // any other styles for the cooldown state
+    }
   };
 
   const removeSection = (index) => {
@@ -422,7 +453,14 @@ function DashboardEditor() {
           <div className="section-management">
             <h3>Add/Remove sections</h3>
 
-            <button className="button" onClick={addSection}>+</button>
+            <button
+              className="button"
+              style={isCooldownActive ? addButtonStyles.cooldown : addButtonStyles.normal}
+              onClick={addSection}
+              disabled={isCooldownActive}
+            >
+              +
+            </button>
 
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="sections">
