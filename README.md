@@ -1,5 +1,6 @@
 
 # Accordee Frontend
+This React frontend is part of my first proper web devleopment project. Most of the code as well as this readme was AI generated, and thus not very good. I will be working on a refactored version for my next project and sharing this one for archival purposes. If I have time later I will update this to remove the cloud infrastructure related functions such as the google bucket connection to make it easier to run locally. For now the main demo site should be viewable at https://accord.ee .
 
 Accordee is a dynamic web application for creating and managing personalized dashboards. Built with React, leveraging React Three Fiber for 3D effects, and recently migrated to Vite for an optimized developer experience and faster build times.
 
