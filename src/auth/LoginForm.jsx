@@ -10,7 +10,7 @@ const LoginForm = ({ onClose }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const { setUser, setToken } = useUser();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,7 +21,7 @@ const LoginForm = ({ onClose }) => {
     }
     
     try {
-      const response = await axios.post(`${backendUrl}/api/auth/login`, {
+      const response = await axios.post(`${backendUrl}/auth/login`, {
         login, // Changed to 'login'
         password,
       });
@@ -43,7 +43,6 @@ const LoginForm = ({ onClose }) => {
 
       onClose && onClose();
   
-      navigate(`/${username}`);
     } catch (error) {
       console.error('Login error:', error.response?.data?.message || error.message);
       setError('Invalid username/email or password');

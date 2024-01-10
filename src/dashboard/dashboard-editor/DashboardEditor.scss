@@ -88,11 +88,6 @@
   font-weight: bold;
 }
 
-/* Section list styles */
-.sections-list {
-  margin-top: 1em;
-}
-
 /* Button styles */
 .button {
   padding: 0.5em 1em;
@@ -242,6 +237,12 @@ button.close-color-picker {
 
 .look-and-feel-tab button:hover {
   background-color: #45a049;
+}
+
+.dashboard-thumbnail-section {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
 }
 
 .layout-grid {

@@ -22,8 +22,9 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 function UserDashboard({ isPreview }) {
   const { dashboardUrl } = useParams();
   const { user } = useUser();
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
+  const [error, setError] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedTab, setSelectedTab] = useState(null);
 
@@ -31,13 +32,11 @@ function UserDashboard({ isPreview }) {
     dashboard, setDashboard,
     dashboardLayout, setDashboardLayout,
     backgroundStyle, setBackgroundStyle,
+    dashboardUserId, setDashboardUserId,
     updateTrigger
   } = useDashboard();
 
-  const [dashboardUserId, setDashboardUserId] = useState(null); // Or however you initialize it
-
-  const navigate = useNavigate();
-
+//Need to figure out how to remove this block and properly sync values from DashboardContext with the fetchData function from that file
   useEffect(() => {
     async function fetchData() {
       if (!dashboardUrl) {
@@ -60,9 +59,30 @@ function UserDashboard({ isPreview }) {
   }, [updateTrigger, dashboardUrl, setDashboard, setDashboardLayout, setBackgroundStyle, setDashboardUserId]);
 
   const handleEdit = () => {
-    navigate(`/${dashboardUrl}/edit`);
+    // Retrieve the token from local storage
+    const token = localStorage.getItem('token');
+  
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+  
+    // Call API to validate token
+    axios.get(`${backendUrl}/auth/validate-token`, {
+      headers: {
+        'Authorization': `Bearer ${token}` // Include the token in the request header
+      }
+    })
+    .then(() => {
+      // Token is valid
+      navigate(`/${dashboardUrl}/edit`);
+    })
+    .catch(error => {
+      console.error('Error validating token:', error);
+      // Error handling or redirection as necessary
+    });
   };
-
+  
   const renderBackground = () => {
     const backgroundComponent = (() => {
       switch (backgroundStyle) {
@@ -145,7 +165,9 @@ function UserDashboard({ isPreview }) {
 
             <Suspense fallback={<SpinnerLoader />}>
               {dashboardLayout === "basic" && (
-                <BasicLayout sections={dashboard.sections} />
+                <BasicLayout
+                  dashboard={dashboard} 
+                  sections={dashboard.sections} />
               )}
             </Suspense>
           </div>
